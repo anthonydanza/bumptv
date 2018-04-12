@@ -1,0 +1,22 @@
+#logo {
+    position:relative;
+}
+
+.slogan {
+    position: relative;
+}
+
+.highlight {
+    color: #43c043;
+    text-align: center;
+}
+
+#intro {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
