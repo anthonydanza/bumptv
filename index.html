@@ -5,11 +5,72 @@
 </head>
 
 <body>
-    <div id="intro">
-        <img src="img/btv_logo.png" id="logo">
-        <h1 class="slogan">Toronto's Public Access Internet TV Station</h1>
-        <h2 class="highlight">coming soon</h2>
-    </div>
+    <div id="container">
+
+      <div id="player">
+         <div id="watermark"> 
+              <img src="img/btv_logo_grey.png" height="100">
+          </div>
+          <video  id="main-vid" autoplay playsinline muted loop src="media/bumptv_clown.mp4" onclick="fullscreen()">Error playing HTML5 video. Maybe try a different browser? Chrome works.</video>
+         
+      </div>
+
+      <div id="player-menu">
+              <div class="menu-button" id="artist-info-button"> artist info 
+                  <span class="artist-info-popup"> sample artist info </span>
+              </div>
+
+              <div class="menu-button" id="mute" onclick="toggleMute()"> SOUND IS OFF </div>
+
+              <div class="menu-button" id="schedule"> <a href="./schedule.html">schedule</a> </div>
+      </div>
+
+      <div id="info">
+        <h1>BUMP TELEVISION</h1>
+        <h3 style="text-align:center">BUMP TV is a 24/7 public access internet television station based in Toronto, Canada.</h3>
+        <p style="text-align:center">We support and build community around DIY television. 
+        <h2 class="submit-here"> <a href="./submit.html">SUBMIT YOUR VIDEOS!</a> </h2>
+        <h1>HOW IT WORKS</h1>
+        <ul>
+
+            <li><h3>Anyone can submit original content or (coming soon) make a TV show or video work in our Toronto studio.</h3>
+
+            <li><h3>We will attempt to air all submissions.</h3>
+            See the <a href="./submit.html">Submission Guidelines</a> for details.
+
+            <li><h3>You retain ownership of your content.</h3>
+            It’s yours to do with whatever you like, we just air it here.
+
+            <li><h3>There are no restrictions whatsoever on who may submit.</h3>
+            Anyone, anywhere, can submit videos and we will attempt to air them. Content may be submitted anonymously. No credentials, status, or past experience are necessary.
+
+            <li><h3>No commercial videos for large brands allowed.</h3>
+            Ads for small local businesses and events that share our principals are acceptable. Promotions for your upcoming shows are acceptable. Videos made in collaboration with large brands (i.e. that art thing you made for Lexus/Coke/Adidas) are not acceptable. Videos promoting large brands are not acceptable. 
+
+            <div class="separator">*~*~~*~*</div>
+
+            <li>BUMP TV BOARD:
+            <a href="http://peterrahul.tumblr.com/">PETER RAHUL</a>, 
+            <a href="">IHANA JAMAC</a>, 
+            <a href="http://madeleineco.com/">ALEXANDRA HONG</a>, 
+            <a href="https://alieescobar.com/">ALISSON ESCOBAR</a>, 
+            <a href="www.babycages.com">HALLOWAY JONES</a>, 
+            <a href="http://www.lifeofacraphead.com/">JON MCCURLEY</a>, 
+            <a href="http://www.mohammadrezaei.com/">MOHAMMAD REZAEI</a>, 
+            <a href="www.bothmoons.com">TOM HOBSON</a>, 
+            <a href="https://www.instagram.com/karassikpark/">NEILA KARASSIK</a>
+
+            <li>BUMP TV is inspired by and based on the work of <a href="www.8balltv.club">8balltv.club</a> and the <a href="http://8ballcommunity.club/">8Ball Collective</a>.
+        </ul>
+      </div>
+
+          <div class="separator">*~*~~*~*</div>
+
+      <div id="footer">
+        BUMP TV site by Tom Hobson and Xavier Snelgrove, 2018.
+      </div>
+
+  </div>
 </body>
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -20,6 +81,39 @@
   gtag('js', new Date());
 
   gtag('config', 'UA-71467610-2');
+</script>
+
+<script>
+
+function toggleMute() {
+  var state = document.getElementById("main-vid").muted;
+  document.getElementById("main-vid").muted = !state;
+
+  var mute_button = document.getElementById("mute");
+
+   if (state == true) {
+    mute_button.style.fontWeight = 'normal';
+    mute_button.innerHTML = "SOUND IS ON";
+  } else {
+    mute_button.style.fontWeight = 'bold';
+    mute_button.innerHTML = "SOUND IS OFF";
+   }
+}
+
+// function showArtistInfo() {
+//   document.getElementById('artist-info-popup').style.display = 'block';
+// }
+
+// function hideArtistInfo() {
+//   document.getElementById('artist-info-popup').style.display = 'block';
+// }
+
+function fullscreen() {
+  var elem = document.getElementById("player");
+  var requestFullScreen = elem.requestFullscreen || elem.msRequestFullscreen || elem.mozRequestFullScreen || elem.webkitRequestFullscreen;
+  requestFullScreen.call(elem);
+}
+
 </script>
 
 </html>
