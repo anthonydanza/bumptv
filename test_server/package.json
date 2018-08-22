@@ -1,5 +1,5 @@
 {
-  "name": "test_server",
+  "name": "bumptv",
   "version": "1.0.0",
   "description": "generic server",
   "main": "server.js",
@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "csvtojson": "^2.0.8",
     "express": "^4.16.3"
   }
 }

@@ -1,0 +1,26 @@
+[
+	{
+		"blockStartTime": "16:00:00:00", 
+		"blockTitle": "BLOCK ONE", 
+		"videos": [
+			{"filename": "sample_video_a.mp4", "author": "", "description": "description of episode 1", "title": "Episode 1"},
+			{"filename": "sample_video_b.mp4", "author": "", "description": "description of episode 2", "title": "Episode 2"}
+		]
+	}, 
+	{
+		"blockStartTime": "16:00:24:00", 
+		"blockTitle": "BLOCK TWO", 
+		"videos": [
+			{"filename": "sample_video_a.mp4", "author": "", "description": "description of episode 3", "title": "Episode 3"}, 
+			{"filename": "sample_video_b.mp4", "author": "", "description": "description of episode 4", "title": "Episode 4"}
+		]
+	}, 
+	{
+		"blockStartTime": "16:00:37:00", 
+		"blockTitle": "BLOCK THREE", 
+		"videos": [
+			{"filename": "sample_video_a.mp4", "author": "", "description": "description of episode 5", "title": "Episode 5"},
+			{"filename": "sample_video_b.mp4", "author": "", "description": "description of episode 6", "title": "Episode 6"}
+		]
+	}
+]

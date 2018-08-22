@@ -56,7 +56,7 @@ function playNextVideo() {
 	//video finishes
 	//look in current block for video after this one
 	//if there is no next video, check the time difference
-	//if there is a time difference greater than some amount, play a random bumper with a special nextBumper oneded() fcn
+	//if there is a time difference greater than some amount, play a random bumper 
 	//if the time difference is small, move to the next block
 
 	//openSchedule(scheduleFileURL);
@@ -96,18 +96,21 @@ function playNextVideo() {
 				console.log("PLAYING:::::::::::::::: " + curVideo.title);
 				var seekTime = now - startTime;
 				return curVideo.filename + "," + seekTime;
-				break;
 			}
 		} 
+
 		var files = fs.readdirSync(mediaPath + "/bumpers");
+		files = files.filter(function(file) {
+    		return path.extname(file).toLowerCase() === ".mp4";
+		});
 		var filename = "/bumpers/" + files[getRandomInt(files.length)];
-		console.log(filename);
+		//console.log(filename);
 		if(sched[sched.indexOf(curBlock)+1]) { 
 			var nextStartTime = parseDate(sched[sched.indexOf(curBlock)+1].startTime);
 			var timeLeftInBlock = nextStartTime - now;
 			return filename + "," + timeLeftInBlock + ",bumper";	
 		} else {
-			return filename + ",5000,bumper";
+			return filename + ",500000,bumper";
 		}
 		
 	}	
