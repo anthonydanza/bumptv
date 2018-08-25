@@ -1,0 +1,10 @@
+blockTitle,startTime,videos_title,videos_description,videos_author,videos_filename
+FRIDAY BLOCK ONE,16:00:00:00,Episode 1,description of episode 1,jim,sample_video_a.mp4
+,,Episode 2,description of episode 2,jan,sample_video_b.mp4
+FRIDAY BLOCK TWO,16:00:24:00,Episode 3,description of episode 3,jorn,sample_video_a.mp4
+,,Episode 4,description of episode 4,dorn,sample_video_b.mp4
+FRIDAY BLOCK THREE,16:00:37:00,Episode 5,description of episode 5,dip,sample_video_a.mp4
+,,Episode 6,description of episode 6,dan,sample_video_b.mp4
+BABY CAGES COMMERCIALS,22:41:00:00,Guelph,,,guelph perfect.mp4
+,,Guelph Tips,,,guelph tips.mp4
+,,Minneapolis,,,minneapolis.mp4

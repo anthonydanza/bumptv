@@ -299,3 +299,55 @@ input[type=submit] {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+#schedule {
+    margin: 0 auto;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+}
+
+table#schedule-header {
+    margin: 0 auto;
+    width: 100%;
+}
+
+table#schedule-table td {
+    padding: 20px;
+}
+
+a.day {
+    color: black;
+    font-size: 40px;
+    font-weight: normal;
+    text-align: center;
+    font-family:"Kavivanar";
+    margin-bottom: 60px;
+}
+
+a.day.active {
+    color: red;
+}
+
+tr.block-row {
+    font-size: 20px;
+}
+
+td.block-start-time {
+
+}
+
+table
+
+td.block-title {
+    background: blue;
+    color: white;
+}
+
+td.video-start-time {
+    font-size: 30px;
+}
+
+td.video-title {
+    font-style: italic;
+}

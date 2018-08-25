@@ -38,11 +38,15 @@
       </div>
 
       <div id="player-menu">
-              <div class="menu-button" id="artist-info-button"> artist info </div>
+              <div class="menu-button" id="artist-info-button">
+                <div id="artist-info-title"></div>
+                <div id="artist-info-author"></div>
+                <div id="artist-info-description"></div>
+              </div>
 
               <div class="menu-button" id="mute" onclick="toggleMute()"> SOUND IS OFF </div>
 
-              <div class="menu-button" id="schedule"> <a href="./schedule.html">schedule</a> </div>
+              <div class="menu-button" id="schedule" onclick="openSchedule()"> <a>schedule</a> </div>
       </div>
 
       <div id="info">
@@ -129,6 +133,10 @@ function toggleMute() {
    }
 }
 
+function toggleArtistInfo() {
+
+}
+
 // function showArtistInfo() {
 //   document.getElementById('artist-info-popup').style.display = 'block';
 // }
@@ -136,6 +144,15 @@ function toggleMute() {
 // function hideArtistInfo() {
 //   document.getElementById('artist-info-popup').style.display = 'block';
 // }
+
+function openSchedule() {
+  var week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  var d = new Date();
+  var dotw = week[d.getDay()];
+  var url = "schedule.html?d=" + dotw;
+
+  window.open(url, "_self");
+}
 
 function requestNextVideo() {
   console.log("REQUESTING NEXT VIDEO");
@@ -148,21 +165,27 @@ function requestNextVideo() {
     if (this.readyState == 4 && this.status == 200) {
 
       var resp = this.responseText.split(',');
-      console.log(resp);
-
-      var filename = "media/" + resp[0];
+      resp = JSON.parse(this.responseText);
+      console.log("Parsed JSON: " + resp);
+      console.log(resp.filename);
 
       var video = document.getElementById("main-vid");
-      video.src = filename;
+      video.src = "media/" + resp.filename;
 
-      if(resp[2] == "bumper") {
-        //do bumper stuff, count until time remaining and ask for next video
-        var timeRemaining = parseInt(resp[1]);
-        console.log("BUMPER TIME REMAINING: " + timeRemaining + typeof(timeRemaining));
+      if(resp.videoType == "video") {
+        document.getElementById("artist-info-title").innerHTML = resp.title;
+        document.getElementById("artist-info-author").innerHTML = resp.author;
+        document.getElementById("artist-info-description").innerHTML = resp.description;
+
+      }
+      else if(resp.videoType == "bumper") {
+        document.getElementById("artist-info-button").innerHTML = "stay tuned!";
+        var timeRemaining = parseInt(resp.timeRemaining);
+        console.log("BUMPER TIME REMAINING: " + timeRemaining); 
         setTimeout(function() {requestNextVideo();}, timeRemaining);
         return;
       } else {
-          var seekTime = parseFloat(resp[1]) / 1000.0;
+          seekTime = parseFloat(seekTime) / 1000.0;
           video.currentTime = seekTime; 
       } 
     }

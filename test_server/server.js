@@ -59,16 +59,20 @@ function playNextVideo() {
 	//if there is a time difference greater than some amount, play a random bumper 
 	//if the time difference is small, move to the next block
 
-	//openSchedule(scheduleFileURL);
-	var curBlock;
-
-	var sched = fs.readFileSync("../test.json");
-	sched = JSON.parse(sched);
-
 	var adjusted = new Date();
 	adjusted = adjusted.getMilliseconds() - delta;
 	var now = new Date();
 	now.setMilliseconds(adjusted);
+
+	//openSchedule(scheduleFileURL);
+	var curBlock;
+
+	var DOTW = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+	var day = DOTW[now.getDay()];
+
+	var sched = fs.readFileSync("../schedule/" + day + ".json");
+	sched = JSON.parse(sched);
+	console.log(sched);
 	
 
 	for(var i = 0; i < sched.length; i++) { //find block
@@ -91,33 +95,42 @@ function playNextVideo() {
 			var startTime = parseDate(curBlock.videos[j].startTime);
 			var endTime = new Date(startTime.getTime());
 			endTime.setMilliseconds(startTime.getMilliseconds() + curBlock.videos[j].duration);
-			if(endTime > now) {
+			if(endTime > now && startTime < now) {
 				curVideo = curBlock.videos[j];
 				console.log("PLAYING:::::::::::::::: " + curVideo.title);
 				var seekTime = now - startTime;
-				return curVideo.filename + "," + seekTime;
+				//return "video," + curVideo.filename + "," + seekTime + "," + curVideo.title + "," + curVideo.author + "," + curVideo.description
+				return {"videoType":"video", "filename":curVideo.filename, "seekTime":seekTime, "title":curVideo.title, "author":curVideo.author, "description":curVideo.description};
+			} else if(startTime > now) {
+				var filename = getRandomBumper();
+				var timeRemaining = startTime - now
+				console.log("timeLeft: "+ timeLeft);
+				return {"videoType":"bumper", "filename":filename, "timeRemaining": timeRemaining};
 			}
 		} 
 
-		var files = fs.readdirSync(mediaPath + "/bumpers");
-		files = files.filter(function(file) {
-    		return path.extname(file).toLowerCase() === ".mp4";
-		});
-		var filename = "/bumpers/" + files[getRandomInt(files.length)];
-		//console.log(filename);
+		var filename = getRandomBumper();
 		if(sched[sched.indexOf(curBlock)+1]) { 
 			var nextStartTime = parseDate(sched[sched.indexOf(curBlock)+1].startTime);
 			var timeLeftInBlock = nextStartTime - now;
-			return filename + "," + timeLeftInBlock + ",bumper";	
+			return {"videoType":"bumper", "filename":filename, "timeRemaining":timeLeftInBlock}; 	
 		} else {
-			return filename + ",500000,bumper";
+			return {"videoType":"bumper", "filename":filename, "timeRemaining":500000};
 		}
 		
 	}	
 }	
 
-
-
+function getRandomBumper() {
+	var files = fs.readdirSync("../media/bumpers");
+	files = files.filter(function(file) {
+    	return path.extname(file).toLowerCase() === ".mp4";
+	});
+	var filename = "/bumpers/" + files[getRandomInt(files.length)];
+	console.log(files);
+	console.log(filename);
+	return filename;
+}
 
 function sendUpdateVideoResponse(filename, seekTime) {
 	
