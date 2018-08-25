@@ -62,7 +62,7 @@ function playNextVideo() {
 	var adjusted = new Date();
 	adjusted = adjusted.getMilliseconds() - delta;
 	var now = new Date();
-	now.setMilliseconds(adjusted);
+	//now.setMilliseconds(adjusted);
 
 	//openSchedule(scheduleFileURL);
 	var curBlock;
@@ -77,6 +77,8 @@ function playNextVideo() {
 
 	for(var i = 0; i < sched.length; i++) { //find block
 		var blockStartTime = parseDate(sched[i].startTime);
+		console.log(now);
+		console.log(blockStartTime);
 		if(blockStartTime >= now) {
 			if(i == 0) {
 				curBlock = sched[i];
@@ -94,17 +96,21 @@ function playNextVideo() {
 		for(var j = 0; j < curBlock.videos.length; j++) {
 			var startTime = parseDate(curBlock.videos[j].startTime);
 			var endTime = new Date(startTime.getTime());
+			console.log("startTime: " + startTime);
 			endTime.setMilliseconds(startTime.getMilliseconds() + curBlock.videos[j].duration);
+			console.log("endTime: " + endTime);
+			console.log("now: " +  now);
 			if(endTime > now && startTime < now) {
 				curVideo = curBlock.videos[j];
 				console.log("PLAYING:::::::::::::::: " + curVideo.title);
 				var seekTime = now - startTime;
+				console.log("seekTime", seekTime);
 				//return "video," + curVideo.filename + "," + seekTime + "," + curVideo.title + "," + curVideo.author + "," + curVideo.description
 				return {"videoType":"video", "filename":curVideo.filename, "seekTime":seekTime, "title":curVideo.title, "author":curVideo.author, "description":curVideo.description};
 			} else if(startTime > now) {
 				var filename = getRandomBumper();
 				var timeRemaining = startTime - now
-				console.log("timeLeft: "+ timeLeft);
+				console.log("timeLeft: "+ timeRemaining);
 				return {"videoType":"bumper", "filename":filename, "timeRemaining": timeRemaining};
 			}
 		} 

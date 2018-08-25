@@ -19,6 +19,7 @@
 <head>
     <title>BUMP TV</title>
     <meta property="og:image" content="img/fb_preview_img.png" />
+    <meta http-equiv="Cache-control" content="no-cache" />
     <link rel="stylesheet" href="css/style.css">
 <link href="https://fonts.googleapis.com/css?family=Anonymous+Pro|IBM+Plex+Mono|IBM+Plex+Sans+Condensed|Inconsolata|Kavivanar|Oxygen+Mono|Tajawal|VT323" rel="stylesheet">
 </head>
@@ -38,15 +39,20 @@
       </div>
 
       <div id="player-menu">
-              <div class="menu-button" id="artist-info-button">
-                <div id="artist-info-title"></div>
-                <div id="artist-info-author"></div>
-                <div id="artist-info-description"></div>
-              </div>
-
+            <div class="column-left">
+                <div class="menu-button" id="artist-info-button" onclick="toggleArtistInfo()">
+                  <div id="artist-info-msg"></div>
+                  <div id="artist-info-title"></div>
+                  <div id="artist-info-author"></div>
+                  <div id="artist-info-description"></div>
+                </div>
+            </div>
+            <div class="column-center">
+              <div class="menu-button" id="schedule-button" onclick="openSchedule()"> schedule </div>
+            </div>
+            <div class="column-right">
               <div class="menu-button" id="mute" onclick="toggleMute()"> SOUND IS OFF </div>
-
-              <div class="menu-button" id="schedule" onclick="openSchedule()"> <a>schedule</a> </div>
+            </div>
       </div>
 
       <div id="info">
@@ -104,7 +110,7 @@
   </div>
 </body>
 
-<script type="text/javascript" src="scheduler.js"></script>
+<script type="text/javascript" src="index.js"></script>
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-71467610-2"></script>
@@ -115,94 +121,6 @@
 
   gtag('config', 'UA-71467610-2');
 </script>
-
-<script>
-
-function toggleMute() {
-  var state = document.getElementById("main-vid").muted;
-  document.getElementById("main-vid").muted = !state;
-
-  var mute_button = document.getElementById("mute");
-
-   if (state == true) {
-    mute_button.style.fontWeight = 'normal';
-    mute_button.innerHTML = "SOUND IS ON";
-  } else {
-    mute_button.style.fontWeight = 'bold';
-    mute_button.innerHTML = "SOUND IS OFF";
-   }
-}
-
-function toggleArtistInfo() {
-
-}
-
-// function showArtistInfo() {
-//   document.getElementById('artist-info-popup').style.display = 'block';
-// }
-
-// function hideArtistInfo() {
-//   document.getElementById('artist-info-popup').style.display = 'block';
-// }
-
-function openSchedule() {
-  var week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  var d = new Date();
-  var dotw = week[d.getDay()];
-  var url = "schedule.html?d=" + dotw;
-
-  window.open(url, "_self");
-}
-
-function requestNextVideo() {
-  console.log("REQUESTING NEXT VIDEO");
-  var req = new XMLHttpRequest();
-  req.open("GET", "nextVideo", true);
-  req.send();
-  console.log(req);
-
-  req.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-
-      var resp = this.responseText.split(',');
-      resp = JSON.parse(this.responseText);
-      console.log("Parsed JSON: " + resp);
-      console.log(resp.filename);
-
-      var video = document.getElementById("main-vid");
-      video.src = "media/" + resp.filename;
-
-      if(resp.videoType == "video") {
-        document.getElementById("artist-info-title").innerHTML = resp.title;
-        document.getElementById("artist-info-author").innerHTML = resp.author;
-        document.getElementById("artist-info-description").innerHTML = resp.description;
-
-      }
-      else if(resp.videoType == "bumper") {
-        document.getElementById("artist-info-button").innerHTML = "stay tuned!";
-        var timeRemaining = parseInt(resp.timeRemaining);
-        console.log("BUMPER TIME REMAINING: " + timeRemaining); 
-        setTimeout(function() {requestNextVideo();}, timeRemaining);
-        return;
-      } else {
-          seekTime = parseFloat(seekTime) / 1000.0;
-          video.currentTime = seekTime; 
-      } 
-    }
-  }
-}
-
-document.getElementById("main-vid").addEventListener('onended',requestNextVideo());
-
-
-function fullscreen() {
-  var elem = document.getElementById("player");
-  var requestFullScreen = elem.requestFullscreen || elem.msRequestFullscreen || elem.mozRequestFullScreen || elem.webkitRequestFullscreen;
-  requestFullScreen.call(elem);
-}
-
-</script>
-
 
 
 </html>

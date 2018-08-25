@@ -75,7 +75,6 @@ for block in output:
 		duration = get_video_length( os.path.join("../../media", video["filename"]) );
 		video["duration"] = duration
 
-#print output	
 
 output_json_filename = os.path.join( "../../schedule", os.path.splitext( os.path.basename(OUTPUT_FILENAME) )[0] + ".json")
 
@@ -83,14 +82,9 @@ with open(output_json_filename, 'w') as outfile:
 	json.dump(output, outfile)
 
 
-DOTW = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
-
-
 def generate_html_schedule(schedule_JSON):
 
-
 	doc, tag, text = Doc().tagtext()
-
 
 	with open(schedule_JSON) as json_data:
 		schedule = json.load(json_data)
@@ -98,28 +92,6 @@ def generate_html_schedule(schedule_JSON):
 
 		doc, tag, text = Doc().tagtext()
 
-		# doc.asis('<!DOCTYPE html>')
-		# with tag('html', lang="en"):
-		# 	with tag('head'):
-		# 		#doc.asis('xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://ogp.me/ns/fb#"')
-		# 		doc.asis('<meta charset="utf-8">')
-		# 		doc.asis('<meta name="viewport" content="width=device-width, initial-scale=1">')
-		# 		doc.asis('<meta property="og:image" content="img/fb_preview_img.png" />')
-		# 		doc.asis('<link rel="stylesheet" href="css/style.css">')
-		# 		doc.asis('<link href="https://fonts.googleapis.com/css?family=Anonymous+Pro|IBM+Plex+Mono|IBM+Plex+Sans+Condensed|Inconsolata|Kavivanar|Oxygen+Mono|Tajawal|VT323" rel="stylesheet">')
-		# 		with tag('title'):
-		# 			text('SCHEDULE')
-		# 	with tag('body'):
-		# 		with tag('script', src="schedule.js"):
-		# 			pass
-		# 		with tag('div', id="container"):
-		# 			with tag('div', id="schedule"):
-		# with tag('table', id="schedule"):
-		# 	with tag('tr', klass="day-row"):
-		# 		for day in DOTW:
-		# 			with tag('td', klass="day"):
-		# 				with tag('a', klass="day", href="/schedule.html?d="+day, id=day):
-		# 					text(day)
 		with tag('table', id="schedule-table"):
 			for block in schedule:	
 				with tag('tr', klass="block-row"):
@@ -139,15 +111,7 @@ def generate_html_schedule(schedule_JSON):
 											text(video['author'])
 									with tag('td', klass="video-description"):
 										text(video['description'])
-										
-							# for person in person_suite:
-							# 	print("Adding photos for user {0}".format(person.uid))
-							# 	with tag('div', klass='row'):
-							# 		for photo in person.photos:
-							# 			with tag('div', klass="col-xs-1", style="padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px;"):
-							# 			   with tag('p'):
-							# 				   with tag('a', href=person.profile_url, target="_blank"):
-							# 					   doc.stag('img', src=photo, height="175", width="175")
+
 	output_html_filename = os.path.join( "../../schedule", os.path.splitext( os.path.basename(OUTPUT_FILENAME) )[0] + "_schedule_table.html")
 	file = open(output_html_filename,'w')
 	file.write(doc.getvalue())

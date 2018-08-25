@@ -154,6 +154,10 @@ video::-webkit-media-controls {
     height: auto;
 }
 
+.column-left{ float: left; width: 33%; }
+.column-right{ float: right; width: 33%; }
+.column-center{ display: inline-block; width: 33%; }
+
 #player-menu {
     width: 100%;
     margin-top: 10px;
@@ -163,7 +167,7 @@ video::-webkit-media-controls {
     top: 10px;
 }
 
-#schedule-menu {
+#schedule-button {
     height: 30px;
     width: 100%;
     position: relative;
@@ -174,15 +178,14 @@ video::-webkit-media-controls {
     color: black;
     background-color: #7cf59e;
     cursor: pointer;
-    display: inline;
-    margin-left: 5px;
-    margin-right: 5px;
     font-size: 20px;
+    width:100%;
 }
 
 
 .menu-button a {
-    text-decoration: none
+    text-decoration: none;
+    color: black;
 }
 
 .menu-button a:visited {
@@ -194,7 +197,19 @@ video::-webkit-media-controls {
 }
 
 #artist-info-button{
+    position: relative;
     float:left;
+}
+
+#artist-info-description {
+    display:none;
+    width:1000px;
+    padding:10px;
+    z-index: 10000;
+    position: absolute;
+    background: inherit;
+    left: 100px;
+    bottom: 100px;
 }
 
 #mute {
@@ -304,7 +319,6 @@ input[type=submit] {
     margin: 0 auto;
     width: 100%;
     text-align: center;
-    white-space: nowrap;
 }
 
 table#schedule-header {
