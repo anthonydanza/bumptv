@@ -15,8 +15,8 @@ function toggleMute() {
 
 function toggleArtistInfo() {
   var state = document.getElementById('artist-info-description').style.display;
-  if(state != "block") {
-    document.getElementById('artist-info-description').style.display = "block";
+  if(state != "inline-block") {
+    document.getElementById('artist-info-description').style.display = "inline-block";
   } else {
     document.getElementById('artist-info-description').style.display = "none";
   }
@@ -54,7 +54,7 @@ function requestNextVideo() {
 
       if(resp.videoType == "video") {
         document.getElementById("artist-info-msg").innerHTML = "NOW PLAYING: ";
-        document.getElementById("artist-info-title").innerHTML = resp.title;
+        document.getElementById("artist-info-title").innerHTML = "\"" + resp.title + "\"";
         document.getElementById("artist-info-author").innerHTML = resp.author;
         document.getElementById("artist-info-description").innerHTML = resp.description;
         var seekTime = parseFloat(resp.seekTime) / 1000.0;
@@ -65,7 +65,7 @@ function requestNextVideo() {
         document.getElementById("artist-info-msg").innerHTML = "stay tuned!";
         document.getElementById("artist-info-title").innerHTML = "";
         document.getElementById("artist-info-author").innerHTML = "";
-        document.getElementById("artist-info-description").innerHTML = "";
+        document.getElementById("artist-info-description").innerHTML = "More shows coming up soon! See <a onclick=\"openSchedule()\">schedule</a> for details.";
         var timeRemaining = parseInt(resp.timeRemaining);
         console.log("BUMPER TIME REMAINING: " + timeRemaining); 
         setTimeout(function() {requestNextVideo();}, timeRemaining);

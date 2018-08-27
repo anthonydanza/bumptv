@@ -5,7 +5,9 @@ body {
 }
 
 body a {
-    color: #8f9bda;
+    color: #0029ff;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 body a:hover {
@@ -21,18 +23,21 @@ h1 {
 }
 
 .submit-here {
-    text-align:center;
+    text-align: center;
     font-size: 30px;
+    font-family: "Kavivanar";
     color: white;
-    background-color: #1df79d;
-    border: solid 10px black;
-    border-radius: 5px;
-    padding: 10px;
-    margin-top: 40px;
+    padding: 5px;
+    margin-top: 80px;
     margin-bottom: 40px;
     width: 70%;
     position: relative;
     left: 15%;
+    border: double 1px transparent;
+    border-radius: 4px;
+    background-image: linear-gradient(#0029ff, #0029ff), radial-gradient(circle at top left, #000,#a8adc3);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
 }
 
 .submit-here a {
@@ -69,6 +74,8 @@ pre {
 
 #info {
     margin: 0;
+    padding-left:20%;
+    padding-right:20%; 
     position: relative;
     left: 50%;
     transform: translate(-50%, 0%);
@@ -92,6 +99,7 @@ img.ascii-art {
     position: relative;
     left: 50%;
     transform: translate(-50%,0%);
+    margin-bottom: 40px;
 }
 
 #player {
@@ -165,10 +173,15 @@ video::-webkit-media-controls {
     clear: both;
     text-align: center;
     top: 10px;
+
+    border: double 4px transparent;
+    border-radius: 4px;
+    background-image: linear-gradient(white, white), radial-gradient(circle at top left, #000,#a8adc3);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
 }
 
 #schedule-button {
-    height: 30px;
     width: 100%;
     position: relative;
     text-align: center;
@@ -176,10 +189,16 @@ video::-webkit-media-controls {
 
 .menu-button {
     color: black;
-    background-color: #7cf59e;
     cursor: pointer;
     font-size: 20px;
-    width:100%;
+    margin: 10px;
+    border: double 4px transparent;
+    border-radius: 4px;
+    background-image: linear-gradient(white, white), radial-gradient(circle at top left, #000,#a8adc3);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    width: 85%;
+    word-wrap: break-word;
 }
 
 
@@ -194,6 +213,8 @@ video::-webkit-media-controls {
 
 .menu-button:hover {
     text-decoration: underline;
+    /*background-image: linear-gradient(#0033ff, #0049ff), radial-gradient(circle at top left, #000,#a8adc3);*/
+
 }
 
 #artist-info-button{
@@ -201,15 +222,28 @@ video::-webkit-media-controls {
     float:left;
 }
 
+#artist-info-title {
+    
+}
+
+#artist-info-author {
+    
+}
+
 #artist-info-description {
     display:none;
-    width:1000px;
+    width:500px;
     padding:10px;
     z-index: 10000;
+    border-radius: 4px;
     position: absolute;
     background: inherit;
     left: 100px;
-    bottom: 100px;
+    bottom: 120px;
+}
+
+#artist-info-description a {
+    color: #0029ff;
 }
 
 #mute {
@@ -237,7 +271,11 @@ video::-webkit-media-controls {
 }
 
 #header {
-
+    border-bottom: black solid 3px;
+    padding-bottom: 5px;
+    font-size: 25px;
+    margin: 10px;
+    color: black;
 }
 
 #footer {
@@ -245,11 +283,6 @@ video::-webkit-media-controls {
     margin-top: 30px;
     margin-bottom: 10px;
     color: #bcb9b9;
-}
-
-#header {
-    font-size: 15px;
-    margin: 10px;
 }
 
 #submission-form {
@@ -364,4 +397,9 @@ td.video-start-time {
 
 td.video-title {
     font-style: italic;
+    font-size: 30px;
+}
+
+.video-author {
+    font-size: 18px;
 }
