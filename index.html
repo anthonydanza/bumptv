@@ -33,6 +33,7 @@
           </div>
 
           <div class="loader">LOADING... </div>
+          <div id="loading-message">BUMP TV works best on Chrome for desktop. May not work on mobile devices!</div>
 
           <video  id="main-vid" autoplay playsinline muted src="media/bumptv_clown.mp4" onclick="fullscreen()" onended="requestNextVideo()">Error playing HTML5 video. Maybe try a different browser? Chrome works.</video>
          
@@ -44,7 +45,10 @@
                   <div id="artist-info-msg"></div>
                   <div id="artist-info-title"></div>
                   <div id="artist-info-author"></div>
-                  <div id="artist-info-description"></div>
+                  <div id="artist-info-description">
+                    <div id="artist-info-description-title"></div>
+                    <div id="artist-info-description-author"></div>
+                  </div>
                 </div>
             </div>
             <div class="col-3">

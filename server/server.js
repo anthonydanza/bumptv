@@ -106,7 +106,12 @@ function playNextVideo() {
 				var seekTime = now - startTime;
 				console.log("seekTime", seekTime);
 				//return "video," + curVideo.filename + "," + seekTime + "," + curVideo.title + "," + curVideo.author + "," + curVideo.description
-				return {"videoType":"video", "filename":curVideo.filename, "seekTime":seekTime, "title":curVideo.title, "author":curVideo.author, "description":curVideo.description};
+
+				curVideo["videoType"] = "video";
+				curVideo["seekTime"] = seekTime;
+
+
+				return curVideo;//{"videoType":"video", "filename":curVideo.filename, "seekTime":seekTime, "title":curVideo.title, "author":curVideo.author, "authorLink":curVideo.authorLink, "description":curVideo.description};
 			} else if(startTime > now) {
 				var filename = getRandomBumper();
 				var timeRemaining = startTime - now

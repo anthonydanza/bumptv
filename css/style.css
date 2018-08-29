@@ -124,6 +124,14 @@ img.ascii-art {
     animation: spin 1s linear infinite;
 }
 
+#loading-message {
+    position: absolute;
+    margin: 0 auto;
+    width: 100%;
+    top: 60%;
+    text-align: center;
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -236,9 +244,19 @@ video::-webkit-media-controls {
     background: inherit;
     left: 100px;
     bottom: 120px;
+    text-align: left;
 }
 
 #artist-info-description a {
+    color: #0029ff;
+    text-decoration: underline;
+}
+
+#artist-info-description-title {
+    color: red;
+}
+
+#artist-info-description-author {
     color: #0029ff;
 }
 
@@ -366,10 +384,9 @@ table#schedule-table {
 
 }
 
-/*table#schedule-table td {
-    padding: 20px;
-}*/
-
+td {
+    padding-bottom: 30px;
+}
 
 a.day {
     color: black;

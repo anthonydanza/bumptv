@@ -34,40 +34,37 @@ function openSchedule() {
 function requestNextVideo() {
   console.log("REQUESTING NEXT VIDEO");
   var req = new XMLHttpRequest();
-  console.log("REQ BEFORE: " + req);
   req.open("GET", "nextVideo", true);
   req.setRequestHeader("Cache-Control", "no-cache");
   req.send();
-  console.log("REQ AFTER: " + req);
 
   req.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
 
       var resp = this.responseText.split(',');
-      console.log("RESP: " + resp);
       resp = JSON.parse(this.responseText);
-      console.log("Parsed JSON: " + resp);
-      console.log("JSON RESP: ", resp);
+      console.log(resp);
 
       var video = document.getElementById("main-vid");
-      video.src = "media/" + resp.filename;
+      video.src = "https://storage.googleapis.com/www.bumptelevision.com/media" + resp.filename;
 
       if(resp.videoType == "video") {
         document.getElementById("artist-info-msg").innerHTML = "NOW PLAYING: ";
         document.getElementById("artist-info-title").innerHTML = "\"" + resp.title + "\"";
         document.getElementById("artist-info-author").innerHTML = resp.author;
-        document.getElementById("artist-info-description").innerHTML = resp.description;
+        document.getElementById("artist-info-description-author").innerHTML = "<a href=\"" + resp.authorLink + "\">" + resp.author + "</a>"
+        document.getElementById("artist-info-description-title").innerHTML = resp.title;
+        document.getElementById("artist-info-description").insertAdjacentHTML('beforeend', resp.description);
+
         var seekTime = parseFloat(resp.seekTime) / 1000.0;
-        console.log(seekTime);
         video.currentTime = seekTime; 
       }
       else if(resp.videoType == "bumper") {
-        document.getElementById("artist-info-msg").innerHTML = "stay tuned!";
+        document.getElementById("artist-info-msg").innerHTML = "stay tuned...";
         document.getElementById("artist-info-title").innerHTML = "";
         document.getElementById("artist-info-author").innerHTML = "";
-        document.getElementById("artist-info-description").innerHTML = "More shows coming up soon! See <a onclick=\"openSchedule()\">schedule</a> for details.";
+        document.getElementById("artist-info-description").innerHTML = "More shows coming up soon. See <a onclick=\"openSchedule()\">schedule</a> for details.";
         var timeRemaining = parseInt(resp.timeRemaining);
-        console.log("BUMPER TIME REMAINING: " + timeRemaining); 
         setTimeout(function() {requestNextVideo();}, timeRemaining);
         return;
       } 
@@ -78,8 +75,7 @@ function requestNextVideo() {
 document.getElementById("main-vid").addEventListener('onended',requestNextVideo());
 
 window.onload = function() {
-  console.log("onload called!!!!!!!!!");
-  requestNextVideo();
+  
 };
 
 function fullscreen() {

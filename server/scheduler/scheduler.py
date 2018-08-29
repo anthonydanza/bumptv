@@ -71,7 +71,7 @@ for block in output:
 			video["startTime"] = add_millis_to_date_string(block["startTime"], int(duration))
 		else: 
 			video["startTime"] = block["startTime"]
-
+		#print video
 		duration = get_video_length( os.path.join("../../media", video["filename"]) );
 		video["duration"] = duration
 
@@ -102,6 +102,7 @@ def generate_html_schedule(schedule_JSON):
 					with tag('td', klass="video-list-cell"):
 						with tag('table', klass="video-list"):
 							for video in block['videos']:
+								print "--------------------------------------", video
 								with tag('tr', klass="video-row"):
 									with tag('td', klass="video-start-time"):
 										text(video['startTime'][0:8])
@@ -115,7 +116,7 @@ def generate_html_schedule(schedule_JSON):
 	output_html_filename = os.path.join( "../../schedule", os.path.splitext( os.path.basename(OUTPUT_FILENAME) )[0] + "_schedule_table.html")
 	file = open(output_html_filename,'w')
 	file.write(doc.getvalue())
-	print(doc.getvalue()) 
+	#print(doc.getvalue()) 
 
 generate_html_schedule(output_json_filename)
 
