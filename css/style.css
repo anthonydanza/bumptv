@@ -2,6 +2,7 @@ body {
     background-color: white;
     color: black;
     font-family: "Inconsolata";
+    margin: 0;
 }
 
 body a {
@@ -65,11 +66,7 @@ pre {
 
 
 #container {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top:0;
-    left:0;
+    width:100%;
 }
 
 #info {
@@ -167,7 +164,6 @@ video::-webkit-media-controls {
 .column-center{ display: inline-block; width: 33%; }
 
 #player-menu {
-    width: 100%;
     margin-top: 10px;
     margin-bottom: 70px;
     clear: both;
@@ -182,8 +178,8 @@ video::-webkit-media-controls {
 }
 
 #schedule-button {
-    width: 100%;
-    position: relative;
+    /*width: 100%;*/
+    /*position: relative;*/
     text-align: center;
 }
 
@@ -197,7 +193,7 @@ video::-webkit-media-controls {
     background-image: linear-gradient(white, white), radial-gradient(circle at top left, #000,#a8adc3);
     background-origin: border-box;
     background-clip: content-box, border-box;
-    width: 85%;
+   /* width: 85%;*/
     word-wrap: break-word;
 }
 
@@ -219,15 +215,15 @@ video::-webkit-media-controls {
 
 #artist-info-button{
     position: relative;
-    float:left;
+    /*float:left;*/
 }
 
 #artist-info-title {
-    
+
 }
 
 #artist-info-author {
-    
+
 }
 
 #artist-info-description {
@@ -247,7 +243,7 @@ video::-webkit-media-controls {
 }
 
 #mute {
-    float: right;
+    /*float: right;*/
     font-weight: bold;
 }
 
@@ -271,11 +267,13 @@ video::-webkit-media-controls {
 }
 
 #header {
-    border-bottom: black solid 3px;
-    padding-bottom: 5px;
+    background: linear-gradient(white,black) left bottom no-repeat;
+    background-size: 100% 5px;
+    padding-bottom: 10px;
     font-size: 25px;
     margin: 10px;
     color: black;
+}
 }
 
 #footer {
@@ -354,18 +352,28 @@ input[type=submit] {
     text-align: center;
 }
 
+table {
+    border-collapse: separate;
+    width:100%;
+}
+
 table#schedule-header {
     margin: 0 auto;
     width: 100%;
 }
 
-table#schedule-table td {
-    padding: 20px;
+table#schedule-table {
+
 }
+
+/*table#schedule-table td {
+    padding: 20px;
+}*/
+
 
 a.day {
     color: black;
-    font-size: 40px;
+    font-size: 25px;
     font-weight: normal;
     text-align: center;
     font-family:"Kavivanar";
@@ -377,14 +385,12 @@ a.day.active {
 }
 
 tr.block-row {
-    font-size: 20px;
+    /*font-size: 20px;*/
 }
 
 td.block-start-time {
 
 }
-
-table
 
 td.block-title {
     background: blue;
@@ -392,14 +398,67 @@ td.block-title {
 }
 
 td.video-start-time {
-    font-size: 30px;
 }
 
 td.video-title {
     font-style: italic;
-    font-size: 30px;
+    width:20%;
 }
 
 .video-author {
-    font-size: 18px;
 }
+
+[class*="col-"] {
+    width: 100%;
+}
+
+.col-3 {
+    width:100%;
+    display: inline-block;
+    margin: 0 auto;
+}
+
+.col-7 {
+    width:100%;
+    display:inline-block;
+    margin: 0 auto;
+}
+
+@media only screen and (min-width: 790px) {
+    /* For desktop: */
+    .col-1 {width: 100%;}
+    .col-2 {width: 50%;}
+    .col-3 {width: 32%;}
+    .col-7 {width: 13%;}
+
+    a.day {font-size:30px;}
+ 
+}
+
+@media only screen and (max-width: 669px) {
+    /* For desktop: */
+    a.day {font-size:20px;}
+ 
+}
+
+@media only screen and (max-width: 542px) {
+    /* For desktop: */
+    a.day {font-size:17px;}
+ 
+}
+
+@media only screen and (max-width: 480px) {
+    /* For desktop: */
+    a.day {font-size:14px;}
+ 
+}
+
+@media only screen and (max-width: 375px) {
+    /* For desktop: */
+    a.day {font-size:12px;}
+ 
+}
+
+
+
+
