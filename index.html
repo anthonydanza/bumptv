@@ -32,11 +32,13 @@
               <img src="img/btv_logo_grey.png" height="100">
           </div>
 
-          <div class="loader">LOADING... </div>
-          <div id="loading-message">BUMP TV works best on Chrome for desktop. May not work on mobile devices!</div>
+          <div id="fallback-area">
+            <div class="loader">LOADING... </div>
+            <div id="loading-message">BUMP TV works best on Chrome for desktop. May not work on mobile devices!</div>
+          </div>
+    
+          <div id="video-container"></div>
 
-          <video  id="main-vid" autoplay playsinline muted src="media/bumptv_clown.mp4" onclick="fullscreen()" onended="requestNextVideo()">Error playing HTML5 video. Maybe try a different browser? Chrome works.</video>
-         
       </div>
 
       <div id="player-menu">
@@ -115,8 +117,9 @@
 </body>
 
 <script type="text/javascript" src="index.js"></script>
+<script src="https://player.vimeo.com/api/player.js"></script>
+<script type="text/javascript" src="youtube.js"></script>
 
-<!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-71467610-2"></script>
 <script>
   window.dataLayer = window.dataLayer || [];

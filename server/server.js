@@ -96,22 +96,20 @@ function playNextVideo() {
 		for(var j = 0; j < curBlock.videos.length; j++) {
 			var startTime = parseDate(curBlock.videos[j].startTime);
 			var endTime = new Date(startTime.getTime());
-			console.log("startTime: " + startTime);
+			// console.log("startTime: " + startTime);
 			endTime.setMilliseconds(startTime.getMilliseconds() + curBlock.videos[j].duration);
-			console.log("endTime: " + endTime);
-			console.log("now: " +  now);
+			// console.log("endTime: " + endTime);
+			// console.log("now: " +  now);
 			if(endTime > now && startTime < now) {
 				curVideo = curBlock.videos[j];
 				console.log("PLAYING:::::::::::::::: " + curVideo.title);
 				var seekTime = now - startTime;
-				console.log("seekTime", seekTime);
-				//return "video," + curVideo.filename + "," + seekTime + "," + curVideo.title + "," + curVideo.author + "," + curVideo.description
-
+				// console.log("seekTime", seekTime);
+				var timeRemaining = endTime - now;			
 				curVideo["videoType"] = "video";
 				curVideo["seekTime"] = seekTime;
-
-
-				return curVideo;//{"videoType":"video", "filename":curVideo.filename, "seekTime":seekTime, "title":curVideo.title, "author":curVideo.author, "authorLink":curVideo.authorLink, "description":curVideo.description};
+				curVideo["timeRemaining"] = timeRemaining;
+				return curVideo;
 			} else if(startTime > now) {
 				var filename = getRandomBumper();
 				var timeRemaining = startTime - now

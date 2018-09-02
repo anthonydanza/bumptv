@@ -27,12 +27,74 @@ function openSchedule() {
   var d = new Date();
   var dotw = week[d.getDay()];
   var url = "schedule.html?d=" + dotw;
-
   window.open(url, "_self");
 }
 
+function isUrl(str)
+{
+  regexp =  /^(?:(?:https?|ftp):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/;
+        if (regexp.test(str)) {
+          return true;
+        }
+        else {
+          return false;
+        }
+}
+
+//determine if video is static (in the cloud or local) or from youtube or vimeo
+function getVideoSource(filePath) {
+  if (isUrl(filePath)) {
+    if(filePath.includes("youtube")) {
+      return "YOUTUBE";
+    } else if(filePath.includes("vimeo")) {
+        return "VIMEO";
+    } else {
+        return "STATIC";
+    }
+  }
+  else {
+      return "LOCAL";
+  }
+}
+
+//parse videoid from youtube URL
+function findYouTubeVideoId(url) {
+  var video_id = url.split('v=')[1];
+  var ampersandPosition = video_id.indexOf('&');
+  if(ampersandPosition != -1) {
+    video_id = video_id.substring(0, ampersandPosition);
+  }
+  return video_id;
+}
+
+function nonEmbeddedVideoTag(src) {
+    return "<video id=\"non-embedded-video\" src=\"" + src + "\" autoplay playsinline muted onclick=\"fullscreen()\" onended=\"nonEmbeddedVideoEnded()\"></video>"
+}
+
+function nonEmbeddedVideoEnded() {
+  document.getElementById("video-container").innerHTML = "";
+  requestNextVideo();
+}
+
+//if normal video, seek into it, if it's a bumper, cut it off if necessary
+function seekOrCountdown(resp) {
+  var video = document.getElementById("non-embedded-video");
+  var seekTime = parseFloat(resp.seekTime) / 1000.0;
+  var timeRemaining = parseInt(resp.timeRemaining);
+
+  if(resp.videoType == "video") {
+    video.currentTime = seekTime; 
+    console.log("time remaining: " + timeRemaining);
+    //setTimeout(function() {requestNextVideo();}, timeRemaining); // TODO do something about drift/overlap/buffering
+  } else if(resp.videoType == "bumper") {
+      setTimeout(function() {nonEmbeddedVideoEnded()}, timeRemaining);
+  }
+}
+
 function requestNextVideo() {
+
   console.log("REQUESTING NEXT VIDEO");
+
   var req = new XMLHttpRequest();
   req.open("GET", "nextVideo", true);
   req.setRequestHeader("Cache-Control", "no-cache");
@@ -45,37 +107,170 @@ function requestNextVideo() {
       resp = JSON.parse(this.responseText);
       console.log(resp);
 
-      var video = document.getElementById("main-vid");
-      video.src = "https://storage.googleapis.com/www.bumptelevision.com/media" + resp.filename;
+      switch(getVideoSource(resp.filename)) {
+        case "LOCAL":
+          console.log("LOCAL SELECTED " + resp.filename);
+          document.getElementById("video-container").innerHTML = nonEmbeddedVideoTag("/media/" + resp.filename);
+          seekOrCountdown(resp);   
+          break;
+        case "STATIC":
+          console.log("STATIC SELECTED");
+          document.getElementById("video-container").innerHTML = nonEmbeddedVideoTag(resp.filename);
+          seekOrCountdown(resp);
+          break;
+        case "YOUTUBE":
+          console.log("YOUTUBE SELECTED");
+          var videoId = findYouTubeVideoId(resp.filename);
+          var seekTime = parseInt(resp.seekTime/1000);
+          console.log("creating player ");
+          youTubePlayer = new YT.Player('video-container', {
+              height: '100%',
+              width: '100%',
+              disablekb: 1,
+              enablejsapi: 1,
+              showinfo: 0,
+              events: {
+                  'onReady': function(event) {event.target.loadVideoById(videoId, seekTime);},
+                  'onStateChange': onPlayerStateChange
+              }
+          });
+          break;
+        case "VIMEO":
+          console.log("VIMEO SELECTED");
+         // if(youTubePlayer) {youTubePlayer.destroy();}
+          var options = {
+            url: "https://vimeo.com/channels/staffpicks/230023162",//resp.filename,  
+            width: 640,
+            autoplay: true,
+            muted: true,
+            autopause: 0,
+            portrait: false
+          };
 
-      if(resp.videoType == "video") {
-        document.getElementById("artist-info-msg").innerHTML = "NOW PLAYING: ";
-        document.getElementById("artist-info-title").innerHTML = "\"" + resp.title + "\"";
-        document.getElementById("artist-info-author").innerHTML = resp.author;
-        document.getElementById("artist-info-description-author").innerHTML = "<a href=\"" + resp.authorLink + "\">" + resp.author + "</a>"
-        document.getElementById("artist-info-description-title").innerHTML = resp.title;
-        document.getElementById("artist-info-description").insertAdjacentHTML('beforeend', resp.description);
+          var vimeoPlayer = new Vimeo.Player('video-container', options);
+          
+          // vimeoPlayer.on('ready', 
+          //   function() {
+          //     console.log("VIMEO PLAYER READY");
+          //     vimeoPlayer.play();
+          //   })
 
-        var seekTime = parseFloat(resp.seekTime) / 1000.0;
-        video.currentTime = seekTime; 
+          vimeoPlayer.ready().then(function() {
+            vimeoPlayer.play();
+            });
+
+          vimeoPlayer.on('ended', 
+            function() {
+              console.log("VIMEO ENDED");
+              vimeoPlayer.destroy();
+              requestNextVideo();
+            });
+          break;
       }
-      else if(resp.videoType == "bumper") {
-        document.getElementById("artist-info-msg").innerHTML = "stay tuned...";
-        document.getElementById("artist-info-title").innerHTML = "";
-        document.getElementById("artist-info-author").innerHTML = "";
-        document.getElementById("artist-info-description").innerHTML = "More shows coming up soon. See <a onclick=\"openSchedule()\">schedule</a> for details.";
-        var timeRemaining = parseInt(resp.timeRemaining);
-        setTimeout(function() {requestNextVideo();}, timeRemaining);
-        return;
-      } 
+      updateVideoInfoInDOM(resp);
     }
   }
 }
 
-document.getElementById("main-vid").addEventListener('onended',requestNextVideo());
+function updateVideoInfoInDOM(resp) {
+    if(resp.videoType == "video") {
+      document.getElementById("artist-info-msg").innerHTML = "NOW PLAYING: ";
+      document.getElementById("artist-info-title").innerHTML = "\"" + resp.title + "\"";
+      document.getElementById("artist-info-author").innerHTML = resp.author;
+
+      var artistInfoDescriptionAuthor = document.createElement('div');
+      artistInfoDescriptionAuthor.id = "artist-info-description-author";
+      artistInfoDescriptionAuthor.innerHTML = "<a href=\"" + resp.authorLink + "\">" + resp.author + "</a>";
+
+      var artistInfoDescriptionTitle = document.createElement('div');
+      artistInfoDescriptionTitle.id = "artist-info-description-title";
+      artistInfoDescriptionTitle.innerHTML = resp.title;
+
+      var artistInfoDescription = document.getElementById("artist-info-description");
+      artistInfoDescription.innerHTML = "";
+      artistInfoDescription.appendChild(artistInfoDescriptionTitle);
+      artistInfoDescription.appendChild(artistInfoDescriptionAuthor);
+      artistInfoDescription.insertAdjacentHTML('beforeend', resp.description);
+    }
+    else if(resp.videoType == "bumper") {
+      document.getElementById("artist-info-msg").innerHTML = "stay tuned...";
+      document.getElementById("artist-info-title").innerHTML = "";
+      document.getElementById("artist-info-author").innerHTML = "";
+      document.getElementById("artist-info-description").innerHTML = "More shows coming up soon. See <a onclick=\"openSchedule()\">schedule</a> for details.";
+      return;
+    } 
+}
+
+function ApiLoadStatus() {
+      this.youtube;
+      this.vimeo;
+      this.checkReady = function() {
+        if(this.youtube && this.vimeo) {
+          requestNextVideo();
+        }
+      };
+      this.setYouTubeStatus = function (status) {
+        this.youtube = status;
+        this.checkReady();
+      };
+      this.setVimeoStatus = function (status) {
+        this.vimeo = status;
+        this.checkReady();
+      };
+}
+
+var apiStatus = new ApiLoadStatus();
+
+// ---------------------- YOUTUBE -----------------------------//
+function loadYouTubeAPI() {
+  console.log("loading yt api")
+  var tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  tag.id = "youtubeAPI";
+
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+}
+
+// function onPlayerReady(event) {
+//       console.log("player ready");
+//      // holder.holderCallback(youtubething, null, null);
+// }
+
+function onYouTubeIframeAPIReady() {
+    apiStatus.setYouTubeStatus(true);
+        
+}
+
+function removeYouTubeAPI() {
+  var scriptTag = document.getElementById("youtubeAPI");
+  if(scriptTag) {
+    scriptTag.parentNode.removeChild(scriptTag);
+  }
+}
+
+function onPlayerStateChange(event) {
+  if(event.data == YT.PlayerState.ENDED) {
+    event.target.destroy();    
+    requestNextVideo();
+  } 
+}
+function stopVideo() {
+  youTubePlayer.stopVideo();
+}
+
+//--------------------------------------------------------------------//
+
+// VIMEO ------------------------------------------------------------//
+function loadVimeoAPI() {
+  // no vimeo support yet
+  apiStatus.setVimeoStatus(true);
+}
+//-------------------------------------------------------------------//
 
 window.onload = function() {
-  
+  loadYouTubeAPI();
+  loadVimeoAPI();
 };
 
 function fullscreen() {

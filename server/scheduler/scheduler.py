@@ -6,6 +6,9 @@ import re
 from decimal import Decimal
 import argparse
 from yattag import Doc
+import urllib
+import urlparse
+import isodate
 
 
 def get_video_length(path):
@@ -14,6 +17,29 @@ def get_video_length(path):
 	result = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
 	output = result.communicate()
 	return float(output[0])*1000
+
+
+YOUTUBE_API_KEY = "AIzaSyBNiJ9LRO4Kz2QvP7XelKByB6ZW0klj9Q8"
+
+def get_youtube_id_from_url(url) :
+	url_data = urlparse.urlparse(url)
+	query = urlparse.parse_qs(url_data.query)
+	video = query["v"][0]
+	return video
+
+def get_youtube_video_length(url):
+	video_id= get_youtube_id_from_url(url)
+	api_key= YOUTUBE_API_KEY
+	searchUrl="https://www.googleapis.com/youtube/v3/videos?id="+video_id+"&key="+api_key+"&part=contentDetails"
+	response = urllib.urlopen(searchUrl).read()
+	data = json.loads(response)
+	all_data=data['items']
+	contentDetails=all_data[0]['contentDetails']
+	print contentDetails
+	duration= isodate.parse_duration(contentDetails['duration']).total_seconds() * 1000
+
+	return duration
+
 
 def add_millis_to_date_string(date_string,millis):
 	d = [int(i) for i in date_string.split(":")]
@@ -26,6 +52,16 @@ def add_millis_to_date_string(date_string,millis):
 
 	return ':'.join([hours, minutes, seconds, milliseconds])
 
+def is_url(url_string):
+	regex = re.compile(
+	    r'^(?:http|ftp)s?://' # http:// or https://
+	    r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
+	    r'localhost|' #localhost...
+	    r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+	    r'(?::\d+)?' # optional port
+	    r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+
+	return re.match(regex, url_string) is not None
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input", help="schedule CSV to be parsed into JSON")
@@ -72,7 +108,12 @@ for block in output:
 		else: 
 			video["startTime"] = block["startTime"]
 		#print video
-		duration = get_video_length( os.path.join("../../media", video["filename"]) );
+		if is_url(video["filename"]) :
+			print "getting youtube duration!!!!!!!"
+			duration = get_youtube_video_length(video["filename"])
+			print duration
+		else:
+			duration = get_video_length( os.path.join("../../media", video["filename"]) )
 		video["duration"] = duration
 
 
@@ -102,7 +143,6 @@ def generate_html_schedule(schedule_JSON):
 					with tag('td', klass="video-list-cell"):
 						with tag('table', klass="video-list"):
 							for video in block['videos']:
-								print "--------------------------------------", video
 								with tag('tr', klass="video-row"):
 									with tag('td', klass="video-start-time"):
 										text(video['startTime'][0:8])
