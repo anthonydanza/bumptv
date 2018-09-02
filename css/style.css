@@ -100,6 +100,8 @@ img.ascii-art {
 }
 
 #player {
+    background: black;
+    min-height: 470px;
     top: 0;
     left: 0;
     pointer-events: none;
@@ -160,7 +162,7 @@ video::-webkit-media-controls {
 
 #video-container {
   position: relative;
-  padding-bottom: 56.25%;
+  /*padding-bottom: 56.25%;*/
   overflow: hidden;
 }
         
@@ -181,12 +183,8 @@ video::-webkit-media-controls {
 /* YOUTUBE PLAYER STYLES */
 
 #player {
-    min-height: 600px;
     pointer-events: none;
 }
-
-
-
 
 #watermark {
     opacity: 0.85;
