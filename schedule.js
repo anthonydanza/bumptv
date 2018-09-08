@@ -1,31 +1,44 @@
 var urlParams;
 
 
+function parseQuery() {
+	var query  = window.location.search.substring(1);
+	var vars = query.split("?");
+	var output = {};
+	for(var i = 0; i < vars.length; i++) {
+		var keyVal = vars[i].split("=");
+		var key = keyVal[0];
+		var val = keyVal[1];
+		output[key] = val;
+	}
+	console.log(output);
+	return output;
+}
+
+
 window.onload = function () {
-    var match,
-        pl     = /\+/g,  // Regex for replacing addition symbol with a space
-        search = /([^&=]+)=?([^&]*)/g,
-        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
-        query  = window.location.search.substring(1);
 
-    urlParams = {};
-    while (match = search.exec(query))
-       urlParams[decode(match[1])] = decode(match[2]);
-   console.log(urlParams);
-   document.getElementById(urlParams.d).classList.toggle("active");
+	var query = parseQuery();
+	console.log(query);
 
-   var schedule_dir = "schedule/"
-   var filename = schedule_dir + urlParams.d + "_schedule_table.html";
+	var schedule_dir = "schedule/"
+	var filename = schedule_dir + query.d + "_schedule_table.html";
+
 
 	var xhr = typeof XMLHttpRequest != 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
 	xhr.open('get', filename, true);
+
 	xhr.onreadystatechange = function() {
 	if (xhr.readyState == 4 && xhr.status == 200) { 
 	    	document.getElementById("schedule-table-container").innerHTML = xhr.responseText;
+	    	window.location.hash = query.t;
+	    	window.scrollBy(0,-300);
 		} 
 		else if(xhr.status == 404) {
 			document.getElementById("schedule-table-container").innerHTML = "<h1>404: SCHEDULE FILE NOT FOUND</h1>";
 		}
+		
+ 		document.getElementById(query.d).classList.toggle("active");
 	}
 	xhr.send();
 

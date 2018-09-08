@@ -8,25 +8,10 @@ const path = require('path')
 var app = express();
 app.use(express.static(path.join(__dirname, '../')));
 
-//var app = module.exports = express();
-
-//app.get('/', (req, res) => res.send('Hello World!'))
-
 app.get('/nextVideo', function(req, res) {   
-   console.log("Got a GET request for next video");
+   //console.log("Got a GET request for next video");
    res.send(playNextVideo());
 })
-
-
-function playNextBumper(scheduleFileURL) {
-
-	//bumper finishes
-	// check time difference between now and next block
-	// if it is greater than some amount, play another bumper
-	// if not, call playNextVideo
-
-
-}
 
 function parseDate(dateStr) {
 	var d = dateStr.split(':').map(Number);
@@ -37,13 +22,11 @@ function parseDate(dateStr) {
 
 var curVideo = 0;
 
-var actualTime = new Date();
-
-var bootTime = new Date();
-bootTime.setHours(16,0,0,0);
-
-var delta = actualTime - bootTime;
-console.log(delta);
+// FOR TESTING ---------------
+// var actualTime = new Date();
+// var bootTime = new Date();
+// bootTime.setHours(16,0,0,0);
+// var delta = actualTime - bootTime;
 
 var mediaPath = "../media";
 
@@ -53,18 +36,12 @@ function getRandomInt(max) {
 
 function playNextVideo() {
 
-	//video finishes
-	//look in current block for video after this one
-	//if there is no next video, check the time difference
-	//if there is a time difference greater than some amount, play a random bumper 
-	//if the time difference is small, move to the next block
-
-	var adjusted = new Date();
-	adjusted = adjusted.getMilliseconds() - delta;
-	var now = new Date();
+	// FOR TESTING ----------------
+	//var adjusted = new Date();
+	//adjusted = adjusted.getMilliseconds() - delta;
 	//now.setMilliseconds(adjusted);
+	var now = new Date();
 
-	//openSchedule(scheduleFileURL);
 	var curBlock;
 
 	var DOTW = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -72,17 +49,17 @@ function playNextVideo() {
 
 	var sched = fs.readFileSync("../schedule/" + day + ".json");
 	sched = JSON.parse(sched);
-	console.log(sched);
+	//console.log(sched);
 	
 
 	for(var i = 0; i < sched.length; i++) { //find block
 		var blockStartTime = parseDate(sched[i].startTime);
-		console.log(now);
-		console.log(blockStartTime);
+		//console.log(now);
+		//console.log(blockStartTime);
 		if(blockStartTime >= now) {
 			if(i == 0) {
-				curBlock = sched[i];
-				break;
+				//curBlock = sched[i];
+				//break;
 			} else {
 				curBlock = sched[i-1];
 				break;
@@ -91,20 +68,16 @@ function playNextVideo() {
 			curBlock = sched[i];
 		}
 	}
-	console.log(curBlock.blockTitle);
+	//console.log(curBlock.blockTitle);
 	if(curBlock) {	//find video within block
 		for(var j = 0; j < curBlock.videos.length; j++) {
 			var startTime = parseDate(curBlock.videos[j].startTime);
 			var endTime = new Date(startTime.getTime());
-			// console.log("startTime: " + startTime);
 			endTime.setMilliseconds(startTime.getMilliseconds() + curBlock.videos[j].duration);
-			// console.log("endTime: " + endTime);
-			// console.log("now: " +  now);
+
 			if(endTime > now && startTime < now) {
 				curVideo = curBlock.videos[j];
-				console.log("PLAYING:::::::::::::::: " + curVideo.title);
 				var seekTime = now - startTime;
-				// console.log("seekTime", seekTime);
 				var timeRemaining = endTime - now;			
 				curVideo["videoType"] = "video";
 				curVideo["seekTime"] = seekTime;
@@ -113,20 +86,24 @@ function playNextVideo() {
 			} else if(startTime > now) {
 				var filename = getRandomBumper();
 				var timeRemaining = startTime - now
-				console.log("timeLeft: "+ timeRemaining);
-				return {"videoType":"bumper", "filename":filename, "timeRemaining": timeRemaining};
+				var previousStartTime = curBlock.videos[j-1].startTime;
+				console.log("pst " +previousStartTime);
+				// send back a bumper with the start time of the last real video, to determine most recent time slot when loading sched
+				return {"videoType":"bumper", "filename":filename, "timeRemaining": timeRemaining, "startTime":previousStartTime};
 			}
 		} 
 
 		var filename = getRandomBumper();
 		if(sched[sched.indexOf(curBlock)+1]) { 
-			var nextStartTime = parseDate(sched[sched.indexOf(curBlock)+1].startTime);
-			var timeLeftInBlock = nextStartTime - now;
-			return {"videoType":"bumper", "filename":filename, "timeRemaining":timeLeftInBlock}; 	
+			var nextStartTime = sched[sched.indexOf(curBlock)+1].startTime;
+			var timeLeftInBlock = parseDate(nextStartTime) - now;
+			console.log("nst " + nextStartTime);
+			return {"videoType":"bumper", "filename":filename, "timeRemaining":timeLeftInBlock, "startTime":nextStartTime}; 	
 		} else {
-			return {"videoType":"bumper", "filename":filename, "timeRemaining":500000};
-		}
-		
+			var lastStartTime = sched[sched.length].startTime;
+			console.log("lst " + lastStartTime);
+			return {"videoType":"bumper", "filename":filename, "timeRemaining":500000, "startTime":lastStartTime};
+		}		
 	}	
 }	
 
@@ -136,13 +113,9 @@ function getRandomBumper() {
     	return path.extname(file).toLowerCase() === ".mp4";
 	});
 	var filename = "/bumpers/" + files[getRandomInt(files.length)];
-	console.log(files);
-	console.log(filename);
+	//console.log(files);
+	//console.log(filename);
 	return filename;
-}
-
-function sendUpdateVideoResponse(filename, seekTime) {
-	
 }
 
 var server = http.createServer(app);

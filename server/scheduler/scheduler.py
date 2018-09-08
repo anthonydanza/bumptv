@@ -9,6 +9,7 @@ from yattag import Doc
 import urllib
 import urlparse
 import isodate
+import vimeo
 
 
 def get_video_length(path):
@@ -21,6 +22,12 @@ def get_video_length(path):
 
 YOUTUBE_API_KEY = "AIzaSyBNiJ9LRO4Kz2QvP7XelKByB6ZW0klj9Q8"
 
+v = vimeo.VimeoClient(
+    token="f56711a29d92ea38a30be43e3be8b026",
+    key="b107e780eab4aa51e5db252cefc939481fc4491c",
+    secret="Ba3eQoaQz3FNsoaFKUsLkMGWM/4yILJkBHTwA8PN059qpcLOXF5T+sqgEYbYSfhH5lovEVg5bSULejchnGFMguoq2rIU6aMdynySsgmkRkLm5DtM+pOtC15LB45X0tAv"
+)
+
 def get_youtube_id_from_url(url) :
 	url_data = urlparse.urlparse(url)
 	query = urlparse.parse_qs(url_data.query)
@@ -28,17 +35,25 @@ def get_youtube_id_from_url(url) :
 	return video
 
 def get_youtube_video_length(url):
-	video_id= get_youtube_id_from_url(url)
+	video_id = get_youtube_id_from_url(url)
 	api_key= YOUTUBE_API_KEY
 	searchUrl="https://www.googleapis.com/youtube/v3/videos?id="+video_id+"&key="+api_key+"&part=contentDetails"
 	response = urllib.urlopen(searchUrl).read()
 	data = json.loads(response)
 	all_data=data['items']
 	contentDetails=all_data[0]['contentDetails']
-	print contentDetails
 	duration= isodate.parse_duration(contentDetails['duration']).total_seconds() * 1000
 
 	return duration
+
+def get_vimeo_video_length(url):
+	#return 1
+	video = v.get("https://api.vimeo.com/videos?links=" + url)
+	r = json.loads(video.text)
+	return int(r["data"][0]["duration"]) * 1000
+
+def get_gcloud_video_length(url):
+	return 10
 
 
 def add_millis_to_date_string(date_string,millis):
@@ -103,18 +118,29 @@ with open(INPUT_FILENAME, 'rb') as schedule_file:
 
 for block in output:
 	for i, video in enumerate(block["videos"]):
+		#print video
+		if video["filename"] != "":
+			if is_url(video["filename"]) :
+				if "youtube" in video["filename"]:
+					duration = get_youtube_video_length(video["filename"])
+				elif "vimeo" in video["filename"]:
+					duration = get_vimeo_video_length(video["filename"])
+				elif "storage.googleapis.com" in video["filename"]:
+					duration = get_gcloud_video_length(video["filename"])
+				else: 
+					print "UNSUPPORTED VIDEO LINK"
+			else:
+				print video
+				duration = get_video_length( os.path.join("../../media", video["filename"]) )
+			video["duration"] = duration
+		else:
+			print "NO FILENAME PROVIDED FOR ", video
 		if i != 0:
-			video["startTime"] = add_millis_to_date_string(block["startTime"], int(duration))
+			print duration
+			video["startTime"] = add_millis_to_date_string(block["videos"][i-1]["startTime"], int(block["videos"][i-1]["duration"]))
 		else: 
 			video["startTime"] = block["startTime"]
-		#print video
-		if is_url(video["filename"]) :
-			print "getting youtube duration!!!!!!!"
-			duration = get_youtube_video_length(video["filename"])
-			print duration
-		else:
-			duration = get_video_length( os.path.join("../../media", video["filename"]) )
-		video["duration"] = duration
+		
 
 
 output_json_filename = os.path.join( "../../schedule", os.path.splitext( os.path.basename(OUTPUT_FILENAME) )[0] + ".json")
@@ -145,17 +171,19 @@ def generate_html_schedule(schedule_JSON):
 							for video in block['videos']:
 								with tag('tr', klass="video-row"):
 									with tag('td', klass="video-start-time"):
-										text(video['startTime'][0:8])
+										with tag('a', klass="start-time-anchor", id=video["startTime"]):
+											text(video['startTime'][0:8])
 									with tag('td', klass="video-title"):
 										text(video['title'])
 										with tag('p', klass="video-author"):
-											text(video['author'])
+											with tag('a', klass="video-author", href=video["authorLink"]):
+												text(video['author'])
 									with tag('td', klass="video-description"):
 										text(video['description'])
 
 	output_html_filename = os.path.join( "../../schedule", os.path.splitext( os.path.basename(OUTPUT_FILENAME) )[0] + "_schedule_table.html")
 	file = open(output_html_filename,'w')
-	file.write(doc.getvalue())
+	file.write(doc.getvalue().encode('utf-8'))
 	#print(doc.getvalue()) 
 
 generate_html_schedule(output_json_filename)

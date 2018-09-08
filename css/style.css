@@ -99,7 +99,29 @@ img.ascii-art {
     margin-bottom: 40px;
 }
 
+
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+video {
+    position: relative;
+    display: block;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    width: 100%;
+    height:auto;
+}
+
+video::-webkit-media-controls {
+  display:none !important;
+}
+
 #player {
+    width: 100%;
     background: black;
     min-height: 470px;
     top: 0;
@@ -140,25 +162,6 @@ img.ascii-art {
     text-align: center;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-video {
-    position: relative;
-    display: block;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: 0 !important;
-    width: 100%;
-    height:auto;
-}
-
-video::-webkit-media-controls {
-  display:none !important;
-}
-
 
 #video-container {
   position: relative;
@@ -182,9 +185,24 @@ video::-webkit-media-controls {
 
 /* YOUTUBE PLAYER STYLES */
 
-#player {
-    pointer-events: none;
+.ytp-chrome-controls {
+    display: none !important;
 }
+
+.controls {
+    display: none;
+}
+
+#youtube-hider {
+    width: 200px;
+    height: 50px;
+    background: black;
+    position: absolute;
+    z-index: 10000;
+    right: 0;
+    bottom: 0;
+}
+
 
 #watermark {
     opacity: 0.85;
@@ -320,11 +338,17 @@ video::-webkit-media-controls {
 }
 
 #header {
-    background: linear-gradient(white,black) left bottom no-repeat;
-    background-size: 100% 5px;
+    /*background: linear-gradient(white,black) left bottom no-repeat;
+    background-size: 100% 5px;*/
+    position: fixed;
+    top: 0;
+    width:100%;
+    background: white;
+    padding-top: 5px;
     padding-bottom: 10px;
+    padding-left: 10px;
     font-size: 25px;
-    margin: 10px;
+    /*margin: 10px;*/
     color: black;
 }
 }
@@ -406,21 +430,35 @@ input[type=submit] {
 }
 
 table {
+    border: 1px solid black;
     border-collapse: separate;
     width:100%;
 }
 
 table#schedule-header {
+    position: fixed;
+    background: white;
+    padding-bottom: 20px;
+    top: 30px;
+    border: none;
     margin: 0 auto;
     width: 100%;
 }
 
-table#schedule-table {
+table#schedule-header tr {
+    border: none;
+}
 
+table#schedule-header td {
+    border: none;
+}
+
+table#schedule-table {
+    margin-top: 100px;
 }
 
 td {
-    padding-bottom: 30px;
+    border: 1px solid black;
 }
 
 a.day {
@@ -437,6 +475,7 @@ a.day.active {
 }
 
 tr.block-row {
+    border: 1px solid black;
     /*font-size: 20px;*/
 }
 
@@ -449,15 +488,32 @@ td.block-title {
     color: white;
 }
 
-td.video-start-time {
-}
+/*table.video-list tr:nth-child(even) {
+    background: blue;
+} */
 
-td.video-title {
-    font-style: italic;
+td.video-start-time {
+    font-size: 20px;
     width:20%;
 }
 
+td.video-start-time a.start-time-anchor {
+    text-decoration-color: none;
+    text-decoration: none;
+    color: black;
+    cursor: default;
+}
+
+td.video-title {
+    padding-top: 15px;
+    font-style: italic;
+    font-size:20px;
+    width:30%;
+}
+
 .video-author {
+    font-style: normal;
+    font-size: 13px;
 }
 
 [class*="col-"] {

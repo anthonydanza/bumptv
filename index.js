@@ -1,10 +1,63 @@
+function muteHTML5VideoTag() {
+  console.log("muting html5");
+  var tag = document.getElementsByTagName("video")[0];
+  if(tag) {
+    var muteState = tag.muted;
+    tag.muted = !muteState;
+    playerState.muted = !playerState.muted;
+
+  }
+}
+
+function muteYouTube() {
+  if(typeof youTubePlayer !== 'undefined') {
+    if(youTubePlayer.isMuted()){
+      youTubePlayer.unMute();
+      playerState.muted = false;
+    }
+    else { 
+      youTubePlayer.mute();
+      playerState.muted = true;
+    }
+  }
+}
+
+function muteVimeo() {
+  console.log("toggling vimeo");
+  if(typeof vimeoPlayer !== 'undefined'){
+    vimeoPlayer.getVolume().then(function(volume) {
+      if(volume != 0) {
+        console.log("muting");
+        vimeoPlayer.setVolume(0);
+        playerState.muted = true;
+      } else {
+        console.log("unmuting");
+        vimeoPlayer.setVolume(1);
+        playerState.muted = false;
+      }
+    }).catch(function(error) {
+        // an error occurred
+    });
+  }
+}
+
 function toggleMute() {
-  var state = document.getElementById("main-vid").muted;
-  document.getElementById("main-vid").muted = !state;
+  console.log(playerState);
+  switch(playerState.playerType) {
+  case "LOCAL":
+    muteHTML5VideoTag();
+    break;
+  case "YOUTUBE":
+    muteYouTube();
+    break;
+  case "VIMEO":
+    muteVimeo();
+    break;
+}
 
   var mute_button = document.getElementById("mute");
 
-   if (state == true) {
+   if (playerState.muted == false) {
     mute_button.style.fontWeight = 'normal';
     mute_button.innerHTML = "SOUND IS ON";
   } else {
@@ -26,7 +79,8 @@ function openSchedule() {
   var week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var d = new Date();
   var dotw = week[d.getDay()];
-  var url = "schedule.html?d=" + dotw;
+  console.log(playerState.videoData);
+  var url = "schedule.html?d=" + dotw + "?t=" + playerState.videoData.startTime; 
   window.open(url, "_self");
 }
 
@@ -69,6 +123,7 @@ function findYouTubeVideoId(url) {
 
 function nonEmbeddedVideoEnded() {
   document.getElementById("video-container").innerHTML = "";
+  console.log("nonembedded video ended");
   requestNextVideo();
 }
 
@@ -83,10 +138,23 @@ function nonEmbeddedVideoTag(id, src) {
 
   var tag =  "<video id=\"non-embedded-video\" src=\"" 
               + src 
-              + "\" autoplay playsinline muted onclick=\"fullscreen()\" onended=\"nonEmbeddedVideoEnded()\"></video>"
+              + "\" autoplay playsinline allowfullscreen muted onclick=\"fullscreen()\" onended=\"nonEmbeddedVideoEnded()\"></video>"
 
   videoContainerDiv.innerHTML = tag;
 
+}
+
+function YTLogoHider(state) {
+  if(state == true) {
+    var hiderDiv = document.createElement("div");
+    hiderDiv.id = "youtube-hider";
+    document.getElementById("player").appendChild(hiderDiv);
+  } else if (state==false) {
+      var hiderDiv = document.getElementById("youtube-hider");
+      if (hiderDiv) {
+        document.getElementById("player").removeChild(hiderDiv);
+      }
+  }
 }
 
 //if normal video, seek into it, if it's a bumper, cut it off if necessary
@@ -128,19 +196,24 @@ function requestNextVideo() {
       resp = JSON.parse(this.responseText);
       console.log(resp);
 
+      playerState.videoData = resp;      
+
       switch(getVideoSource(resp.filename)) {
         case "LOCAL":
           console.log("LOCAL SELECTED " + resp.filename);
+          playerState.playerType = "LOCAL";
           nonEmbeddedVideoTag("video-container", "/media/" + resp.filename);
           seekOrCountdown(resp);   
           break;
         case "STATIC":
           console.log("STATIC SELECTED");
+          playerState.playerType = "STATIC";
           nonEmbeddedVideoTag("video-container", resp.filename);
           seekOrCountdown(resp);
           break;
         case "YOUTUBE":
           console.log("YOUTUBE SELECTED");
+          playerState.playerType = "YOUTUBE";
           var videoId = findYouTubeVideoId(resp.filename);
           var seekTime = parseInt(resp.seekTime/1000);
           console.log("creating player ");
@@ -149,30 +222,42 @@ function requestNextVideo() {
               width: '100%',
               disablekb: 1,
               enablejsapi: 1,
-              showinfo: 0,
+              playerVars: {
+               origin: 'http://designdeploy.co.uk',
+               modestbranding: 0,
+               controls: 0,
+               start: 403,
+               fs: 0,
+               showinfo: 0
+              },
               events: {
-                  'onReady': function(event) {event.target.loadVideoById(videoId, seekTime);},
+                  'onReady': function(event) {
+                    //YTLogoHider(true);
+                    event.target.loadVideoById(videoId, seekTime);
+                  },
                   'onStateChange': onPlayerStateChange
               }
           });
           break;
         case "VIMEO":
+          playerState.playerType = "VIMEO";
           console.log("VIMEO SELECTED");
+          var seekTime = parseInt(resp.seekTime/1000);
           var options = {
             url: resp.filename,  
             width: 640,
             autoplay: true,
             muted: true,
             autopause: 0,
-            portrait: false
+            portrait: false,
+            background: false
           };
 
-
-          var vimeoPlayer = new Vimeo.Player('video-container', options);   
-    
+          vimeoPlayer = new Vimeo.Player('video-container', options);       
 
           vimeoPlayer.ready().then(function() {
             padToFitVimeo(true);
+            vimeoPlayer.setCurrentTime(seekTime);
             vimeoPlayer.play();
             });
 
@@ -181,6 +266,7 @@ function requestNextVideo() {
               console.log("VIMEO ENDED");
               vimeoPlayer.destroy();
               padToFitVimeo(false);
+              console.log("vimeo player on ended");
               requestNextVideo();
             });
           break;
@@ -224,6 +310,7 @@ function ApiLoadStatus() {
       this.vimeo;
       this.checkReady = function() {
         if(this.youtube && this.vimeo) {
+          console.log("yt api loaded");
           requestNextVideo();
         }
       };
@@ -237,7 +324,14 @@ function ApiLoadStatus() {
       };
 }
 
-var apiStatus = new ApiLoadStatus();
+function playerStatus() {
+  this.playerType = "LOCAL";
+  this.muted = true;
+  this.videoData = null;
+} 
+
+var playerState = new playerStatus();
+var apiState = new ApiLoadStatus();
 
 // ---------------------- YOUTUBE -----------------------------//
 function loadYouTubeAPI() {
@@ -251,11 +345,10 @@ function loadYouTubeAPI() {
 
 // function onPlayerReady(event) {
 //       console.log("player ready");
-//      // holder.holderCallback(youtubething, null, null);
 // }
 
 function onYouTubeIframeAPIReady() {
-    apiStatus.setYouTubeStatus(true);       
+    apiState.setYouTubeStatus(true);       
 }
 
 function removeYouTubeAPI() {
@@ -267,7 +360,9 @@ function removeYouTubeAPI() {
 
 function onPlayerStateChange(event) {
   if(event.data == YT.PlayerState.ENDED) {
-    event.target.destroy();    
+    event.target.destroy();
+    //YTLogoHider(false);
+    console.log("onplayerstatechange ENDED");    
     requestNextVideo();
   } 
 }
@@ -279,8 +374,8 @@ function stopVideo() {
 
 // VIMEO ------------------------------------------------------------//
 function loadVimeoAPI() {
-  // no vimeo support yet
-  apiStatus.setVimeoStatus(true);
+  // vimeo tag is loaded in index.html right now...
+  apiState.setVimeoStatus(true);
 }
 //-------------------------------------------------------------------//
 
