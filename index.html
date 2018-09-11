@@ -44,12 +44,14 @@
       <div id="player-menu">
             <div class="col-3">
                 <div class="menu-button" id="artist-info-button" onclick="toggleArtistInfo()">
-                  <div id="artist-info-msg"></div>
+                  <div id="artist-info-msg">NOW PLAYING: </div>
                   <div id="artist-info-title"></div>
                   <div id="artist-info-author"></div>
-                  <div id="artist-info-description">
-                    <div id="artist-info-description-title"></div>
-                    <div id="artist-info-description-author"></div>
+                  <div id="artist-info-popup">
+                    <div id="artist-info-popup-container">
+                      <div id="artist-info-description-title"></div>
+                      <div id="artist-info-description-author"></div>
+                    </div>
                   </div>
                 </div>
             </div>
@@ -57,10 +59,15 @@
               <div class="menu-button" id="schedule-button" onclick="openSchedule()"> schedule </div>
             </div>
             <div class="col-3">
-              <div class="menu-button" id="mute" onclick="toggleMute()"> SOUND IS OFF </div>
+              <div class="col-2">
+                <div class="menu-button" id="mute" onclick="toggleMute()"> SOUND IS OFF </div>
+              </div>
+              <div class="col-2">
+                <div class="menu-button" onclick="fullscreen()">fullscreen</div>
+              </div>
             </div>
             <div>
-              <div onclick="fullscreen()">fullscreen</div>
+              <!-- <div onclick="fullscreen()">fullscreen</div> -->
             </div>
 
       </div>

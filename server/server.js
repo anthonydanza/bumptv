@@ -2,15 +2,14 @@ var express = require('express');
 var http = require('http');
 var fs = require("fs");
 const path = require('path')
+const ffprobe = require('ffprobe');
+const ffprobeStatic = require('ffprobe-static');
 
-
-//both moons
 var app = express();
 app.use(express.static(path.join(__dirname, '../')));
 
 app.get('/nextVideo', function(req, res) {   
-   //console.log("Got a GET request for next video");
-   res.send(playNextVideo());
+   playNextVideo(function(response) {res.send(response);} );
 })
 
 function parseDate(dateStr) {
@@ -34,7 +33,7 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
 
-function playNextVideo() {
+function playNextVideo(sendResponse) {
 
 	// FOR TESTING ----------------
 	//var adjusted = new Date();
@@ -74,6 +73,7 @@ function playNextVideo() {
 			var startTime = parseDate(curBlock.videos[j].startTime);
 			var endTime = new Date(startTime.getTime());
 			endTime.setMilliseconds(startTime.getMilliseconds() + curBlock.videos[j].duration);
+			//console.log(startTime, endTime, now);
 
 			if(endTime > now && startTime < now) {
 				curVideo = curBlock.videos[j];
@@ -82,29 +82,59 @@ function playNextVideo() {
 				curVideo["videoType"] = "video";
 				curVideo["seekTime"] = seekTime;
 				curVideo["timeRemaining"] = timeRemaining;
-				return curVideo;
+				sendResponse(curVideo);
+				return;
 			} else if(startTime > now) {
 				var filename = getRandomBumper();
 				var timeRemaining = startTime - now
 				var previousStartTime = curBlock.videos[j-1].startTime;
 				console.log("pst " +previousStartTime);
 				// send back a bumper with the start time of the last real video, to determine most recent time slot when loading sched
-				return {"videoType":"bumper", "filename":filename, "timeRemaining": timeRemaining, "startTime":previousStartTime};
+				var resp = {"videoType":"bumper", "filename":filename, "timeRemaining": timeRemaining, "startTime":previousStartTime};
+				sendResponse(curVideo);
+				return;
 			}
 		} 
 
 		var filename = getRandomBumper();
+		var bumperResp = {};
+
+		console.log("getting bumper: ", filename);
+
+		var duration = 0;
+		ffprobe("../media" + filename, { path: ffprobeStatic.path }, function (err, info) {
+			console.log("hi");
+			if (err)  { console.log(err); return done(err); }
+
+			console.log("GETTING DURATION!!!!!!!!!!");
+			//console.log(info);
+			duration = parseInt(info.streams[0].duration * 1000);
+
 		if(sched[sched.indexOf(curBlock)+1]) { 
+
 			var nextStartTime = sched[sched.indexOf(curBlock)+1].startTime;
 			var timeLeftInBlock = parseDate(nextStartTime) - now;
 			console.log("nst " + nextStartTime);
-			return {"videoType":"bumper", "filename":filename, "timeRemaining":timeLeftInBlock, "startTime":nextStartTime}; 	
+			console.log(duration, timeLeftInBlock);
+  			
+  			var timeRemaining = 0;
+			if(duration > timeLeftInBlock) {
+				timeRemaining = timeLeftInBlock;
+			} else {
+				timeRemaining = duration;
+			}	
+			bumperResp =  {"videoType":"bumper", "filename":filename, "timeRemaining":timeRemaining, "startTime":nextStartTime, "duration": duration};
+			console.log(bumperResp);
+			sendResponse(bumperResp);
 		} else {
 			var lastStartTime = sched[sched.length].startTime;
 			console.log("lst " + lastStartTime);
-			return {"videoType":"bumper", "filename":filename, "timeRemaining":500000, "startTime":lastStartTime};
+			bumperResp = {"videoType":"bumper", "filename":filename, "timeRemaining":500000, "startTime":lastStartTime, "duration": duration};
+			console.log(bumperResp);
+			sendResponse(bumperResp);
 		}		
-	}	
+	});	
+}
 }	
 
 function getRandomBumper() {

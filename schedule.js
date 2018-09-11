@@ -15,6 +15,12 @@ function parseQuery() {
 	return output;
 }
 
+function highlightCurrentTimeSlot(id) {
+	var element = document.getElementById(id).parentElement.parentElement;
+	if(element) { 
+		element.style.background = "linear-gradient(blue,white)";
+	}
+}
 
 window.onload = function () {
 
@@ -29,10 +35,12 @@ window.onload = function () {
 	xhr.open('get', filename, true);
 
 	xhr.onreadystatechange = function() {
+		console.log(xhr);
 	if (xhr.readyState == 4 && xhr.status == 200) { 
 	    	document.getElementById("schedule-table-container").innerHTML = xhr.responseText;
 	    	window.location.hash = query.t;
 	    	window.scrollBy(0,-300);
+	    	highlightCurrentTimeSlot(query.t);
 		} 
 		else if(xhr.status == 404) {
 			document.getElementById("schedule-table-container").innerHTML = "<h1>404: SCHEDULE FILE NOT FOUND</h1>";

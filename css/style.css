@@ -56,14 +56,11 @@ pre {
     font-weight: bold;
 }
 
-
 .separator {
     width: 100%;
     text-align: center;
     font-size: 100px;
 }
-
-
 
 #container {
     width:100%;
@@ -287,7 +284,7 @@ video::-webkit-media-controls {
 
 }
 
-#artist-info-description {
+#artist-info-popup {
     display:none;
     width:500px;
     padding:10px;
@@ -300,16 +297,20 @@ video::-webkit-media-controls {
     text-align: left;
 }
 
-#artist-info-description a {
+#artist-info-popup a {
     color: #0029ff;
     text-decoration: underline;
 }
 
-#artist-info-description-title {
+#artist-info-popup-container {
+    padding: 10px;
+}
+
+#artist-info-popup-title {
     color: red;
 }
 
-#artist-info-description-author {
+#artist-info-popup-author {
     color: #0029ff;
 }
 
@@ -351,6 +352,9 @@ video::-webkit-media-controls {
     /*margin: 10px;*/
     color: black;
 }
+
+#header a#submit {
+    color: yellowgreen;
 }
 
 #footer {
@@ -453,6 +457,13 @@ table#schedule-header td {
     border: none;
 }
 
+.gradient-separator {
+    position: fixed;
+    height: 20px;
+    width:100%;
+    background: linear-gradient(black,#ffffff00);
+}
+
 table#schedule-table {
     margin-top: 100px;
 }
@@ -526,6 +537,10 @@ td.video-title {
     margin: 0 auto;
 }
 
+.col-2 {
+    display: inline-block;
+}
+
 .col-7 {
     width:100%;
     display:inline-block;
@@ -535,8 +550,9 @@ td.video-title {
 @media only screen and (min-width: 790px) {
     /* For desktop: */
     .col-1 {width: 100%;}
-    .col-2 {width: 50%;}
+    .col-2 {width: 48%;}
     .col-3 {width: 32%;}
+    .col-4 {width: 24%;}
     .col-7 {width: 13%;}
 
     a.day {font-size:30px;}

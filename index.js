@@ -67,11 +67,11 @@ function toggleMute() {
 }
 
 function toggleArtistInfo() {
-  var state = document.getElementById('artist-info-description').style.display;
+  var state = document.getElementById('artist-info-popup').style.display;
   if(state != "inline-block") {
-    document.getElementById('artist-info-description').style.display = "inline-block";
+    document.getElementById('artist-info-popup').style.display = "inline-block";
   } else {
-    document.getElementById('artist-info-description').style.display = "none";
+    document.getElementById('artist-info-popup').style.display = "none";
   }
 }
 
@@ -79,7 +79,7 @@ function openSchedule() {
   var week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var d = new Date();
   var dotw = week[d.getDay()];
-  console.log(playerState.videoData);
+  console.log("playerState: ", playerState.videoData);
   var url = "schedule.html?d=" + dotw + "?t=" + playerState.videoData.startTime; 
   window.open(url, "_self");
 }
@@ -129,6 +129,7 @@ function nonEmbeddedVideoEnded() {
 
 function nonEmbeddedVideoTag(id, src) {
 
+  console.log("placing nonembedded video tag");
   var videoContainerDiv = document.getElementById(id);
   if(videoContainerDiv == null) {
     videoContainerDiv =  document.createElement("div");
@@ -138,10 +139,9 @@ function nonEmbeddedVideoTag(id, src) {
 
   var tag =  "<video id=\"non-embedded-video\" src=\"" 
               + src 
-              + "\" autoplay playsinline allowfullscreen muted onclick=\"fullscreen()\" onended=\"nonEmbeddedVideoEnded()\"></video>"
+              + "\" autoplay playsinline allowfullscreen muted onclick=\"fullscreen()\"></video>"
 
   videoContainerDiv.innerHTML = tag;
-
 }
 
 function YTLogoHider(state) {
@@ -162,13 +162,16 @@ function seekOrCountdown(resp) {
   var video = document.getElementById("non-embedded-video");
   var seekTime = parseFloat(resp.seekTime) / 1000.0;
   var timeRemaining = parseInt(resp.timeRemaining);
+  console.log(resp);
 
   if(resp.videoType == "video") {
     video.currentTime = seekTime; 
     console.log("time remaining: " + timeRemaining);
+    video.onended=function(){nonEmbeddedVideoEnded();}
     //setTimeout(function() {requestNextVideo();}, timeRemaining); // TODO do something about drift/overlap/buffering
   } else if(resp.videoType == "bumper") {
-      setTimeout(function() {nonEmbeddedVideoEnded()}, timeRemaining);
+      console.log("setting a timeout for timeremaining = ", timeRemaining);
+      setTimeout(function() { console.log("timeout firing ", timeRemaining); nonEmbeddedVideoEnded();}, timeRemaining);
   }
 }
 
@@ -190,9 +193,11 @@ function requestNextVideo() {
   req.send();
 
   req.onreadystatechange = function() {
+    console.log("req responded: ", req);
     if (this.readyState == 4 && this.status == 200) {
 
       var resp = this.responseText.split(',');
+      console.log(resp);
       resp = JSON.parse(this.responseText);
       console.log(resp);
 
@@ -223,7 +228,6 @@ function requestNextVideo() {
               disablekb: 1,
               enablejsapi: 1,
               playerVars: {
-               origin: 'http://designdeploy.co.uk',
                modestbranding: 0,
                controls: 0,
                start: 403,
@@ -233,7 +237,9 @@ function requestNextVideo() {
               events: {
                   'onReady': function(event) {
                     //YTLogoHider(true);
+                    //console.log("onReady: ", event);
                     event.target.loadVideoById(videoId, seekTime);
+                    event.target.mute();
                   },
                   'onStateChange': onPlayerStateChange
               }
@@ -283,14 +289,14 @@ function updateVideoInfoInDOM(resp) {
       document.getElementById("artist-info-author").innerHTML = resp.author;
 
       var artistInfoDescriptionAuthor = document.createElement('div');
-      artistInfoDescriptionAuthor.id = "artist-info-description-author";
+      artistInfoDescriptionAuthor.id = "artist-info-popup-author";
       artistInfoDescriptionAuthor.innerHTML = "<a href=\"" + resp.authorLink + "\">" + resp.author + "</a>";
 
       var artistInfoDescriptionTitle = document.createElement('div');
-      artistInfoDescriptionTitle.id = "artist-info-description-title";
+      artistInfoDescriptionTitle.id = "artist-info-popup-title";
       artistInfoDescriptionTitle.innerHTML = resp.title;
 
-      var artistInfoDescription = document.getElementById("artist-info-description");
+      var artistInfoDescription = document.getElementById("artist-info-popup-container");
       artistInfoDescription.innerHTML = "";
       artistInfoDescription.appendChild(artistInfoDescriptionTitle);
       artistInfoDescription.appendChild(artistInfoDescriptionAuthor);
@@ -300,7 +306,7 @@ function updateVideoInfoInDOM(resp) {
       document.getElementById("artist-info-msg").innerHTML = "stay tuned...";
       document.getElementById("artist-info-title").innerHTML = "";
       document.getElementById("artist-info-author").innerHTML = "";
-      document.getElementById("artist-info-description").innerHTML = "More shows coming up soon. See <a onclick=\"openSchedule()\">schedule</a> for details.";
+      document.getElementById("artist-info-popup-container").innerHTML = "More shows coming up sooooooon see <a onclick=\"openSchedule()\">schedule</a> for details.";
       return;
     } 
 }
@@ -359,6 +365,7 @@ function removeYouTubeAPI() {
 }
 
 function onPlayerStateChange(event) {
+  //console.log("onPlayerStateChange", event);
   if(event.data == YT.PlayerState.ENDED) {
     event.target.destroy();
     //YTLogoHider(false);
@@ -366,9 +373,7 @@ function onPlayerStateChange(event) {
     requestNextVideo();
   } 
 }
-function stopVideo() {
-  youTubePlayer.stopVideo();
-}
+
 
 //--------------------------------------------------------------------//
 
