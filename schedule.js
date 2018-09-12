@@ -14,9 +14,10 @@ function parseQuery() {
 }
 
 function highlightCurrentTimeSlot(id) {
-	var element = document.getElementById(id).parentElement.parentElement;
-	if(element) { 
-		element.style.background = "linear-gradient(blue,white)";
+	var element = document.getElementById(id);
+	if(element != null) { 
+		var parentElement = element.parentElement.parentElement;
+		parentElement.style.background = "linear-gradient(blue,white)";
 	}
 }
 
