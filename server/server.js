@@ -19,7 +19,9 @@ function parseDate(dateStr) {
 	return date;
 }
 
-var curVideo = 0;
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
 
 // FOR TESTING ---------------
 // var actualTime = new Date();
@@ -27,11 +29,8 @@ var curVideo = 0;
 // bootTime.setHours(16,0,0,0);
 // var delta = actualTime - bootTime;
 
+var curVideo;
 var mediaPath = "../media";
-
-function getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
-}
 
 function playNextVideo(sendResponse) {
 
@@ -41,23 +40,21 @@ function playNextVideo(sendResponse) {
 	//now.setMilliseconds(adjusted);
 	var now = new Date();
 
+	console.log(now);
+
 	var curBlock;
 
 	var DOTW = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 	var day = DOTW[now.getDay()];
 
 	var sched = fs.readFileSync("../schedule/" + day + ".json");
-	sched = JSON.parse(sched);
-	//console.log(sched);
-	
+	sched = JSON.parse(sched);	
 
-	for(var i = 0; i < sched.length; i++) { //find block
+	// find block
+	for(var i = 0; i < sched.length; i++) {
 		var blockStartTime = parseDate(sched[i].startTime);
-		//console.log(now);
-		//console.log(blockStartTime);
 		if(blockStartTime >= now) {
 			if(i == 0) {
-				//curBlock = sched[i];
 				//break;
 			} else {
 				curBlock = sched[i-1];
@@ -98,41 +95,36 @@ function playNextVideo(sendResponse) {
 
 		var filename = getRandomBumper();
 		var bumperResp = {};
-
-		console.log("getting bumper: ", filename);
-
 		var duration = 0;
+
 		ffprobe("../media" + filename, { path: ffprobeStatic.path }, function (err, info) {
-			console.log("hi");
 			if (err)  { console.log(err); return done(err); }
 
-			console.log("GETTING DURATION!!!!!!!!!!");
-			//console.log(info);
 			duration = parseInt(info.streams[0].duration * 1000);
 
-		if(sched[sched.indexOf(curBlock)+1]) { 
+			if(sched[sched.indexOf(curBlock)+1]) { 
 
-			var nextStartTime = sched[sched.indexOf(curBlock)+1].startTime;
-			var timeLeftInBlock = parseDate(nextStartTime) - now;
-			console.log("nst " + nextStartTime);
-			console.log(duration, timeLeftInBlock);
-  			
-  			var timeRemaining = 0;
-			if(duration > timeLeftInBlock) {
-				timeRemaining = timeLeftInBlock;
+				var nextStartTime = sched[sched.indexOf(curBlock)+1].startTime;
+				var timeLeftInBlock = parseDate(nextStartTime) - now;
+				console.log("nst " + nextStartTime);
+				console.log(duration, timeLeftInBlock);
+	  			
+	  			var timeRemaining = 0;
+				if(duration > timeLeftInBlock) {
+					timeRemaining = timeLeftInBlock;
+				} else {
+					timeRemaining = duration;
+				}	
+				bumperResp =  {"videoType":"bumper", "filename":filename, "timeRemaining":timeRemaining, "startTime":nextStartTime, "duration": duration};
+				console.log(bumperResp);
+				sendResponse(bumperResp);
 			} else {
-				timeRemaining = duration;
-			}	
-			bumperResp =  {"videoType":"bumper", "filename":filename, "timeRemaining":timeRemaining, "startTime":nextStartTime, "duration": duration};
-			console.log(bumperResp);
-			sendResponse(bumperResp);
-		} else {
-			var lastStartTime = sched[sched.length].startTime;
-			console.log("lst " + lastStartTime);
-			bumperResp = {"videoType":"bumper", "filename":filename, "timeRemaining":500000, "startTime":lastStartTime, "duration": duration};
-			console.log(bumperResp);
-			sendResponse(bumperResp);
-		}		
+				var lastStartTime = sched[sched.length].startTime;
+				console.log("lst " + lastStartTime);
+				bumperResp = {"videoType":"bumper", "filename":filename, "timeRemaining":500000, "startTime":lastStartTime, "duration": duration};
+				console.log(bumperResp);
+				sendResponse(bumperResp);
+			}		
 	});	
 }
 }	

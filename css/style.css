@@ -272,8 +272,7 @@ video::-webkit-media-controls {
 }
 
 #artist-info-button{
-    position: relative;
-    /*float:left;*/
+    
 }
 
 #artist-info-title {
@@ -338,10 +337,14 @@ video::-webkit-media-controls {
     visibility: visible;
 }
 
+#header-container {
+    position: fixed;
+    width:100%;
+}
+
 #header {
     /*background: linear-gradient(white,black) left bottom no-repeat;
     background-size: 100% 5px;*/
-    position: fixed;
     top: 0;
     width:100%;
     background: white;
@@ -440,9 +443,7 @@ table {
 }
 
 table#schedule-header {
-    position: fixed;
     background: white;
-    padding-bottom: 20px;
     top: 30px;
     border: none;
     margin: 0 auto;
@@ -458,14 +459,14 @@ table#schedule-header td {
 }
 
 .gradient-separator {
-    position: fixed;
     height: 20px;
     width:100%;
     background: linear-gradient(black,#ffffff00);
 }
 
 table#schedule-table {
-    margin-top: 100px;
+    text-align:center;
+    padding-top: 100px;
 }
 
 td {
@@ -532,6 +533,7 @@ td.video-title {
 }
 
 .col-3 {
+    position: relative;
     width:100%;
     display: inline-block;
     margin: 0 auto;
@@ -556,12 +558,15 @@ td.video-title {
     .col-7 {width: 13%;}
 
     a.day {font-size:30px;}
- 
+
+
 }
 
 @media only screen and (max-width: 669px) {
     /* For desktop: */
     a.day {font-size:20px;}
+
+    #header {font-size:12px;}
  
 }
 

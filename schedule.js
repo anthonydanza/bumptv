@@ -1,6 +1,5 @@
 var urlParams;
 
-
 function parseQuery() {
 	var query  = window.location.search.substring(1);
 	var vars = query.split("?");
@@ -11,7 +10,6 @@ function parseQuery() {
 		var val = keyVal[1];
 		output[key] = val;
 	}
-	console.log(output);
 	return output;
 }
 
@@ -25,17 +23,13 @@ function highlightCurrentTimeSlot(id) {
 window.onload = function () {
 
 	var query = parseQuery();
-	console.log(query);
-
 	var schedule_dir = "schedule/"
 	var filename = schedule_dir + query.d + "_schedule_table.html";
-
 
 	var xhr = typeof XMLHttpRequest != 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
 	xhr.open('get', filename, true);
 
 	xhr.onreadystatechange = function() {
-		console.log(xhr);
 	if (xhr.readyState == 4 && xhr.status == 200) { 
 	    	document.getElementById("schedule-table-container").innerHTML = xhr.responseText;
 	    	window.location.hash = query.t;

@@ -1,5 +1,4 @@
 function muteHTML5VideoTag() {
-  console.log("muting html5");
   var tag = document.getElementsByTagName("video")[0];
   if(tag) {
     var muteState = tag.muted;
@@ -23,15 +22,12 @@ function muteYouTube() {
 }
 
 function muteVimeo() {
-  console.log("toggling vimeo");
   if(typeof vimeoPlayer !== 'undefined'){
     vimeoPlayer.getVolume().then(function(volume) {
       if(volume != 0) {
-        console.log("muting");
         vimeoPlayer.setVolume(0);
         playerState.muted = true;
       } else {
-        console.log("unmuting");
         vimeoPlayer.setVolume(1);
         playerState.muted = false;
       }
@@ -42,7 +38,6 @@ function muteVimeo() {
 }
 
 function toggleMute() {
-  console.log(playerState);
   switch(playerState.playerType) {
   case "LOCAL":
     muteHTML5VideoTag();
@@ -56,13 +51,12 @@ function toggleMute() {
 }
 
   var mute_button = document.getElementById("mute");
-
    if (playerState.muted == false) {
     mute_button.style.fontWeight = 'normal';
-    mute_button.innerHTML = "SOUND IS ON";
+    mute_button.innerHTML = "MUTE";
   } else {
     mute_button.style.fontWeight = 'bold';
-    mute_button.innerHTML = "SOUND IS OFF";
+    mute_button.innerHTML = "UNMUTE";
    }
 }
 
@@ -79,7 +73,6 @@ function openSchedule() {
   var week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var d = new Date();
   var dotw = week[d.getDay()];
-  console.log("playerState: ", playerState.videoData);
   var url = "schedule.html?d=" + dotw + "?t=" + playerState.videoData.startTime; 
   window.open(url, "_self");
 }
@@ -123,13 +116,10 @@ function findYouTubeVideoId(url) {
 
 function nonEmbeddedVideoEnded() {
   document.getElementById("video-container").innerHTML = "";
-  console.log("nonembedded video ended");
   requestNextVideo();
 }
 
 function nonEmbeddedVideoTag(id, src) {
-
-  console.log("placing nonembedded video tag");
   var videoContainerDiv = document.getElementById(id);
   if(videoContainerDiv == null) {
     videoContainerDiv =  document.createElement("div");
@@ -162,16 +152,13 @@ function seekOrCountdown(resp) {
   var video = document.getElementById("non-embedded-video");
   var seekTime = parseFloat(resp.seekTime) / 1000.0;
   var timeRemaining = parseInt(resp.timeRemaining);
-  console.log(resp);
 
   if(resp.videoType == "video") {
     video.currentTime = seekTime; 
-    console.log("time remaining: " + timeRemaining);
     video.onended=function(){nonEmbeddedVideoEnded();}
     //setTimeout(function() {requestNextVideo();}, timeRemaining); // TODO do something about drift/overlap/buffering
   } else if(resp.videoType == "bumper") {
-      console.log("setting a timeout for timeremaining = ", timeRemaining);
-      setTimeout(function() { console.log("timeout firing ", timeRemaining); nonEmbeddedVideoEnded();}, timeRemaining);
+      setTimeout(function() { nonEmbeddedVideoEnded(); }, timeRemaining);
   }
 }
 
@@ -185,43 +172,34 @@ function padToFitVimeo(pad){
 
 function requestNextVideo() {
 
-  console.log("REQUESTING NEXT VIDEO");
-
   var req = new XMLHttpRequest();
   req.open("GET", "nextVideo", true);
   req.setRequestHeader("Cache-Control", "no-cache");
   req.send();
 
   req.onreadystatechange = function() {
-    console.log("req responded: ", req);
     if (this.readyState == 4 && this.status == 200) {
 
       var resp = this.responseText.split(',');
-      console.log(resp);
       resp = JSON.parse(this.responseText);
-      console.log(resp);
 
       playerState.videoData = resp;      
 
       switch(getVideoSource(resp.filename)) {
         case "LOCAL":
-          console.log("LOCAL SELECTED " + resp.filename);
           playerState.playerType = "LOCAL";
           nonEmbeddedVideoTag("video-container", "/media/" + resp.filename);
           seekOrCountdown(resp);   
           break;
         case "STATIC":
-          console.log("STATIC SELECTED");
           playerState.playerType = "STATIC";
           nonEmbeddedVideoTag("video-container", resp.filename);
           seekOrCountdown(resp);
           break;
         case "YOUTUBE":
-          console.log("YOUTUBE SELECTED");
           playerState.playerType = "YOUTUBE";
           var videoId = findYouTubeVideoId(resp.filename);
           var seekTime = parseInt(resp.seekTime/1000);
-          console.log("creating player ");
           youTubePlayer = new YT.Player('video-container', {
               height: '100%',
               width: '100%',
@@ -236,8 +214,6 @@ function requestNextVideo() {
               },
               events: {
                   'onReady': function(event) {
-                    //YTLogoHider(true);
-                    //console.log("onReady: ", event);
                     event.target.loadVideoById(videoId, seekTime);
                     event.target.mute();
                   },
@@ -247,7 +223,6 @@ function requestNextVideo() {
           break;
         case "VIMEO":
           playerState.playerType = "VIMEO";
-          console.log("VIMEO SELECTED");
           var seekTime = parseInt(resp.seekTime/1000);
           var options = {
             url: resp.filename,  
@@ -269,10 +244,8 @@ function requestNextVideo() {
 
           vimeoPlayer.on('ended', 
             function() {
-              console.log("VIMEO ENDED");
               vimeoPlayer.destroy();
               padToFitVimeo(false);
-              console.log("vimeo player on ended");
               requestNextVideo();
             });
           break;
@@ -316,7 +289,6 @@ function ApiLoadStatus() {
       this.vimeo;
       this.checkReady = function() {
         if(this.youtube && this.vimeo) {
-          console.log("yt api loaded");
           requestNextVideo();
         }
       };
@@ -349,10 +321,6 @@ function loadYouTubeAPI() {
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 }
 
-// function onPlayerReady(event) {
-//       console.log("player ready");
-// }
-
 function onYouTubeIframeAPIReady() {
     apiState.setYouTubeStatus(true);       
 }
@@ -365,15 +333,12 @@ function removeYouTubeAPI() {
 }
 
 function onPlayerStateChange(event) {
-  //console.log("onPlayerStateChange", event);
   if(event.data == YT.PlayerState.ENDED) {
     event.target.destroy();
-    //YTLogoHider(false);
     console.log("onplayerstatechange ENDED");    
     requestNextVideo();
   } 
 }
-
 
 //--------------------------------------------------------------------//
 
