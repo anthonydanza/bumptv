@@ -53,10 +53,10 @@ function toggleMute() {
   var mute_button = document.getElementById("mute");
    if (playerState.muted == false) {
     mute_button.style.fontWeight = 'normal';
-    mute_button.innerHTML = "MUTE";
+    mute_button.innerHTML = "mute";
   } else {
     mute_button.style.fontWeight = 'bold';
-    mute_button.innerHTML = "UNMUTE";
+    mute_button.innerHTML = "unmute";
    }
 }
 
@@ -127,7 +127,7 @@ function nonEmbeddedVideoTag(id, src) {
     player.appendChild(videoContainerDiv);
   }
 
-  var tag =  "<video id=\"non-embedded-video\" src=\"" 
+  var tag =  "<video id=\"non-embedded-video\" preload=\"metadata\" src=\"" 
               + src 
               + "\" autoplay playsinline allowfullscreen muted onclick=\"fullscreen()\"></video>"
 
@@ -279,7 +279,7 @@ function updateVideoInfoInDOM(resp) {
       document.getElementById("artist-info-msg").innerHTML = "stay tuned...";
       document.getElementById("artist-info-title").innerHTML = "";
       document.getElementById("artist-info-author").innerHTML = "";
-      document.getElementById("artist-info-popup-container").innerHTML = "More shows coming up sooooooon see <a onclick=\"openSchedule()\">schedule</a> for details.";
+      document.getElementById("artist-info-popup-container").innerHTML = "More shows coming up sooooooon, see <a onclick=\"openSchedule()\">schedule</a> for details.";
       return;
     } 
 }
