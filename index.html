@@ -27,6 +27,15 @@
 <body>
     <div id="container">
 
+      <div class="modal" id="onload-message"> 
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <p>🙂 Hi! BUMP TV works best on desktop.</p>
+          <p>🙂 It doesn't work on mobile devices, because they don't let you autoplay video, TV-style.</p>
+          <p>🙂 Please <a href="https://getadblock.com/">use an ad-blocker</a> for the best viewing experience!</p>
+        </div>
+      </div>
+
       <div id="player">
          <div id="watermark"> 
               <img src="img/btv_logo_grey.png" height="100">
@@ -34,7 +43,6 @@
 
           <div id="fallback-area">
             <div class="loader">LOADING... </div>
-            <div id="loading-message">BUMP TV works best on Chrome for desktop. May not work on mobile devices!</div>
           </div>
     
           <div id="video-container"></div>
