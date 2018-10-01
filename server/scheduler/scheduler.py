@@ -62,7 +62,10 @@ def get_gcloud_video_length(url):
 
 
 def add_millis_to_date_string(date_string,millis):
+	print date_string
+	print millis
 	d = [int(i) for i in date_string.split(":")]
+	print "d: " , d
 	total_millis = d[0]*3600000 + d[1]*60000 + d[2]*1000 + d[3] + millis
 
 	milliseconds = str( total_millis % 1000 ).zfill(2)
@@ -146,6 +149,7 @@ for block in output:
 			print "NO FILENAME PROVIDED FOR ", video
 		if i != 0:
 			print duration
+			#print "startTime: " , video["startTime"]
 			video["startTime"] = add_millis_to_date_string(block["videos"][i-1]["startTime"], int(block["videos"][i-1]["duration"]))
 		else: 
 			video["startTime"] = block["startTime"]
