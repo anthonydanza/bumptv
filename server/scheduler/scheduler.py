@@ -17,9 +17,13 @@ def get_video_length(path):
 	cmd = 'ffprobe -i ' + path + ' -show_entries format=duration -v quiet -of csv="p=0"'
 	result = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
 	output = result.communicate()
+	print "cmd: ", cmd
+	print "result: ", result
+	print "output: ", output
 	return float(output[0])*1000
 
-
+#MEDIA_DIR = "../../media"
+MEDIA_DIR = "/Volumes/CHD - Toronto/bumptv_october_2018"
 YOUTUBE_API_KEY = "AIzaSyBNiJ9LRO4Kz2QvP7XelKByB6ZW0klj9Q8"
 
 v = vimeo.VimeoClient(
@@ -48,6 +52,7 @@ def get_youtube_video_length(url):
 
 def get_vimeo_video_length(url):
 	#return 1
+	print "URL: ", url
 	video = v.get("https://api.vimeo.com/videos?links=" + url)
 	r = json.loads(video.text)
 	return int(r["data"][0]["duration"]) * 1000
@@ -96,6 +101,7 @@ with open(INPUT_FILENAME, 'rb') as schedule_file:
 			field_names = row
 		else: 
 			for j, item in enumerate(row):
+				item = item.rstrip() #remove any trailing spaces
 				if j == 0 and row[j]:
 						cur_block += 1
 						video_index = 0;
@@ -118,12 +124,15 @@ with open(INPUT_FILENAME, 'rb') as schedule_file:
 
 for block in output:
 	for i, video in enumerate(block["videos"]):
-		#print video
+		print video
 		if video["filename"] != "":
+			video["filename"] = video["filename"].rstrip()
 			if is_url(video["filename"]) :
+				print "VIDEO FILENAME: ", video["filename"] 
 				if "youtube" in video["filename"]:
 					duration = get_youtube_video_length(video["filename"])
 				elif "vimeo" in video["filename"]:
+					print "GETTING VIMEO VIDEO LENGTH"
 					duration = get_vimeo_video_length(video["filename"])
 				elif "storage.googleapis.com" in video["filename"]:
 					duration = get_gcloud_video_length(video["filename"])
@@ -131,7 +140,7 @@ for block in output:
 					print "UNSUPPORTED VIDEO LINK"
 			else:
 				print video
-				duration = get_video_length( os.path.join("../../media", video["filename"]) )
+				duration = get_video_length( os.path.join(MEDIA_DIR, video["filename"]) )
 			video["duration"] = duration
 		else:
 			print "NO FILENAME PROVIDED FOR ", video

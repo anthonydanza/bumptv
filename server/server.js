@@ -116,13 +116,13 @@ function playNextVideo(sendResponse) {
 					timeRemaining = duration;
 				}	
 				bumperResp =  {"videoType":"bumper", "filename":filename, "timeRemaining":timeRemaining, "startTime":nextStartTime, "duration": duration};
-				console.log(bumperResp);
+				console.log("1 " + bumperResp);
 				sendResponse(bumperResp);
 			} else {
 				var lastStartTime = sched[sched.length].startTime;
 				console.log("lst " + lastStartTime);
 				bumperResp = {"videoType":"bumper", "filename":filename, "timeRemaining":500000, "startTime":lastStartTime, "duration": duration};
-				console.log(bumperResp);
+				console.log("2 " + bumperResp);
 				sendResponse(bumperResp);
 			}		
 	});	
@@ -141,4 +141,4 @@ function getRandomBumper() {
 }
 
 var server = http.createServer(app);
-server.listen(8080);
+server.listen(80);
