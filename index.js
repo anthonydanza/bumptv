@@ -74,7 +74,10 @@ function openSchedule() {
   var d = new Date();
   var dotw = week[d.getDay()];
   var url = "schedule.html?d=" + dotw + "?t=" + playerState.videoData.startTime; 
-  window.open(url, "_self");
+  if(url != null) { window.open(url, "_self"); }
+  else {
+    window.open("schedule.html","_self");
+  }
 }
 
 function isUrl(str)
@@ -181,6 +184,7 @@ function requestNextVideo() {
     if (this.readyState == 4 && this.status == 200) {
 
       var resp = this.responseText.split(',');
+      console.log(resp);
       resp = JSON.parse(this.responseText);
 
       playerState.videoData = resp;      

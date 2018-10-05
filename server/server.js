@@ -34,6 +34,8 @@ var mediaPath = "../media";
 
 function playNextVideo(sendResponse) {
 
+	console.log("playNextVideo called");
+
 	// FOR TESTING ----------------
 	//var adjusted = new Date();
 	//adjusted = adjusted.getMilliseconds() - delta;
@@ -50,6 +52,9 @@ function playNextVideo(sendResponse) {
 	var sched = fs.readFileSync("../schedule/" + day + ".json");
 	sched = JSON.parse(sched);	
 
+	console.log(sched);
+
+
 	// find block
 	for(var i = 0; i < sched.length; i++) {
 		var blockStartTime = parseDate(sched[i].startTime);
@@ -64,14 +69,16 @@ function playNextVideo(sendResponse) {
 			curBlock = sched[i];
 		}
 	}
-	//console.log(curBlock.blockTitle);
+	console.log(curBlock.blockTitle);
+
 	if(curBlock) {	//find video within block
+		console.log(curBlock);
 		for(var j = 0; j < curBlock.videos.length; j++) {
+			console.log( curBlock.videos[j]);
 			var startTime = parseDate(curBlock.videos[j].startTime);
 			var endTime = new Date(startTime.getTime());
 			endTime.setMilliseconds(startTime.getMilliseconds() + curBlock.videos[j].duration);
 			//console.log(startTime, endTime, now);
-
 			if(endTime > now && startTime < now) {
 				curVideo = curBlock.videos[j];
 				var seekTime = now - startTime;
@@ -79,16 +86,20 @@ function playNextVideo(sendResponse) {
 				curVideo["videoType"] = "video";
 				curVideo["seekTime"] = seekTime;
 				curVideo["timeRemaining"] = timeRemaining;
+				console.log(curVideo);
 				sendResponse(curVideo);
 				return;
 			} else if(startTime > now) {
+				console.log(startTime);
+				console.log(now);
 				var filename = getRandomBumper();
 				var timeRemaining = startTime - now
 				var previousStartTime = curBlock.videos[j-1].startTime;
 				console.log("pst " +previousStartTime);
 				// send back a bumper with the start time of the last real video, to determine most recent time slot when loading sched
 				var resp = {"videoType":"bumper", "filename":filename, "timeRemaining": timeRemaining, "startTime":previousStartTime};
-				sendResponse(curVideo);
+				console.log(resp);
+				sendResponse(resp);
 				return;
 			}
 		} 

@@ -98,6 +98,12 @@ img.ascii-art {
     margin-bottom: 40px;
 }
 
+img.big-centered-img {
+    width: 100%;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%,0%);
+}
 
 
 @keyframes spin {
@@ -566,6 +572,32 @@ td.video-title {
     font-style: normal;
     font-size: 13px;
 }
+
+
+/* styles for '...' */ 
+.three-line-expander {
+    margin: 10px;
+  /* hide text if it more than N lines  */
+  overflow: hidden;
+  /* for set '...' in absolute position */
+  position: relative; 
+  /* use this value to count block height */
+  line-height: 1.2em;
+  /* max-height = line-height (1.2) * lines max number (3) */
+  max-height: 3.6em; 
+  /* fix problem when last visible word doesn't adjoin right side  */
+  text-align: justify;  
+  /* place for '...' */
+ 
+}
+/* create the ... */
+.three-line-expander:after {
+    z-index: 100;
+    content: '...';
+    position: absolute;
+    bottom: 0px;
+}
+
 
 [class*="col-"] {
     width: 100%;

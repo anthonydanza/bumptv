@@ -2,6 +2,7 @@ import csv
 import json
 import os
 import subprocess
+import shutil
 import re
 from decimal import Decimal
 import argparse
@@ -10,6 +11,8 @@ import urllib
 import urlparse
 import isodate
 import vimeo
+import datetime
+import math
 
 
 def get_video_length(path):
@@ -17,9 +20,9 @@ def get_video_length(path):
 	cmd = 'ffprobe -i ' + path + ' -show_entries format=duration -v quiet -of csv="p=0"'
 	result = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
 	output = result.communicate()
-	print "cmd: ", cmd
-	print "result: ", result
-	print "output: ", output
+	# print "cmd: ", cmd
+	# print "result: ", result
+	# print "output: ", output
 	return float(output[0])*1000
 
 #MEDIA_DIR = "../../media"
@@ -52,7 +55,8 @@ def get_youtube_video_length(url):
 
 def get_vimeo_video_length(url):
 	#return 1
-	print "URL: ", url
+	# print "MAKING VIMEO API REQUEST"
+	# print "URL: ", url
 	video = v.get("https://api.vimeo.com/videos?links=" + url)
 	r = json.loads(video.text)
 	return int(r["data"][0]["duration"]) * 1000
@@ -62,10 +66,10 @@ def get_gcloud_video_length(url):
 
 
 def add_millis_to_date_string(date_string,millis):
-	print date_string
-	print millis
+	# print date_string
+	# print millis
 	d = [int(i) for i in date_string.split(":")]
-	print "d: " , d
+	# print "d: " , d
 	total_millis = d[0]*3600000 + d[1]*60000 + d[2]*1000 + d[3] + millis
 
 	milliseconds = str( total_millis % 1000 ).zfill(2)
@@ -86,80 +90,149 @@ def is_url(url_string):
 
 	return re.match(regex, url_string) is not None
 
+def get_video_duration(filepath):
+	# print filepath
+	duration = 0
+	if filepath != "":
+		filepath = filepath.rstrip()
+		if is_url(filepath): #and video["duration"] is None:
+			if "youtube" in filepath:
+				duration = get_youtube_video_length(filepath)
+			elif "vimeo" in filepath:
+				duration = get_vimeo_video_length(filepath)
+			elif "storage.googleapis.com" in filepath:
+				duration = get_gcloud_video_length(filepath)
+			else: 
+				print "UNSUPPORTED VIDEO LINK"
+		else:
+			duration = get_video_length( os.path.join(MEDIA_DIR, filepath) )
+	else:
+		print "NO FILENAME PROVIDED FOR ", video
+	return duration
+
 parser = argparse.ArgumentParser()
 parser.add_argument("input", help="schedule CSV to be parsed into JSON")
 parser.add_argument("output", help="output JSON filename")
 args = parser.parse_args()
 INPUT_FILENAME = args.input
 OUTPUT_FILENAME = args.output
-output = []
 
-cur_block = 0;
-video_index = 0;
 
-with open(INPUT_FILENAME, 'rb') as schedule_file:
-	schedule_reader = csv.reader(schedule_file, delimiter=',')
-	for i, row in enumerate(schedule_reader):
-		if i == 0: 
-			field_names = row
-		else: 
-			for j, item in enumerate(row):
-				item = item.rstrip() #remove any trailing spaces
-				if j == 0 and row[j]:
-						cur_block += 1
-						video_index = 0;
-						output.append({field_names[0]:row[0]})
+def get_csv_fieldnames(csvfile):
+	with open(csvfile, 'rb') as input_csv:
+		reader = csv.reader(input_csv)
+		fieldnames = reader.next()
+		return fieldnames
+
+
+#find any missing durations
+def fill_out_durations(csvfile):
+
+	schedule_reader = 0
+	output_filename = "new_" + INPUT_FILENAME
+	duration_dict = {}
+	fieldnames = get_csv_fieldnames(csvfile)
+
+	with open(csvfile, 'rb') as input_csv, open(output_filename,'w') as output_csv:
+
+		# copy fieldnames to new file
+		writer = csv.writer(output_csv, delimiter=',')
+		writer.writerow(fieldnames)
+
+		#go through and find durations, adding them to new csv
+		input_csv_dict_reader = csv.DictReader(input_csv, delimiter=',')
+		output_csv_dict_writer = csv.DictWriter(output_csv,fieldnames=fieldnames, delimiter=',')
+		for i, row in enumerate(input_csv_dict_reader):
+			
+			if row["videos_duration"] == "":
+				if row["videos_filename"] in duration_dict:
+					#print "DURATION FOR ", row["videos_filename"], " IS ALREADY: ", duration_dict[row["videos_filename"]]
+					row["videos_duration"] = duration_dict[row["videos_filename"]]
 				else:
-					if '_' not in field_names[j]:
-						if row[j]:
-							output[cur_block-1][field_names[j]] = item
-					else: 
-						videos = field_names[j].split('_')[0]
-						attr = field_names[j].split('_')[1]
+					#print "GETTING DURATION FOR ",  row["videos_filename"]
+					duration = get_video_duration(row["videos_filename"])
+					duration_seconds = int(math.ceil(duration/1000.0))
+					formatted_duration = str(datetime.timedelta(0, duration_seconds)).zfill(8)
+					#print formatted_duration
+					duration_dict[row["videos_filename"]] = formatted_duration
+					row["videos_duration"] = formatted_duration
+			else: 
+				#print "DURATION ALREADY ENTERED!!!!!! ", row["videos_duration"] 
+				duration_dict[row["videos_filename"]] = row["videos_duration"]
+			output_csv_dict_writer.writerow(row)
 
-						if not videos in output[cur_block-1]:
-							output[cur_block-1][videos] = [{attr:item}]
-						else:
-							if len(output[cur_block-1][videos]) <= video_index:
-								 output[cur_block-1][videos].append({})
-							output[cur_block-1][videos][video_index][attr] = item
-			video_index += 1;
+	shutil.copy(output_filename, csvfile)
 
-for block in output:
-	for i, video in enumerate(block["videos"]):
-		print video
-		if video["filename"] != "":
-			video["filename"] = video["filename"].rstrip()
-			if is_url(video["filename"]) :
-				print "VIDEO FILENAME: ", video["filename"] 
-				if "youtube" in video["filename"]:
-					duration = get_youtube_video_length(video["filename"])
-				elif "vimeo" in video["filename"]:
-					print "GETTING VIMEO VIDEO LENGTH"
-					duration = get_vimeo_video_length(video["filename"])
-				elif "storage.googleapis.com" in video["filename"]:
-					duration = get_gcloud_video_length(video["filename"])
+
+def hms_datestring_to_millis(hms_datestring):
+	hms = hms_datestring.split(':')
+	millis = int(hms[0])*3600000 + int(hms[1])*60000 + int(hms[2])*1000
+	return millis
+
+#convert to json
+def generate_json_schedule(input_filename):
+	output = []
+	cur_block = 0;
+	video_index = 0;
+	with open(input_filename, 'rb') as schedule_file:
+		schedule_reader = csv.reader(schedule_file, delimiter=',')
+		for i, row in enumerate(schedule_reader):
+			if i == 0: 
+				field_names = row
+			else: 
+				for j, item in enumerate(row):
+					item = item.rstrip() #remove any trailing spaces
+					if j == 0 and row[j]:
+							cur_block += 1
+							video_index = 0;
+							output.append({field_names[0]:row[0]})
+					else:
+						if '_' not in field_names[j]:
+							if row[j]:
+								output[cur_block-1][field_names[j]] = item
+						else: 
+							videos = field_names[j].split('_')[0]
+							attr = field_names[j].split('_')[1]
+
+							if not videos in output[cur_block-1]:
+								output[cur_block-1][videos] = [{attr:item}]
+							else:
+								if len(output[cur_block-1][videos]) <= video_index:
+									 output[cur_block-1][videos].append({})
+								output[cur_block-1][videos][video_index][attr] = item
+				video_index += 1
+
+		for block in output:
+			for i, video in enumerate(block["videos"]):
+				#video["duration"] = get_video_duration(video["filename"])
+				video["duration"] = hms_datestring_to_millis(video["duration"])
+				if i != 0:
+					#print "startTime: " , video["startTime"]
+					#pst = block["videos"][i-1]["duration"].split(':')
+					#previous_start_time_millis = int(pst[0])*3600000 + int(pst[1])*60000 + int(pst[2])*1000
+					print video
+					print "d: ", block["videos"][i-1]["duration"]
+					
+					#previous_start_time_millis = hms_datestring_to_millis(block["videos"][i-1]["duration"])
+					video["startTime"] = add_millis_to_date_string(block["videos"][i-1]["startTime"], block["videos"][i-1]["duration"])
+					
 				else: 
-					print "UNSUPPORTED VIDEO LINK"
-			else:
-				print video
-				duration = get_video_length( os.path.join(MEDIA_DIR, video["filename"]) )
-			video["duration"] = duration
-		else:
-			print "NO FILENAME PROVIDED FOR ", video
-		if i != 0:
-			print duration
-			#print "startTime: " , video["startTime"]
-			video["startTime"] = add_millis_to_date_string(block["videos"][i-1]["startTime"], int(block["videos"][i-1]["duration"]))
-		else: 
-			video["startTime"] = block["startTime"]
-		
+					video["startTime"] = block["startTime"]
+				
+		output_json_filename = os.path.join( "../../schedule", os.path.splitext( os.path.basename(OUTPUT_FILENAME) )[0] + ".json")
+
+		with open(output_json_filename, 'w') as outfile:
+			json.dump(output, outfile)
+
+		return output_json_filename
 
 
-output_json_filename = os.path.join( "../../schedule", os.path.splitext( os.path.basename(OUTPUT_FILENAME) )[0] + ".json")
-
-with open(output_json_filename, 'w') as outfile:
-	json.dump(output, outfile)
+def fix_relative_link(url):
+	if url.startswith("http"):
+		return url
+	else:
+		url = urlparse.urlparse(url, "http").geturl()
+		return url
 
 
 def generate_html_schedule(schedule_JSON):
@@ -189,8 +262,9 @@ def generate_html_schedule(schedule_JSON):
 									with tag('td', klass="video-title"):
 										text(video['title'])
 										with tag('p', klass="video-author"):
+											video["authorLink"] = fix_relative_link(video["authorLink"])
 											with tag('a', klass="video-author", href=video["authorLink"]):
-												text(video['author'])
+												text(video["author"])
 									with tag('td', klass="video-description"):
 										text(video['description'])
 
@@ -198,6 +272,10 @@ def generate_html_schedule(schedule_JSON):
 	file = open(output_html_filename,'w')
 	file.write(doc.getvalue().encode('utf-8'))
 	#print(doc.getvalue()) 
+
+fill_out_durations(INPUT_FILENAME)
+
+output_json_filename = generate_json_schedule(INPUT_FILENAME)
 
 generate_html_schedule(output_json_filename)
 
