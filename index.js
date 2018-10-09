@@ -1,62 +1,43 @@
-function muteHTML5VideoTag() {
+function muteHTML5VideoTag(state) {
   var tag = document.getElementsByTagName("video")[0];
   if(tag) {
-    var muteState = tag.muted;
-    tag.muted = !muteState;
-    playerState.muted = !playerState.muted;
-
+    tag.muted = state;
   }
 }
 
-function muteYouTube() {
+function muteYouTube(state) {
   if(typeof youTubePlayer !== 'undefined') {
-    if(youTubePlayer.isMuted()){
-      youTubePlayer.unMute();
-      playerState.muted = false;
-    }
-    else { 
+    if(state == true) {
       youTubePlayer.mute();
-      playerState.muted = true;
+    } else if(state == false) {
+      youTubePlayer.unMute();
     }
   }
 }
 
-function muteVimeo() {
+function muteVimeo(state) {
   if(typeof vimeoPlayer !== 'undefined'){
-    vimeoPlayer.getVolume().then(function(volume) {
-      if(volume != 0) {
-        vimeoPlayer.setVolume(0);
-        playerState.muted = true;
-      } else {
-        vimeoPlayer.setVolume(1);
-        playerState.muted = false;
-      }
-    }).catch(function(error) {
-        // an error occurred
-    });
+    var stateInt = state ? 0 : 1;
+    vimeoPlayer.setVolume(stateInt);
   }
+}
+
+function setMuteButton(state) {
+    var mute_button = document.getElementById("mute");
+    if(state == true) {
+      mute_button.style.fontWeight = 'bold';
+      mute_button.innerHTML = "unmute";
+    } else {
+      mute_button.style.fontWeight = 'normal';
+      mute_button.innerHTML = "mute";
+    }
 }
 
 function toggleMute() {
-  switch(playerState.playerType) {
-  case "LOCAL":
-    muteHTML5VideoTag();
-    break;
-  case "YOUTUBE":
-    muteYouTube();
-    break;
-  case "VIMEO":
-    muteVimeo();
-    break;
-}
-
-  var mute_button = document.getElementById("mute");
    if (playerState.muted == false) {
-    mute_button.style.fontWeight = 'normal';
-    mute_button.innerHTML = "mute";
+    playerState.setMute(true);
   } else {
-    mute_button.style.fontWeight = 'bold';
-    mute_button.innerHTML = "unmute";
+    playerState.setMute(false);
    }
 }
 
@@ -122,6 +103,10 @@ function nonEmbeddedVideoEnded() {
   requestNextVideo();
 }
 
+function html5Unmuter() {
+    document.getElementById("non-embedded-video").muted = playerState.muted;
+  }  
+
 function nonEmbeddedVideoTag(id, src) {
   var videoContainerDiv = document.getElementById(id);
   if(videoContainerDiv == null) {
@@ -135,6 +120,8 @@ function nonEmbeddedVideoTag(id, src) {
               + "\" autoplay playsinline allowfullscreen muted onclick=\"fullscreen()\"></video>"
 
   videoContainerDiv.innerHTML = tag;
+
+  setTimeout(html5Unmuter, 500);
 }
 
 function YTLogoHider(state) {
@@ -157,7 +144,8 @@ function seekOrCountdown(resp) {
   var timeRemaining = parseInt(resp.timeRemaining);
 
   if(resp.videoType == "video") {
-    video.currentTime = seekTime; 
+    //video.currentTime = seekTime; 
+    video.src = video.src + "#t=" + parseInt(seekTime);
     video.onended=function(){nonEmbeddedVideoEnded();}
     //setTimeout(function() {requestNextVideo();}, timeRemaining); // TODO do something about drift/overlap/buffering
   } else if(resp.videoType == "bumper") {
@@ -219,12 +207,17 @@ function requestNextVideo() {
               events: {
                   'onReady': function(event) {
                     event.target.loadVideoById(videoId, seekTime);
-                    event.target.mute();
+                    if(playerState.muted) {
+                      event.target.mute();
+                    } else {
+                      event.target.unMute();
+                    }
                   },
                   'onStateChange': onPlayerStateChange
                   
               }
           });
+          //playerState.setMute(youTubePlayer.isMuted());
           break;
         case "VIMEO":
           playerState.playerType = "VIMEO";
@@ -243,9 +236,29 @@ function requestNextVideo() {
 
           vimeoPlayer.ready().then(function() {
             padToFitVimeo(true);
+
+            vimeoPlayer.setVolume(0);
+            
             vimeoPlayer.setCurrentTime(seekTime);
             vimeoPlayer.play();
+
+            vimeoPlayer.getVolume().then(function(volume) {
+              playerState.muted = !volume;
+              setMuteButton(!volume);
+            }).catch(function(error) {
+              // an error occurred
             });
+
+            playerState.vimeoJustLoaded = true;
+            });
+
+//           vimeoPlayer.on('timeupdate', function () {
+//       console.log(vimeoPlayer.currentTime());
+//     })
+
+//           vimeoPlayer.addCuePoint(1, {
+//     customKey: 'customValue'
+// }).then(function(id) { console.log("cue"); document.getElementById("mute").click();});
 
           vimeoPlayer.on('ended', 
             function() {
@@ -259,6 +272,7 @@ function requestNextVideo() {
     }
   }
 }
+
 
 function updateVideoInfoInDOM(resp) {
     if(resp.videoType == "video") {
@@ -311,6 +325,38 @@ function playerStatus() {
   this.playerType = "LOCAL";
   this.muted = true;
   this.videoData = null;
+  this.vimeoJustLoaded = false;
+  this.test = "hiii";
+
+  var me = this;
+
+  this.vimeoUnmuter = function() {
+    if(me.vimeoJustLoaded == true) {
+      //me.setMute(false);
+     // me.clickMute();
+      me.vimeoJustLoaded = false;
+    }
+  }
+
+  this.clickMute = function() {
+    document.getElementById("mute").click()
+  }
+
+  this.setMute = function(state) {
+    this.muted = state;
+    setMuteButton(state);
+    switch(this.playerType) {
+      case "LOCAL":
+        muteHTML5VideoTag(state);
+        break;
+      case "YOUTUBE":
+        muteYouTube(state);
+        break;
+      case "VIMEO":
+        muteVimeo(state);
+        break;
+    }
+  }
 } 
 
 var playerState = new playerStatus();
@@ -340,9 +386,11 @@ function removeYouTubeAPI() {
 function onPlayerStateChange(event) {
   if(event.data == YT.PlayerState.ENDED) {
     event.target.destroy();
-    console.log("onplayerstatechange ENDED");    
     requestNextVideo();
-  } 
+  } else if(event.data == YT.PlayerState.CUED) {
+      event.target.unMute();
+      playerState.setMute(event.target.isMuted());
+  }
 }
 
 //--------------------------------------------------------------------//
@@ -367,37 +415,21 @@ function fullscreen() {
 
 
 
-
-// Get the modal
 var modal = document.getElementById('onload-message');
 
-// Get the button that opens the modal
-//var btn = document.getElementById("myBtn");
-
-// Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
 
-// // When the user clicks on the button, open the modal 
-// btn.onclick = function() {
-//     modal.style.display = "block";
-// }
+function closeModal() {
+  playerState.setMute(false);
+  modal.style.display = "none";
+}
 
-// When the user clicks on <span> (x), close the modal
 span.onclick = function() {
-  console.log("close button");
-    modal.style.display = "none";
+    closeModal();
 }
 
-//When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
-    console.log("window button" + event.target);
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
+  if(modal.style.display != "none") {
+    closeModal();
+  }
 }
-
-
-// window.onfocus = function () { 
-//   console.log("onfocus");
-//   location.reload();
-// }; 

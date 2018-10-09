@@ -14,17 +14,12 @@ import vimeo
 import datetime
 import math
 
-
-def get_video_length(path):
-	path = re.escape(path)
-	cmd = 'ffprobe -i ' + path + ' -show_entries format=duration -v quiet -of csv="p=0"'
-	result = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
-	output = result.communicate()
-	# print "cmd: ", cmd
-	# print "result: ", result
-	# print "output: ", output
-	return float(output[0])*1000
-
+parser = argparse.ArgumentParser()
+parser.add_argument("input", help="schedule CSV to be parsed into JSON")
+parser.add_argument("output", help="output JSON filename")
+args = parser.parse_args()
+INPUT_FILENAME = args.input
+OUTPUT_FILENAME = args.output
 #MEDIA_DIR = "../../media"
 MEDIA_DIR = "/Volumes/CHD - Toronto/bumptv_october_2018"
 YOUTUBE_API_KEY = "AIzaSyBNiJ9LRO4Kz2QvP7XelKByB6ZW0klj9Q8"
@@ -35,11 +30,21 @@ v = vimeo.VimeoClient(
     secret="Ba3eQoaQz3FNsoaFKUsLkMGWM/4yILJkBHTwA8PN059qpcLOXF5T+sqgEYbYSfhH5lovEVg5bSULejchnGFMguoq2rIU6aMdynySsgmkRkLm5DtM+pOtC15LB45X0tAv"
 )
 
+
+def get_video_length(path):
+	path = re.escape(path)
+	cmd = 'ffprobe -i ' + path + ' -show_entries format=duration -v quiet -of csv="p=0"'
+	result = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
+	output = result.communicate()
+	return float(output[0])*1000
+
+
 def get_youtube_id_from_url(url) :
 	url_data = urlparse.urlparse(url)
 	query = urlparse.parse_qs(url_data.query)
 	video = query["v"][0]
 	return video
+
 
 def get_youtube_video_length(url):
 	video_id = get_youtube_id_from_url(url)
@@ -50,26 +55,22 @@ def get_youtube_video_length(url):
 	all_data=data['items']
 	contentDetails=all_data[0]['contentDetails']
 	duration= isodate.parse_duration(contentDetails['duration']).total_seconds() * 1000
-
 	return duration
 
+
 def get_vimeo_video_length(url):
-	#return 1
-	# print "MAKING VIMEO API REQUEST"
-	# print "URL: ", url
 	video = v.get("https://api.vimeo.com/videos?links=" + url)
 	r = json.loads(video.text)
 	return int(r["data"][0]["duration"]) * 1000
 
+
 def get_gcloud_video_length(url):
+	#doesn't do shit! cross origin request problems.
 	return 10
 
 
 def add_millis_to_date_string(date_string,millis):
-	# print date_string
-	# print millis
 	d = [int(i) for i in date_string.split(":")]
-	# print "d: " , d
 	total_millis = d[0]*3600000 + d[1]*60000 + d[2]*1000 + d[3] + millis
 
 	milliseconds = str( total_millis % 1000 ).zfill(2)
@@ -78,6 +79,7 @@ def add_millis_to_date_string(date_string,millis):
 	hours = str( (total_millis / (1000*60*60)) % 60 ).zfill(2)
 
 	return ':'.join([hours, minutes, seconds, milliseconds])
+
 
 def is_url(url_string):
 	regex = re.compile(
@@ -90,8 +92,8 @@ def is_url(url_string):
 
 	return re.match(regex, url_string) is not None
 
+
 def get_video_duration(filepath):
-	# print filepath
 	duration = 0
 	if filepath != "":
 		filepath = filepath.rstrip()
@@ -109,13 +111,6 @@ def get_video_duration(filepath):
 	else:
 		print "NO FILENAME PROVIDED FOR ", video
 	return duration
-
-parser = argparse.ArgumentParser()
-parser.add_argument("input", help="schedule CSV to be parsed into JSON")
-parser.add_argument("output", help="output JSON filename")
-args = parser.parse_args()
-INPUT_FILENAME = args.input
-OUTPUT_FILENAME = args.output
 
 
 def get_csv_fieldnames(csvfile):
@@ -169,6 +164,7 @@ def hms_datestring_to_millis(hms_datestring):
 	millis = int(hms[0])*3600000 + int(hms[1])*60000 + int(hms[2])*1000
 	return millis
 
+
 #convert to json
 def generate_json_schedule(input_filename):
 	output = []
@@ -204,18 +200,10 @@ def generate_json_schedule(input_filename):
 
 		for block in output:
 			for i, video in enumerate(block["videos"]):
-				#video["duration"] = get_video_duration(video["filename"])
 				video["duration"] = hms_datestring_to_millis(video["duration"])
 				if i != 0:
-					#print "startTime: " , video["startTime"]
-					#pst = block["videos"][i-1]["duration"].split(':')
-					#previous_start_time_millis = int(pst[0])*3600000 + int(pst[1])*60000 + int(pst[2])*1000
-					print video
-					print "d: ", block["videos"][i-1]["duration"]
-					
-					#previous_start_time_millis = hms_datestring_to_millis(block["videos"][i-1]["duration"])
+					print "d: ", block["videos"][i-1]["duration"]					
 					video["startTime"] = add_millis_to_date_string(block["videos"][i-1]["startTime"], block["videos"][i-1]["duration"])
-					
 				else: 
 					video["startTime"] = block["startTime"]
 				
@@ -271,7 +259,6 @@ def generate_html_schedule(schedule_JSON):
 	output_html_filename = os.path.join( "../../schedule", os.path.splitext( os.path.basename(OUTPUT_FILENAME) )[0] + "_schedule_table.html")
 	file = open(output_html_filename,'w')
 	file.write(doc.getvalue().encode('utf-8'))
-	#print(doc.getvalue()) 
 
 fill_out_durations(INPUT_FILENAME)
 
