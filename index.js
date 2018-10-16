@@ -433,3 +433,18 @@ window.onclick = function(event) {
     closeModal();
   }
 }
+
+
+document.addEventListener('keypress', (event) => {
+  const keyName = event.key;
+  switch(keyName) {
+    case "m":
+    case "M":
+      playerState.setMute(!playerState.muted);
+      break;
+    case "f":
+    case "F":
+      fullscreen();
+      break;
+  }
+});
