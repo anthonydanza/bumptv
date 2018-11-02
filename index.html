@@ -45,11 +45,14 @@
             <div class="loader">LOADING... </div>
           </div>
     
-          <div id="video-container"></div>
+          <div id="video-container">  </div>
 
       </div>
 
       <div id="player-menu">
+
+
+
             <div class="col-3">
                 <div class="menu-button" id="artist-info-button" onclick="toggleArtistInfo()">
                   <div id="artist-info-msg">NOW PLAYING: </div>
@@ -71,7 +74,7 @@
                 <div class="menu-button" id="mute" onclick="toggleMute()">unmute</div>
               </div>
               <div class="col-2">
-                <div class="menu-button" onclick="fullscreen()">fullscreen</div>
+                <div class="menu-button" id="fullscreen" onclick="fullscreen()">fullscreen</div>
               </div>
             </div>
             <div>
@@ -143,6 +146,11 @@
 
 <script type="text/javascript" src="index.js"></script>
 <script src="https://player.vimeo.com/api/player.js"></script>
+
+ <!-- Load the Twitch embed script -->
+<!--     <script src="https://embed.twitch.tv/embed/v1.js"></script>
+ -->
+
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-71467610-2"></script>
 <script>

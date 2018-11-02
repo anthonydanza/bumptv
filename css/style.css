@@ -207,7 +207,7 @@ video::-webkit-media-controls {
 
 
 #video-container {
-  position: relative;
+  /*position: relative;*/
   /*padding-bottom: 56.25%;*/
   overflow: hidden;
 }
@@ -220,6 +220,10 @@ video::-webkit-media-controls {
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+#video-container iframe#twitch-player {
+    position: relative;
 }
 
 #iframe {

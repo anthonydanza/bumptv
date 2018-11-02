@@ -94,6 +94,7 @@ def is_url(url_string):
 
 
 def get_video_duration(filepath):
+	print filepath
 	duration = 0
 	if filepath != "":
 		filepath = filepath.rstrip()
@@ -141,18 +142,14 @@ def fill_out_durations(csvfile):
 			
 			if row["videos_duration"] == "":
 				if row["videos_filename"] in duration_dict:
-					#print "DURATION FOR ", row["videos_filename"], " IS ALREADY: ", duration_dict[row["videos_filename"]]
 					row["videos_duration"] = duration_dict[row["videos_filename"]]
 				else:
-					#print "GETTING DURATION FOR ",  row["videos_filename"]
 					duration = get_video_duration(row["videos_filename"])
 					duration_seconds = int(math.ceil(duration/1000.0))
 					formatted_duration = str(datetime.timedelta(0, duration_seconds)).zfill(8)
-					#print formatted_duration
 					duration_dict[row["videos_filename"]] = formatted_duration
 					row["videos_duration"] = formatted_duration
 			else: 
-				#print "DURATION ALREADY ENTERED!!!!!! ", row["videos_duration"] 
 				duration_dict[row["videos_filename"]] = row["videos_duration"]
 			output_csv_dict_writer.writerow(row)
 
@@ -177,7 +174,7 @@ def generate_json_schedule(input_filename):
 				field_names = row
 			else: 
 				for j, item in enumerate(row):
-					item = item.rstrip() #remove any trailing spaces
+					item = item.rstrip() 
 					if j == 0 and row[j]:
 							cur_block += 1
 							video_index = 0;
@@ -200,6 +197,7 @@ def generate_json_schedule(input_filename):
 
 		for block in output:
 			for i, video in enumerate(block["videos"]):
+				print video
 				video["duration"] = hms_datestring_to_millis(video["duration"])
 				if i != 0:
 					print "d: ", block["videos"][i-1]["duration"]					

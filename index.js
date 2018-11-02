@@ -79,11 +79,17 @@ function getVideoSource(filePath) {
       return "YOUTUBE";
     } else if(filePath.includes("vimeo")) {
         return "VIMEO";
-    } else {
+      }
+      else {
         return "STATIC";
+      }
     }
-  }
-  else {
+    else if(filePath.includes("livestream")) {
+        console.log("LIVE STREAM SELECTED!!!!!!!!!");
+        return "LIVESTREAM";
+      }
+    else {
+      console.log("LOCAL SELECTED!!!")
       return "LOCAL";
   }
 }
@@ -124,6 +130,40 @@ function nonEmbeddedVideoTag(id, src) {
   setTimeout(html5Unmuter, 500);
 }
 
+function clearTwitch() {
+  var twitchIframe = document.getElementById("twitch-player");
+  twitchIframe.parentNode.removeChild(twitchIframe);
+
+  document.getElementById("mute").style.display = "block";
+  document.getElementById("fullscreen").style.display = "block";
+  document.getElementById("player").style.pointerEvents = "none";
+
+
+  requestNextVideo();
+}
+
+function placeTwitchPlayer(id, endTime) {
+  console.log("placing twitch");
+    var videoContainerDiv = document.getElementById(id);
+  if(videoContainerDiv == null) {
+    videoContainerDiv =  document.createElement("div");
+    videoContainerDiv.id = id;
+    player.appendChild(videoContainerDiv);
+  }
+
+  var tag = "<iframe id=\"twitch-player\" src=\"https://player.twitch.tv/?channel=bumptelevision&muted=true\" height=\"100%\" width=\"100%\" frameborder=\"0\" scrolling=\"no\" allowfullscreen=\"true\"></iframe>"
+
+  console.log("removing elements");
+  document.getElementById("mute").style.display = "none";
+  document.getElementById("fullscreen").style.display = "none";
+  document.getElementById("player").style.pointerEvents = "all";
+
+  videoContainerDiv.innerHTML = tag;
+  console.log("setting twitch end timeout " + endTime);
+  setTimeout(clearTwitch,endTime);
+
+}
+
 function YTLogoHider(state) {
   if(state == true) {
     var hiderDiv = document.createElement("div");
@@ -145,7 +185,8 @@ function seekOrCountdown(resp) {
 
   if(resp.videoType == "video") {
     //video.currentTime = seekTime; 
-    video.src = video.src + "#t=" + parseInt(seekTime);
+
+    //video.src = video.src + "#t=" + parseInt(seekTime);
     video.onended=function(){nonEmbeddedVideoEnded();}
     //setTimeout(function() {requestNextVideo();}, timeRemaining); // TODO do something about drift/overlap/buffering
   } else if(resp.videoType == "bumper") {
@@ -267,6 +308,21 @@ function requestNextVideo() {
               requestNextVideo();
             });
           break;
+        case("LIVESTREAM"):
+          playerState.playerType = "LIVESTREAM";
+          placeTwitchPlayer("video-container", resp.timeRemaining);
+
+         // var embed = new Twitch.Embed("twitch-embed", {
+         //    width: 854,
+         //    height: 480,
+         //    channel: "bumptelevision"
+         //  });
+
+         //  embed.addEventListener(Twitch.Embed.VIDEO_READY, () => {
+         //    var twitchPlayer = embed.getPlayer();
+         //    twitchPlayer.play();
+         //  });
+          break;
       }
       updateVideoInfoInDOM(resp);
     }
@@ -354,6 +410,8 @@ function playerStatus() {
         break;
       case "VIMEO":
         muteVimeo(state);
+        break;
+      case "LIVESTREAM":
         break;
     }
   }
