@@ -186,7 +186,7 @@ function seekOrCountdown(resp) {
   if(resp.videoType == "video") {
     //video.currentTime = seekTime; 
 
-    //video.src = video.src + "#t=" + parseInt(seekTime);
+    video.src = video.src + "#t=" + parseInt(seekTime);
     video.onended=function(){nonEmbeddedVideoEnded();}
     //setTimeout(function() {requestNextVideo();}, timeRemaining); // TODO do something about drift/overlap/buffering
   } else if(resp.videoType == "bumper") {
