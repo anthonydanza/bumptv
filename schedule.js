@@ -1,5 +1,7 @@
 var urlParams;
 
+var DOTW = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
 function parseQuery() {
 	var query  = window.location.search.substring(1);
 	var vars = query.split("?");
@@ -24,8 +26,16 @@ function highlightCurrentTimeSlot(id) {
 window.onload = function () {
 
 	var query = parseQuery();
+
+	if(query.d) {
+		var today = query.d;
+	} else {
+		var date = new Date();
+ 		var today = DOTW[date.getDay()];
+	}
+
 	var schedule_dir = "schedule/"
-	var filename = schedule_dir + query.d + "_schedule_table.html";
+	var filename = schedule_dir + today + "_schedule_table.html";
 
 	var xhr = typeof XMLHttpRequest != 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
 	xhr.open('get', filename, true);
@@ -33,15 +43,16 @@ window.onload = function () {
 	xhr.onreadystatechange = function() {
 	if (xhr.readyState == 4 && xhr.status == 200) { 
 	    	document.getElementById("schedule-table-container").innerHTML = xhr.responseText;
-	    	window.location.hash = query.t;
-	    	window.scrollBy(0,-300);
-	    	highlightCurrentTimeSlot(query.t);
+	    	if(query.t) {
+		    	window.location.hash = query.t;
+		    	window.scrollBy(0,-300);
+		    	highlightCurrentTimeSlot(query.t);
+	   		}
 		} 
 		else if(xhr.status == 404) {
 			document.getElementById("schedule-table-container").innerHTML = "<h1>404: SCHEDULE FILE NOT FOUND</h1>";
 		}
-		
- 		document.getElementById(query.d).classList.toggle("active");
+ 		document.getElementById(today).classList.toggle("active");
 	}
 	xhr.send();
 
