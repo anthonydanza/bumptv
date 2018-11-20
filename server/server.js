@@ -42,7 +42,7 @@ function playNextVideo(sendResponse) {
 	//now.setMilliseconds(adjusted);
 	var now = new Date();
 
-	console.log(now);
+	console.log("now: ", now);
 
 	var curBlock;
 
@@ -51,6 +51,8 @@ function playNextVideo(sendResponse) {
 
 	var sched = fs.readFileSync("../schedule/" + day + ".json");
 	sched = JSON.parse(sched);	
+
+
 
 	console.log(sched);
 
@@ -86,6 +88,7 @@ function playNextVideo(sendResponse) {
 				curVideo["videoType"] = "video";
 				curVideo["seekTime"] = seekTime;
 				curVideo["timeRemaining"] = timeRemaining;
+				curVideo["now"] = now.toString();
 				console.log(curVideo);
 				sendResponse(curVideo);
 				return;
@@ -97,7 +100,7 @@ function playNextVideo(sendResponse) {
 				var previousStartTime = curBlock.videos[j-1].startTime;
 				console.log("pst " +previousStartTime);
 				// send back a bumper with the start time of the last real video, to determine most recent time slot when loading sched
-				var resp = {"videoType":"bumper", "filename":filename, "timeRemaining": timeRemaining, "startTime":previousStartTime};
+				var resp = {"videoType":"bumper", "filename":filename, "timeRemaining": timeRemaining, "startTime":previousStartTime, "now":now.toString()};
 				console.log(resp);
 				sendResponse(resp);
 				return;

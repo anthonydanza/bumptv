@@ -51,17 +51,7 @@ function toggleArtistInfo() {
 }
 
 function openSchedule() {
-  var week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  var d = new Date();
-  var dotw = week[d.getDay()];
-  if(playerState.videoData) {
-    var url = "schedule.html?d=" + dotw + "?t=" + playerState.videoData.startTime; 
-  }
-  else {
-    var url = "schedule.html";
-  }
-  window.open(url, "_self"); 
-
+  window.open("schedule.html", "_self"); 
 }
 
 function isUrl(str)
@@ -357,7 +347,7 @@ function updateVideoInfoInDOM(resp) {
       document.getElementById("artist-info-msg").innerHTML = "stay tuned...";
       document.getElementById("artist-info-title").innerHTML = "";
       document.getElementById("artist-info-author").innerHTML = "";
-      document.getElementById("artist-info-popup-container").innerHTML = "More shows coming up sooooooon, see <a onclick=\"openSchedule()\">schedule</a> for details.";
+      document.getElementById("artist-info-popup-container").innerHTML = "More shows coming up sooooooon, see <a href=\"./schedule.html\">schedule</a> for details.";
       return;
     } 
 }
