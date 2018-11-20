@@ -23,6 +23,24 @@ function highlightCurrentTimeSlot(id) {
 	}
 }
 
+function findCurrentShow() {
+	var anchor_list = document.getElementsByClassName("start-time-anchor");
+	var now = new Date();
+	var d = new Date();
+
+	for (i = 0; i < anchor_list.length; i++) {
+		var t = anchor_list[i].id.split(":");
+		d.setHours(t[0]);
+		d.setMinutes(t[1]);
+		d.setSeconds(t[2]);
+
+		if(now < d) {
+			return anchor_list[i-1].id;
+		}
+
+	}
+}
+
 window.onload = function () {
 
 	var query = parseQuery();
@@ -47,6 +65,11 @@ window.onload = function () {
 		    	window.location.hash = query.t;
 		    	window.scrollBy(0,-300);
 		    	highlightCurrentTimeSlot(query.t);
+	   		} else {
+	   			var current_show = findCurrentShow();
+	   			window.location.hash = current_show;
+		    	window.scrollBy(0,-300);
+		    	highlightCurrentTimeSlot(current_show);
 	   		}
 		} 
 		else if(xhr.status == 404) {
