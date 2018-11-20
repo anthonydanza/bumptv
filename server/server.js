@@ -49,12 +49,13 @@ function playNextVideo(sendResponse) {
 	var DOTW = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 	var day = DOTW[now.getDay()];
 
+	console.log(day);
+
 	var sched = fs.readFileSync("../schedule/" + day + ".json");
 	sched = JSON.parse(sched);	
 
 
 
-	console.log(sched);
 
 
 	// find block
@@ -71,10 +72,11 @@ function playNextVideo(sendResponse) {
 			curBlock = sched[i];
 		}
 	}
+
 	console.log(curBlock.blockTitle);
 
 	if(curBlock) {	//find video within block
-		console.log(curBlock);
+		//console.log(curBlock);
 		for(var j = 0; j < curBlock.videos.length; j++) {
 			console.log( curBlock.videos[j]);
 			var startTime = parseDate(curBlock.videos[j].startTime);
@@ -89,6 +91,7 @@ function playNextVideo(sendResponse) {
 				curVideo["seekTime"] = seekTime;
 				curVideo["timeRemaining"] = timeRemaining;
 				curVideo["now"] = now.toString();
+				curVideo["blockTitle"] = curBlock.blockTitle;
 				console.log(curVideo);
 				sendResponse(curVideo);
 				return;
@@ -100,7 +103,7 @@ function playNextVideo(sendResponse) {
 				var previousStartTime = curBlock.videos[j-1].startTime;
 				console.log("pst " +previousStartTime);
 				// send back a bumper with the start time of the last real video, to determine most recent time slot when loading sched
-				var resp = {"videoType":"bumper", "filename":filename, "timeRemaining": timeRemaining, "startTime":previousStartTime, "now":now.toString()};
+				var resp = {"videoType":"bumper", "filename":filename, "timeRemaining": timeRemaining, "startTime":previousStartTime, "now":now.toString(), "blockTitle":curBlock.blockTitle};
 				console.log(resp);
 				sendResponse(resp);
 				return;
@@ -129,13 +132,13 @@ function playNextVideo(sendResponse) {
 				} else {
 					timeRemaining = duration;
 				}	
-				bumperResp =  {"videoType":"bumper", "filename":filename, "timeRemaining":timeRemaining, "startTime":nextStartTime, "duration": duration};
+				bumperResp =  {"videoType":"bumper", "filename":filename, "timeRemaining":timeRemaining, "startTime":nextStartTime, "duration": duration, "now":now.toString(), "blockTitle":curBlock.blockTitle};
 				console.log("1 " + bumperResp);
 				sendResponse(bumperResp);
 			} else {
 				var lastStartTime = sched[sched.length].startTime;
 				console.log("lst " + lastStartTime);
-				bumperResp = {"videoType":"bumper", "filename":filename, "timeRemaining":500000, "startTime":lastStartTime, "duration": duration};
+				bumperResp = {"videoType":"bumper", "filename":filename, "timeRemaining":500000, "startTime":lastStartTime, "duration": duration, "now":now.toString(), "blockTitle":curBlock.blockTitle};
 				console.log("2 " + bumperResp);
 				sendResponse(bumperResp);
 			}		

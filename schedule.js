@@ -49,26 +49,35 @@ window.onload = function () {
 		var query_day = query.d;
 	} 
 
-	function requestSchedule(today, timeslot) {
+	function requestSchedule(resp, today, timeslot) {
 		var schedule_dir = "schedule/";
 		var filename = schedule_dir + today + "_schedule_table.html";
 
 		var schedule_req = typeof XMLHttpRequest != 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
 		schedule_req.open('get', filename, true);
-
 		schedule_req.send();
 
 		schedule_req.onreadystatechange = function() {
 		if (schedule_req.readyState == 4 && schedule_req.status == 200) { 
 		    	document.getElementById("schedule-table-container").innerHTML = schedule_req.responseText;
 
-		    	if(timeslot) {
+		    	var video_day = new Date(resp.now);
+		    	video_day = DOTW[video_day.getDay()];
+		    	
+		    	if(video_day == today) {
+		    	 if(resp.videoType == "video") {
 			    	window.location.hash = "";
 			      	window.location.hash = timeslot;
 				 	window.scrollBy(0,-300);
 				  	highlightCurrentTimeSlot(timeslot);
+			  	} else if(resp.videoType == "bumper") {
+			  		var closestTimeslot = findCurrentShow(timeslot);
+			  		window.location.hash = "";
+			      	window.location.hash = closestTimeslot;
+				 	window.scrollBy(0,-300);
+				  	highlightCurrentTimeSlot(closestTimeslot);
 			  	}
-
+			  }
 			} 
 			else if(schedule_req.status == 404) {
 				document.getElementById("schedule-table-container").innerHTML = "<h1>404: SCHEDULE FILE NOT FOUND</h1>";
@@ -88,20 +97,24 @@ window.onload = function () {
 	      var resp = JSON.parse(this.responseText);
 	      //console.log(resp);
 
-	      timeslot = resp.startTime;
+	      if(resp.videoType == "video") {
+	      	timeslot = resp.startTime;
+		  } else if(resp.videoType == "bumper") {
+		  		var d = new Date(resp.now);
+		  		timeslot = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ":00";
+		  }
 
 	      var now = new Date(resp.now);
-	      var server_day = DOTW[now.getDay()];
+	      var today = DOTW[now.getDay()];
 
-	      if(server_day != query_day && query_day != undefined) {
-	      	var today = query_day;
-	      	timeslot = "";
-	      } else {
-	      	var today = server_day;
+	      if(query_day) {
+	      	if(query_day != today) {
+	      		today = query_day;
+	      	}
 	      }
-	      document.getElementById(today).classList.toggle("active");
-		  requestSchedule(today, timeslot);
 
+	      document.getElementById(today).classList.toggle("active");
+		  requestSchedule(resp, today, timeslot);
 	  }
 	}
 

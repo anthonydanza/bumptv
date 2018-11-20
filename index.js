@@ -78,11 +78,9 @@ function getVideoSource(filePath) {
       }
     }
     else if(filePath.includes("livestream")) {
-        console.log("LIVE STREAM SELECTED!!!!!!!!!");
         return "LIVESTREAM";
       }
     else {
-      console.log("LOCAL SELECTED!!!")
       return "LOCAL";
   }
 }
@@ -325,6 +323,7 @@ function requestNextVideo() {
 
 function updateVideoInfoInDOM(resp) {
     if(resp.videoType == "video") {
+      document.getElementById("artist-info-blocktitle").innerHTML = resp.blockTitle;
       document.getElementById("artist-info-msg").innerHTML = "NOW PLAYING: ";
       document.getElementById("artist-info-title").innerHTML = "\"" + resp.title + "\"";
       document.getElementById("artist-info-author").innerHTML = resp.author;
