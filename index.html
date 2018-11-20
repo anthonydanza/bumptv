@@ -27,6 +27,15 @@
 <body>
     <div id="container">
 
+      <div id = "hiding-header-container" style="height:5px; display:none" onMouseOver="showHeader()" onMouseOut="hideHeader()">
+        <div id="header">
+            <a href="./index.html">home</a>
+            <a href="./schedule.html">schedule</a> 
+            <a id="submit" href="./submit.html">SUBMIT UR VIDEO</a>
+            <span id="clock"></span>
+        </div>
+      </div>
+
       <div class="modal" id="onload-message"> 
         <div class="modal-content">
           <span class="close">&times;</span>
@@ -140,6 +149,7 @@
 </body>
 
 <script type="text/javascript" src="index.js"></script>
+<script type="text/javascript" src="common.js"></script>
 <script src="https://player.vimeo.com/api/player.js"></script>
 
  <!-- Load the Twitch embed script -->

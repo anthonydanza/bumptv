@@ -456,6 +456,15 @@ function loadVimeoAPI() {
 window.onload = function() {
   loadYouTubeAPI();
   loadVimeoAPI();
+
+  var clock = document.getElementById("clock");
+  setInterval(function() {
+    var d = new Date();
+    var s = String(d.getSeconds()).padStart(2,'0');
+    var m = String(d.getMinutes()).padStart(2,'0');
+    var h = String(d.getHours()).padStart(2,'0');
+    clock.textContent = h + ":" + m + ":" + s;
+  }, 1000);
 };
 
 function fullscreen() {
@@ -464,7 +473,13 @@ function fullscreen() {
   requestFullScreen.call(elem);
 }
 
+function showHeader() {
+  document.getElementById('hiding-header-container').style.height="40px";
+}
 
+function hideHeader() {
+  document.getElementById('hiding-header-container').style.height="5px";
+}
 
 var modal = document.getElementById('onload-message');
 
