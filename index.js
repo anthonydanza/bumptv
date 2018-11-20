@@ -54,11 +54,14 @@ function openSchedule() {
   var week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var d = new Date();
   var dotw = week[d.getDay()];
-  var url = "schedule.html?d=" + dotw + "?t=" + playerState.videoData.startTime; 
-  if(url != null) { window.open(url, "_self"); }
-  else {
-    window.open("schedule.html","_self");
+  if(playerState.videoData) {
+    var url = "schedule.html?d=" + dotw + "?t=" + playerState.videoData.startTime; 
   }
+  else {
+    var url = "schedule.html";
+  }
+  window.open(url, "_self"); 
+
 }
 
 function isUrl(str)
