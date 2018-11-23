@@ -355,6 +355,10 @@ video::-webkit-media-controls {
     padding: 10px;
 }
 
+#artist-info-popup-block-title {
+    color: yellowgreen;
+}
+
 #artist-info-popup-title {
     color: red;
 }

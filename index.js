@@ -328,6 +328,10 @@ function updateVideoInfoInDOM(resp) {
       document.getElementById("artist-info-title").innerHTML = "\"" + resp.title + "\"";
       document.getElementById("artist-info-author").innerHTML = resp.author;
 
+      var artistInfoDescriptionBlockTitle = document.createElement('div');
+      artistInfoDescriptionBlockTitle.id = "artist-info-popup-block-title";
+      artistInfoDescriptionBlockTitle.innerHTML = resp.blockTitle;
+
       var artistInfoDescriptionAuthor = document.createElement('div');
       artistInfoDescriptionAuthor.id = "artist-info-popup-author";
       artistInfoDescriptionAuthor.innerHTML = "<a href=\"" + resp.authorLink + "\">" + resp.author + "</a>";
@@ -338,6 +342,7 @@ function updateVideoInfoInDOM(resp) {
 
       var artistInfoDescription = document.getElementById("artist-info-popup-container");
       artistInfoDescription.innerHTML = "";
+      artistInfoDescription.appendChild(artistInfoDescriptionBlockTitle);
       artistInfoDescription.appendChild(artistInfoDescriptionTitle);
       artistInfoDescription.appendChild(artistInfoDescriptionAuthor);
       artistInfoDescription.insertAdjacentHTML('beforeend', resp.description);

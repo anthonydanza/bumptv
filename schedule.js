@@ -78,7 +78,15 @@ window.onload = function () {
 				  	highlightCurrentTimeSlot(closestTimeslot);
 			  	}
 			  }
-			} 
+			  		//make table searchable
+				  var tbodies = document.getElementsByTagName("tbody");
+				  console.log(tbodies.length);
+				  for (i = 0; i < tbodies.length; i++) {
+				      console.log("changing class name")
+				      tbodies[i].classList.add("list");
+				  }
+
+			  }
 			else if(schedule_req.status == 404) {
 				document.getElementById("schedule-table-container").innerHTML = "<h1>404: SCHEDULE FILE NOT FOUND</h1>";
 			}
@@ -127,6 +135,14 @@ window.onload = function () {
 	    clock.textContent = h + ":" + m + ":" + s;
   }, 1000);
 };
+
+
+
+var options = {
+  valueNames: [ 'day' ]
+};
+
+var userList = new List('container', options);
 
 
 
