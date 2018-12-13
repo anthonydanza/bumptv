@@ -15,13 +15,14 @@ import datetime
 import math
 
 parser = argparse.ArgumentParser()
+parser.add_argument("media_dir", help="where the video files are stored")
 parser.add_argument("input", help="schedule CSV to be parsed into JSON")
 parser.add_argument("output", help="output JSON filename")
 args = parser.parse_args()
 INPUT_FILENAME = args.input
 OUTPUT_FILENAME = args.output
 #MEDIA_DIR = "../../media"
-MEDIA_DIR = "/Volumes/CHD - Toronto/bumptv_october_2018"
+MEDIA_DIR = args.media_dir
 YOUTUBE_API_KEY = "AIzaSyBNiJ9LRO4Kz2QvP7XelKByB6ZW0klj9Q8"
 
 v = vimeo.VimeoClient(
