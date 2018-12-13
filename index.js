@@ -112,7 +112,7 @@ function nonEmbeddedVideoTag(id, src) {
     player.appendChild(videoContainerDiv);
   }
 
-  var tag =  "<video id=\"non-embedded-video\" preload=\"metadata\" src=\"" 
+  var tag =  "<video id=\"non-embedded-video\" preload=\"none\" src=\"" 
               + src 
               + "\" autoplay playsinline allowfullscreen muted onclick=\"fullscreen()\"></video>"
 
