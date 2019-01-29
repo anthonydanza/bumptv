@@ -140,7 +140,7 @@ def fill_out_durations(csvfile):
 		input_csv_dict_reader = csv.DictReader(input_csv, delimiter=',')
 		output_csv_dict_writer = csv.DictWriter(output_csv,fieldnames=fieldnames, delimiter=',')
 		for i, row in enumerate(input_csv_dict_reader):
-			
+			print i, row
 			if row["videos_duration"] == "":
 				if row["videos_filename"] in duration_dict:
 					row["videos_duration"] = duration_dict[row["videos_filename"]]
