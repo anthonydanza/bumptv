@@ -490,10 +490,8 @@ var modal = document.getElementById('onload-message');
 var span = document.getElementsByClassName("close")[0];
 
 function closeModal() {
-  console.log(modal);
   playerState.setMute(false);
   modal.style.display = "none";
-
 }
 
 if(span) {
