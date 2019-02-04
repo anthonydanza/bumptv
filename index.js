@@ -490,23 +490,27 @@ var modal = document.getElementById('onload-message');
 var span = document.getElementsByClassName("close")[0];
 
 function closeModal() {
+  console.log(modal);
   playerState.setMute(false);
   modal.style.display = "none";
+
 }
 
+if(span) {
 span.onclick = function() {
     closeModal();
 }
+}
 
 window.onclick = function(event) {
-  if(modal.style.display != "none") {
+  if(modal && modal.style.display != "none") {
     closeModal();
   }
 }
 
-
 document.addEventListener('keypress', (event) => {
   const keyName = event.key;
+  console.log(keyName)
   switch(keyName) {
     case "m":
     case "M":
