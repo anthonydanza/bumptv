@@ -422,6 +422,20 @@ video::-webkit-media-controls {
     color: #bcb9b9;
 }
 
+.form-preamble {
+    text-align: center;
+    width: 50%;
+    margin: 0 auto;
+    margin-bottom: 60px;
+}
+
+#submission-form textarea {
+    margin: 0 auto;
+    width: 60%;
+    height: 300px;
+    overflow: scroll;
+}
+
 #submission-form {
     text-align: center;
 }
