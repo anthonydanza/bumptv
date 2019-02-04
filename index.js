@@ -508,7 +508,6 @@ window.onclick = function(event) {
 
 document.addEventListener('keypress', (event) => {
   const keyName = event.key;
-  console.log(keyName)
   switch(keyName) {
     case "m":
     case "M":
