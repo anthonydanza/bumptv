@@ -519,3 +519,56 @@ document.addEventListener('keypress', (event) => {
       break;
   }
 });
+
+window.mobilecheck = function() { 
+ if( navigator.userAgent.match(/Android/i)
+ || navigator.userAgent.match(/webOS/i)
+ || navigator.userAgent.match(/iPhone/i)
+ || navigator.userAgent.match(/iPad/i)
+ || navigator.userAgent.match(/iPod/i)
+ || navigator.userAgent.match(/BlackBerry/i)
+ || navigator.userAgent.match(/Windows Phone/i)
+ ){
+    console.log("true")
+    return true;
+  }
+ else {
+    console.log("false")
+    return false;
+  }
+}
+
+if(window.mobilecheck()) {
+  document.getElementById("chat-button").style.display = "none";
+}
+
+function toggleChat() {
+    console.log("click");
+    var chatContainer = document.getElementById("chat-container");
+    var chatContent = document.getElementById("chat-content");
+    var chatButton = document.getElementById("chat-button");
+    var playerBox = document.getElementById("player");
+    var chatMenu = document.getElementById("chat-menu");
+
+    chatButton.classList.toggle("active");
+
+    if (chatContent.style.display === "inline-block") {
+      chatContent.style.display = "none";
+      chatMenu.style.display = "none";
+      playerBox.style.width = "auto";
+      chatContainer.style.width = "40px";
+    } else {
+      chatContent.style.display = "inline-block";
+      chatMenu.style.display = "block";
+      playerBox.style.width = "70%";
+      chatContainer.style.width = "30%";
+    }
+  };
+
+var chatButton = document.getElementById("chat-button");
+chatButton.addEventListener("click", function(){toggleChat()});
+
+var chatMenu = document.getElementById("chat-menu");
+chatMenu.addEventListener("click", function(){toggleChat()});
+
+
