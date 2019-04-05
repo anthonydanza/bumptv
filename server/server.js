@@ -6,7 +6,7 @@ const ffprobe = require('ffprobe');
 const ffprobeStatic = require('ffprobe-static');
 
 var app = express();
-app.use(express.static(path.join(__dirname, '../')));
+app.use(express.static(path.join(__dirname, '../'),{dotfiles: 'allow'}	));
 
 app.get('/nextVideo', function(req, res) {   
    playNextVideo(function(response) {res.send(response);} );
