@@ -1,5 +1,6 @@
 var express = require('express');
-var http = require('https');
+var https = require('https');
+var http = require('http');
 var fs = require("fs");
 const path = require('path')
 const ffprobe = require('ffprobe');
@@ -157,5 +158,17 @@ function getRandomBumper() {
 	return filename;
 }
 
-var server = http.createServer(app);
-server.listen(8080);
+var http = require('http');
+http.createServer(function(req, res) {
+    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+    res.end();
+}).listen(8080);
+
+var privateKey  = fs.readFileSync('/etc/letsencrypt/live/www.bumptelevision.com/privkey.pem', 'utf8');
+var certificate = fs.readFileSync('/etc/letsencrypt/live/www.bumptelevision.com/cert.pem', 'utf8');
+var chain = fs.readFileSync('/etc/letsencrypt/live/www.bumptelevision.com/chain.pem', 'utf8');
+var credentials = {key: privateKey, cert: certificate, ca: chain};
+
+var httpsServer = https.createServer(credentials, app);
+
+httpsServer.listen(443);
