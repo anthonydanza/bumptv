@@ -110,8 +110,15 @@ h1 {
 .box2 { width: 100px; }
 .box3 { width: 20px; }
 
-.close-x {
+.pink-close-x {
   stroke: #ff7777;
+  fill: transparent;
+  stroke-linecap: round;
+  stroke-width: 5;
+}
+
+.black-close-x {
+  stroke: #000000;
   fill: transparent;
   stroke-linecap: round;
   stroke-width: 5;
@@ -131,6 +138,36 @@ h1 {
     background-image: linear-gradient(#0029ff, #0029ff), radial-gradient(circle at top left, #000,#a8adc3);
     background-origin: border-box;
     background-clip: content-box, border-box;*/
+}
+
+#content-warning {
+    overflow: auto;
+    display: none;
+    background: rgba(225, 81, 101, 0.7);
+    position: relative;
+    top: -100px;
+    text-align: left;
+}
+
+#content-warning-content {
+    margin:10px;
+    font-size: 20px;
+    width: 50%;
+    display: inline-block;
+}
+
+#content-warning-static-message {
+    color: white;
+}
+
+#content-warning-button {
+    float: left;
+    display: inline-block;
+    margin: 10px;
+}
+
+#content-warning-button:hover {
+    background-color: red;
 }
 
 #submit-container {
@@ -280,15 +317,20 @@ video::-webkit-media-controls {
 
 .modal {
     display: block; /* Hidden by default */
+    
+    /*background-color: rgb(0,0,0); /* Fallback color */*/
+    /*background-color: rgba(0,0,0,0.4); /* Black w/ opacity */*/
+        /*background-image: linear-gradient(black, white), radial-gradient(circle at top left, #000,#a8adc3);*/
+}
+
+.modal#unmute-message {
     position: fixed; /* Stay in place */
     z-index: 9999999999999; /* Sit on top */
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
+    width: 300px; /* Full width */
+    height: 300px; /* Full height */
     overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
 /* Modal Content/Box */
@@ -296,9 +338,29 @@ video::-webkit-media-controls {
     font-size: 20px;
     background-color: #fefefe;
     margin: 15% auto; /* 15% from the top and centered */
-    padding: 20px;
-    border: 1px solid #888;
+    padding: 5px;
     width: 80%; /* Could be more or less, depending on screen size */
+    border: double 4px transparent;
+    border-radius: 4px;
+    background-image: linear-gradient(white, white), radial-gradient(circle at top left, #000,#a8adc3);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    opacity: 0.80;
+    font-family: "Kavivanar";
+}
+
+.modal-content p {
+    padding: 10px;
+}
+
+.modal-content:hover {
+    /*border: double 4px transparent;
+    border-radius: 4px;
+    background-image: linear-gradient(white, black), radial-gradient(circle at top left, #000,#a8adc3);
+    background-origin: border-box;
+    background-clip: content-box, border-box;*/
+    text-decoration: underline;
+    opacity: 1.0;
 }
 
 /* The Close Button */

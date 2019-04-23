@@ -354,6 +354,19 @@ function updateVideoInfoInDOM(resp) {
       document.getElementById("artist-info-popup-container").innerHTML = "More shows coming up sooooooon, see <a href=\"./schedule.html\">schedule</a> for details.";
       return;
     } 
+
+    if(resp.contentWarning) {
+      var warningDiv = document.getElementById("content-warning");
+      var warningText = document.getElementById("content-warning-text");
+      console.log(resp.contentWarning);
+      if(resp.contentWarning != "") {
+        warningDiv.style.display = "block";
+        warningText.innerHTML = resp.contentWarning;
+      } else {
+        warningDiv.style.display = "none";
+      }
+
+    }
 }
 
 function ApiLoadStatus() {
@@ -485,7 +498,7 @@ function hideHeader() {
   document.getElementById('hiding-header-container').style.height="5px";
 }
 
-var modal = document.getElementById('onload-message');
+var modal = document.getElementById('unmute-message');
 
 var span = document.getElementsByClassName("close")[0];
 
@@ -543,12 +556,13 @@ if(window.mobilecheck()) {
 }
 
 function toggleChat() {
-    console.log("click");
     var chatContainer = document.getElementById("chat-container");
     var chatContent = document.getElementById("chat-content");
     var chatButton = document.getElementById("chat-button");
     var playerBox = document.getElementById("player");
     var chatMenu = document.getElementById("chat-menu");
+    var contentWarning = document.getElementById("content-warning");
+
 
     chatButton.classList.toggle("active");
 
@@ -557,18 +571,30 @@ function toggleChat() {
       chatMenu.style.display = "none";
       playerBox.style.width = "auto";
       chatContainer.style.width = "40px";
+      contentWarning.style.width = "100%";
     } else {
       chatContent.style.display = "inline-block";
       chatMenu.style.display = "block";
       playerBox.style.width = "70%";
       chatContainer.style.width = "30%";
+      contentWarning.style.width = "70%";
     }
   };
+
+
+  function toggleContentWarning() {
+    var contentWarning = document.getElementById("content-warning");
+    contentWarning.style.display = "none";
+  }
 
 var chatButton = document.getElementById("chat-button");
 chatButton.addEventListener("click", function(){toggleChat()});
 
 var chatMenu = document.getElementById("chat-menu");
 chatMenu.addEventListener("click", function(){toggleChat()});
+
+var contentWarningButton = document.getElementById("content-warning-button");
+contentWarningButton.addEventListener("click", function(){toggleContentWarning()});
+
 
 

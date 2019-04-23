@@ -39,13 +39,11 @@
         </div>
       </div>
 
-<!--       <div class="modal" id="onload-message"> 
+      <div class="modal" id="unmute-message"> 
         <div class="modal-content">
-          <span class="close">&times;</span>
-          <p>🙂 Hi! BUMP TV works best on desktop.</p>
-          <p>🙂 It can be weird on mobile devices, because they don't always let you autoplay video, TV-style.</p>
+          <p>🐢 CLICK TO UNMUTE 🐢 
         </div>
-      </div> -->
+      </div>
 
 <div id="viewport">
 
@@ -58,7 +56,7 @@
             <div id="chat-menu-buttons">
                 <div class="box box3">
                     <svg viewbox="0 0 40 40">
-                        <path class="close-x" d="M 10,10 L 30,30 M 30,10 L 10,30" />
+                        <path class="pink-close-x" d="M 10,10 L 30,30 M 30,10 L 10,30" />
                     </svg>
                 </div>
             </div>
@@ -82,11 +80,33 @@
     
           <div id="video-container">  </div>
 
-      </div>
+        </div>
+
 
 </div>
 
+
+
+
       <div id="player-menu">
+
+
+      <div class="modal" id="content-warning">
+        <div id="content-warning-button">
+          <div class="box box3">
+              <svg viewbox="0 0 40 40">
+                  <path class="black-close-x" d="M 10,10 L 30,30 M 30,10 L 10,30" />
+              </svg>
+            </div>
+        </div>
+        
+        <div id="content-warning-content">
+        <div id="content-warning-static-message">CONTENT WARNING: </div> 
+        <div id="content-warning-text"> </div>
+      </div>
+      </div>
+
+
             <div class="col-3">
                 <div class="menu-button" id="artist-info-button" onclick="toggleArtistInfo()">
                   <div id="artist-info-msg">NOW PLAYING: </div>
