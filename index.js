@@ -519,6 +519,13 @@ window.onclick = function(event) {
   }
 }
 
+modal.addEventListener('touchstart', function(event) {
+  if(modal && modal.style.display != "none") {
+    console.log("poo");
+    closeModal();
+  }
+});
+
 document.addEventListener('keypress', (event) => {
   const keyName = event.key;
   switch(keyName) {
