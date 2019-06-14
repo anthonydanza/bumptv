@@ -355,18 +355,19 @@ function updateVideoInfoInDOM(resp) {
       return;
     } 
 
-    if(resp.contentWarning) {
-      var warningDiv = document.getElementById("content-warning");
-      var warningText = document.getElementById("content-warning-text");
-      console.log(resp.contentWarning);
-      if(resp.contentWarning != "") {
-        warningDiv.style.display = "block";
-        warningText.innerHTML = resp.contentWarning;
-      } else {
+    if (resp.contentWarning) {
+        var warningDiv = document.getElementById("content-warning");
+        var warningText = document.getElementById("content-warning-text");
+        console.log(resp.contentWarning);
+        if (resp.contentWarning != "") {
+            warningDiv.style.display = "block";
+            warningText.innerHTML = resp.contentWarning;
+        }
+    } else {
         warningDiv.style.display = "none";
-      }
-
     }
+
+    
 }
 
 function ApiLoadStatus() {
