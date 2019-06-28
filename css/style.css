@@ -23,6 +23,14 @@ h1 {
     margin-bottom: 60px;
 }
 
+#donate {
+    all: inherit;
+}
+
+form #paypal {
+    all: inherit;
+}
+
 #viewport {
 }
 
