@@ -774,6 +774,42 @@ td.video-title {
     font-size: 13px;
 }
 
+#speakers-menu {
+    width: 100%;
+    height:100px;
+    background:green;
+    margin: 0 auto;
+
+    
+}
+
+.speakers-button {
+    position: relative;
+    display: inline-block;
+    width:20%;
+}
+
+.speakers-button:hover {
+    cursor: pointer;
+    background-color: red;
+}
+
+.speakers-button #webcam-start {
+
+}
+
+.speakers-button #record-start {
+
+}
+
+.speakers-button #record-stop {
+
+}
+
+.speakers-button #upload-video {
+
+}
+
 
 /* styles for '...' */ 
 .three-line-expander {
@@ -863,7 +899,10 @@ td.video-title {
 
 
 
-
+button#recordButton {
+    border: 1px solid green
+    font-size: 200px;
+}
 
 
 

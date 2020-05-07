@@ -1,0 +1,115 @@
+<html>
+<head>    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
+
+
+
+
+
+<script>
+
+
+isVideoPlaying = false;
+
+function videoLoad() {
+  if(!isVideoPlaying) {
+  video.loop();
+  capture.hide();
+  playbackButton.html("Stop")
+  console.log("play");
+} else {
+  video.stop();
+  playbackButton.html("Play");
+  console.log("stop");
+}
+isVideoPlaying = !isVideoPlaying;
+}
+
+function toggleRecording(){
+
+  if (recorder.state != 'recording'){
+    if(typeof(video) !== 'undefined') { video.hide(); }
+    capture.show();
+    recorder.start();
+    recordButton.html("Stop");
+  } else {
+    // https://stackoverflow.com/a/34259326
+    recorder.ondataavailable = e => {
+      video = createVideo(URL.createObjectURL(e.data), function(){});
+    };
+
+    recorder.stop();
+    recordButton.html("Record");
+  }
+}
+
+function draw() {
+
+}
+
+
+var recordButtonStyle = "border: solid 1px green; \
+                        font-size: 20px;"
+
+
+
+
+
+function createRecorder() {
+    var constraints = {
+    video: {
+      mandatory: {
+        minWidth: 330,
+        minHeight: 240,
+        echoCancellation: true, // is this working??
+      },
+      optional: [{ maxFrameRate: 30}],
+    },
+    audio: false 
+  };
+  capture = createCapture(constraints, function(stream)   {    
+    // create a recorder object with the camera stream
+    recorder = new MediaRecorder(stream, {
+      // mimeType: 'video/mp4'
+    });
+  });
+}
+
+
+function setup() {
+  createCanvas(480, 120);
+
+
+
+  recordButton = createButton("Record");
+  recordButton.position(20, 20);
+  recordButton.size(100, 50);
+  recordButton.mousePressed(toggleRecording);
+  recordButton.style(recordButtonStyle);
+  recordButton.id("recordButton");
+
+
+  playbackButton = createButton("Play");
+  playbackButton.position(200, 20);
+  playbackButton.size(100, 50);
+  playbackButton.mousePressed(videoLoad);
+  playbackButton.style(recordButtonStyle);
+  playbackButton.id("playbackButton");
+
+
+  createRecorder();
+
+
+
+}
+
+
+
+  </script>
+</body>
+</html>
+
+
+

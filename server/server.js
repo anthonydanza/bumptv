@@ -144,7 +144,11 @@ function playNextVideo(sendResponse) {
 				sendResponse(bumperResp);
 			}		
 	});	
-}
+} else {
+		var filename = getRandomBumper();
+		bumperResp =  {"videoType":"bumper", "filename":filename, "timeRemaining":500000, "startTime":nextStartTime, "duration": duration, "now":now.toString(), "blockTitle":""};
+		sendResponse(bumperResp);
+	}
 }	
 
 function getRandomBumper() {
@@ -160,9 +164,11 @@ function getRandomBumper() {
 
 var http = require('http');
 http.createServer(function(req, res) {
-    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
-    res.end();
+   res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+   res.end();
 }).listen(8080);
+
+http.createServer(app).listen(8080);
 
 var privateKey  = fs.readFileSync('/etc/letsencrypt/live/www.bumptelevision.com/privkey.pem', 'utf8');
 var certificate = fs.readFileSync('/etc/letsencrypt/live/www.bumptelevision.com/cert.pem', 'utf8');
