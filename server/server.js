@@ -2,6 +2,7 @@ var express = require('express');
 var https = require('https');
 var http = require('http');
 var fs = require("fs");
+var multer = require('multer')
 const path = require('path')
 const ffprobe = require('ffprobe');
 const ffprobeStatic = require('ffprobe-static');
@@ -9,9 +10,67 @@ const ffprobeStatic = require('ffprobe-static');
 var app = express();
 app.use(express.static(path.join(__dirname, '../'),{dotfiles: 'allow'}	));
 
+
+// SET STORAGE
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads')
+  },
+  filename: function (req, file, cb) {
+  	console.log("hey!!!!!!!!");
+  	console.log(file);
+  	console.log(req);
+  	console.log(req.read());
+  	tempFilename = Date.now() + ".mkv";
+    cb(null, tempFilename)
+  }
+})
+ 
+var upload = multer({ storage: storage })
+
+
+
+
 app.get('/nextVideo', function(req, res) {   
    playNextVideo(function(response) {res.send(response);} );
 })
+
+
+
+
+var videoUploadFields = upload.fields([{ name: 'video', maxCount: 1 }, { name: 'filename', maxCount: 1 }])
+var tempFilename = Date.now() + ".mkv";
+
+app.post('/uploadVideo', videoUploadFields, function(req, res, next) {   
+
+    	const file = req.file;
+    	console.log("FILE: ");
+    	console.log(file);
+    	console.log('BODY: ');
+    	console.log(req.body.filename);
+    	username = req.body.filename;
+
+    	fs.rename("uploads/" + tempFilename, "uploads/" + username + "-" + tempFilename);
+  //   	fs.writeFile("peepee.webm", file, function (err) {
+  // 		if (err) { console.log("UPLOAD ERROR"); return console.log(err); }
+  // 			console.log('no error');
+  // 			//res.send("got it");
+		// });
+  });
+
+// app.post('/uploadVideo', function(request, respond) {
+//     var body = '';
+//     filePath = 'poopoo.webm';
+//     request.on('data', function(data) {
+//         body += data;
+//     });
+
+//     request.on('end', function (){
+//         fs.appendFile(filePath, body, function() {
+//             respond.end();
+//         });
+//     });
+// });
 
 function parseDate(dateStr) {
 	var d = dateStr.split(':').map(Number);
@@ -34,8 +93,6 @@ var curVideo;
 var mediaPath = "../media";
 
 function playNextVideo(sendResponse) {
-
-	console.log("playNextVideo called");
 
 	// FOR TESTING ----------------
 	//var adjusted = new Date();
@@ -163,18 +220,18 @@ function getRandomBumper() {
 }
 
 var http = require('http');
-http.createServer(function(req, res) {
-   res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
-   res.end();
-}).listen(8080);
+// http.createServer(function(req, res) {
+//    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+//    res.end();
+// }).listen(8080);
 
 http.createServer(app).listen(8080);
 
-var privateKey  = fs.readFileSync('/etc/letsencrypt/live/www.bumptelevision.com/privkey.pem', 'utf8');
-var certificate = fs.readFileSync('/etc/letsencrypt/live/www.bumptelevision.com/cert.pem', 'utf8');
-var chain = fs.readFileSync('/etc/letsencrypt/live/www.bumptelevision.com/chain.pem', 'utf8');
-var credentials = {key: privateKey, cert: certificate, ca: chain};
+// var privateKey  = fs.readFileSync('/etc/letsencrypt/live/www.bumptelevision.com/privkey.pem', 'utf8');
+// var certificate = fs.readFileSync('/etc/letsencrypt/live/www.bumptelevision.com/cert.pem', 'utf8');
+// var chain = fs.readFileSync('/etc/letsencrypt/live/www.bumptelevision.com/chain.pem', 'utf8');
+// var credentials = {key: privateKey, cert: certificate, ca: chain};
 
-var httpsServer = https.createServer(credentials, app);
+// var httpsServer = https.createServer(credentials, app);
 
-httpsServer.listen(443);
+// httpsServer.listen(443);

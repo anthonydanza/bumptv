@@ -5,7 +5,11 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
 
 
+<div id="topicScroller"> 
 
+<div id="topicScrollerContent">TOPIC SCROLLER</div>
+
+</div>
 
 
 <script>
@@ -27,6 +31,38 @@ function videoLoad() {
 isVideoPlaying = !isVideoPlaying;
 }
 
+function uploadVideo() {
+
+
+  var xhr = new XMLHttpRequest();
+    //var video=$("#myexportingvideo");
+    xhr.open('GET', video.src , true);
+    console.log(video.src);
+    xhr.responseType = 'blob';
+    xhr.onload = function(e) { 
+
+
+
+
+          var req = new XMLHttpRequest();
+          req.open("POST", "uploadVideo", true);
+          console.log(this.response);
+          var blob = new Blob([this.response], {type: 'video/mkv'});
+          
+          var formData = new FormData();
+          formData.append("video", blob);
+          formData.append("filename", nameField.value());
+
+          console.log(typeof(blob));
+          console.log(blob);
+          req.onload = function(e) { console.log("response received"); console.log(e);}
+
+          //req.setRequestHeader("Cache-Control", "no-cache");
+          req.send(formData);
+        };
+        xhr.send();
+}
+
 function toggleRecording(){
 
   if (recorder.state != 'recording'){
@@ -39,15 +75,12 @@ function toggleRecording(){
     recorder.ondataavailable = e => {
       video = createVideo(URL.createObjectURL(e.data), function(){});
     };
-
     recorder.stop();
     recordButton.html("Record");
   }
 }
 
-function draw() {
 
-}
 
 
 var recordButtonStyle = "border: solid 1px green; \
@@ -72,16 +105,36 @@ function createRecorder() {
   capture = createCapture(constraints, function(stream)   {    
     // create a recorder object with the camera stream
     recorder = new MediaRecorder(stream, {
-      // mimeType: 'video/mp4'
+        mimeType: 'video/webm'
     });
   });
 }
 
+function changeTopic() {
+  document.getElementById("topicScrollerContent").innerHTML = topicSel.value();
+}
+
+function changeFilter() {
+
+}
+
+
+
+let testCapture;
+let capture;
+
+
+ function preload(){
+   // load the shader
+   theShader = loadShader('assets/4_image-effects/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
+ }
 
 function setup() {
-  createCanvas(480, 120);
-
-
+  createCanvas(480, 640, WEBGL);
+  noStroke();
+  testCapture = createCapture(VIDEO);
+  testCapture.size(320, 240);
+  testCapture.hide();
 
   recordButton = createButton("Record");
   recordButton.position(20, 20);
@@ -98,8 +151,53 @@ function setup() {
   playbackButton.style(recordButtonStyle);
   playbackButton.id("playbackButton");
 
+  uploadButton = createButton("Upload");
+  uploadButton.position(400, 20);
+  uploadButton.size(100, 50);
+  uploadButton.mousePressed(uploadVideo);
+  uploadButton.style(recordButtonStyle);
+  uploadButton.id("uploadButton");
 
-  createRecorder();
+
+  nameField = createInput("username");
+  nameField.position(100,100);
+  nameField.size(80,20);
+
+  topicSel = createSelect();
+  topicSel.position(300,100);
+  topicSel.option('Red');
+  topicSel.option('Blue');
+  topicSel.option('Green');
+  topicSel.changed(changeTopic);
+
+  filterSel = createSelect();
+  filterSel.position(500,100);
+  filterSel.option('Red');
+  filterSel.option('Blue');
+  filterSel.option('Green');
+  filterSel.changed(changeFilter);
+
+  //createRecorder();
+}
+
+
+function draw() {
+  //background(255,0,0);
+  //capture.hide();
+  //image(testCapture, 0, 0, 320, 240);
+  // filter(INVERT);
+
+// shader() sets the active shader with our shader
+    shader(theShader);
+
+   // // passing cam as a texture
+    theShader.setUniform('tex0', testCapture);
+theShader.setUniform('resolution', [320, 640]);
+   // // rect gives us some geometry on the screen
+    rect(0,0,width,height);
+
+
+
 
 
 
