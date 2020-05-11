@@ -7,7 +7,7 @@
 
 <div id="topicScroller"> 
 
-<div id="topicScrollerContent">TOPIC SCROLLER</div>
+<marquee behavior="scroll" direction="left" id="topicScrollerContent">TOPIC SCROLLER</marquee>
 
 </div>
 
@@ -43,34 +43,20 @@ isVideoPlaying = !isVideoPlaying;
 
 function uploadVideo() {
 
+    var req = new XMLHttpRequest();
+    req.open("POST", "uploadVideo", true);
+    //console.log("sending this blob: ");
+    var blob = new Blob(recordedBlobs, {type: 'video/mkv'});
+    //console.log(blob);
+    var formData = new FormData();
+    formData.append("video", blob);
+    formData.append("filename", nameField.value());
 
-  //var xhr = new XMLHttpRequest();
-    //var video=$("#myexportingvideo");
-    //xhr.open('GET', video.src , true);
-    //console.log(video.src);
-    //xhr.responseType = 'blob';
-   // xhr.onload = function(e) { 
+    //console.log(typeof(blob));
+    //console.log(blob);
+    req.onload = function(e) { console.log("response received"); console.log(e);}
 
-
-
-
-          var req = new XMLHttpRequest();
-          req.open("POST", "uploadVideo", true);
-          console.log("sending this blob: ");
-          var blob = new Blob(recordedBlobs, {type: 'video/mkv'});
-          console.log(blob);
-          var formData = new FormData();
-          formData.append("video", blob);
-          formData.append("filename", nameField.value());
-
-          console.log(typeof(blob));
-          console.log(blob);
-          req.onload = function(e) { console.log("response received"); console.log(e);}
-
-          //req.setRequestHeader("Cache-Control", "no-cache");
-          req.send(formData);
-        //};
-        //xhr.send();
+    req.send(formData);
 }
 
 function toggleRecording(){
@@ -94,8 +80,7 @@ function toggleRecording(){
 
 
 
-var recordButtonStyle = "border: solid 1px green; \
-                        font-size: 20px;"
+
 
 
 function handleSourceOpen(event) {
@@ -195,6 +180,10 @@ function changeFilter() {
 
 }
 
+function changeName() {
+
+}
+
 
 
 
@@ -202,11 +191,19 @@ function changeFilter() {
  function preload(){
    // load the shader
    theShader = loadShader('assets/4_image-effects/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
+
+    mainFont = loadFont('assets/inconsolata.otf');
+
  }
 
+
+ var recordButtonStyle = "border: solid 1px green; \
+                        font-size: 20px;"
+
 function setup() {
+
   createCanvas(480, 640, WEBGL);
-  noStroke();
+
   testCapture = createCapture(VIDEO);
   testCapture.size(320, 240);
   testCapture.hide();
@@ -215,13 +212,13 @@ function setup() {
   stream = canvas.captureStream(); // frames per second
   console.log('Started stream capture from canvas element: ', stream);
 
+
   recordButton = createButton("Record");
   recordButton.position(20, 20);
   recordButton.size(100, 50);
   recordButton.mousePressed(toggleRecording);
   recordButton.style(recordButtonStyle);
   recordButton.id("recordButton");
-
 
   playbackButton = createButton("Play");
   playbackButton.position(200, 20);
@@ -237,10 +234,17 @@ function setup() {
   uploadButton.style(recordButtonStyle);
   uploadButton.id("uploadButton");
 
-
   nameField = createInput("username");
   nameField.position(100,100);
   nameField.size(80,20);
+  nameField.changed(changeName);
+
+  // textLayer.textFont(mainFont);
+  // textLayer.textSize(100);
+  // textLayer.fill(0);
+  // textLayer.text(nameField.value()); 
+  // textLayer.rect(100,100,100,100);
+  //canvas.hidden = true;
 
   topicSel = createSelect();
   topicSel.position(300,100);
@@ -256,28 +260,54 @@ function setup() {
   filterSel.option('Green');
   filterSel.changed(changeFilter);
 
-  //createRecorder();
+
+}
+
+function drawHUD() {
+      
+  text(nameField.value(),100,40);
+  //console.log(nameField.value())
+
+  //rect(100,100,10,10);
 }
 
 
 function draw() {
-  //background(255,0,0);
-  //capture.hide();
-  //image(testCapture, 0, 0, 320, 240);
-  // filter(INVERT);
+  background(200);
 
-// shader() sets the active shader with our shader
-    shader(theShader);
+  //text("ASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFhello", 20, 20);
+  // textLayer.fill(0,0,255);
+  // textLayer.stroke(0,255,0);
+  // textLayer.textSize(100);
+  // textLayer.textFont(mainFont); 
+  // textLayer.text("TEXT LAYERRRRR", 0, 0);
+  // textLayer.rect(100,100,100,100);
 
-   // // passing cam as a texture
-    theShader.setUniform('tex0', testCapture);
-theShader.setUniform('resolution', [320, 640]);
-   // // rect gives us some geometry on the screen
-    rect(0,0,width,height);
+  // texture(textLayer);
+  // rect(0,0,100,100);
+
+  shader(theShader);
+
+  theShader.setUniform('tex0', testCapture);
+  theShader.setUniform('resolution', [320, 640]);
+
+  rect(0,0,1,1);
+
+  resetShader();
+
+  fill(0,0,255);
+  stroke(0,255,0);
+  rect(0,0,10,10);
 
 
+  // fill(255,0,0);
+  // stroke(255,0,0);
+  // //texture(textLayer);
 
+  // textFont(mainFont);
+  // textSize(100);
 
+  
 
 
 }
