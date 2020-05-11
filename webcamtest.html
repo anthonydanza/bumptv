@@ -17,10 +17,20 @@
 
 isVideoPlaying = false;
 
+let testCapture;
+let capture;
+let recordedBlobs;
+let mediaRecorder;
+let stream;
+let state = [{"recording":false},{"playing":false}];
+
+const mediaSource = new MediaSource();
+mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
+
 function videoLoad() {
   if(!isVideoPlaying) {
   video.loop();
-  capture.hide();
+  //canvas.hide();
   playbackButton.html("Stop")
   console.log("play");
 } else {
@@ -34,21 +44,21 @@ isVideoPlaying = !isVideoPlaying;
 function uploadVideo() {
 
 
-  var xhr = new XMLHttpRequest();
+  //var xhr = new XMLHttpRequest();
     //var video=$("#myexportingvideo");
-    xhr.open('GET', video.src , true);
-    console.log(video.src);
-    xhr.responseType = 'blob';
-    xhr.onload = function(e) { 
+    //xhr.open('GET', video.src , true);
+    //console.log(video.src);
+    //xhr.responseType = 'blob';
+   // xhr.onload = function(e) { 
 
 
 
 
           var req = new XMLHttpRequest();
           req.open("POST", "uploadVideo", true);
-          console.log(this.response);
-          var blob = new Blob([this.response], {type: 'video/mkv'});
-          
+          console.log("sending this blob: ");
+          var blob = new Blob(recordedBlobs, {type: 'video/mkv'});
+          console.log(blob);
           var formData = new FormData();
           formData.append("video", blob);
           formData.append("filename", nameField.value());
@@ -59,24 +69,25 @@ function uploadVideo() {
 
           //req.setRequestHeader("Cache-Control", "no-cache");
           req.send(formData);
-        };
-        xhr.send();
+        //};
+        //xhr.send();
 }
 
 function toggleRecording(){
 
-  if (recorder.state != 'recording'){
+  if (!state.recording){
     if(typeof(video) !== 'undefined') { video.hide(); }
-    capture.show();
-    recorder.start();
+    //capture.show();
+    startRecording();
     recordButton.html("Stop");
+    state.recording = true;
   } else {
-    // https://stackoverflow.com/a/34259326
-    recorder.ondataavailable = e => {
+    mediaRecorder.ondataavailable = e => {
       video = createVideo(URL.createObjectURL(e.data), function(){});
     };
-    recorder.stop();
+    stopRecording();
     recordButton.html("Record");
+    state.recording = false;
   }
 }
 
@@ -87,28 +98,94 @@ var recordButtonStyle = "border: solid 1px green; \
                         font-size: 20px;"
 
 
-
-
-
-function createRecorder() {
-    var constraints = {
-    video: {
-      mandatory: {
-        minWidth: 330,
-        minHeight: 240,
-        echoCancellation: true, // is this working??
-      },
-      optional: [{ maxFrameRate: 30}],
-    },
-    audio: false 
-  };
-  capture = createCapture(constraints, function(stream)   {    
-    // create a recorder object with the camera stream
-    recorder = new MediaRecorder(stream, {
-        mimeType: 'video/webm'
-    });
-  });
+function handleSourceOpen(event) {
+  console.log('MediaSource opened');
+  sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8"');
+  console.log('Source buffer: ', sourceBuffer);
 }
+
+function handleDataAvailable(event) {
+  if (event.data && event.data.size > 0) {
+    console.log("pushing data into recordedBlobs");
+    recordedBlobs.push(event.data);
+  }
+}
+
+function handleStop(event) {
+  console.log('Recorder stopped: ', event);
+  const superBuffer = new Blob(recordedBlobs, {type: 'video/webm'});
+  console.log(superBuffer);
+  video.src = window.URL.createObjectURL(superBuffer);
+}
+
+
+function startRecording() {
+  //   var constraints = {
+  //   video: {
+  //     mandatory: {
+  //       minWidth: 330,
+  //       minHeight: 240,
+  //       echoCancellation: true, // is this working??
+  //     },
+  //     optional: [{ maxFrameRate: 30}],
+  //   },
+  //   audio: false 
+  // };
+  // capture = createCapture(constraints, function(stream)   {    
+  //   // create a mediaRecorder object with the camera stream
+  //   mediaRecorder = new MediaRecorder(stream, {
+  //       mimeType: 'video/webm'
+  //   });
+  // });
+
+// The nested try blocks will be simplified when Chrome 47 moves to Stable
+  let options = {mimeType: 'video/webm'};
+  recordedBlobs = [];
+  try {
+    mediaRecorder = new MediaRecorder(stream, options);
+  } catch (e0) {
+    console.log('Unable to create MediaRecorder with options Object: ', e0);
+    try {
+      options = {mimeType: 'video/webm,codecs=vp9'};
+      mediaRecorder = new MediaRecorder(stream, options);
+    } catch (e1) {
+      console.log('Unable to create MediaRecorder with options Object: ', e1);
+      try {
+        options = 'video/vp8'; // Chrome 47
+        mediaRecorder = new MediaRecorder(stream, options);
+      } catch (e2) {
+        //alert('MediaRecorder is not supported by this browser.\n\n' +
+        //  'Try Firefox 29 or later, or Chrome 47 or later, ' +
+        //  'with Enable experimental Web Platform features enabled from chrome://flags.');
+        console.error('Exception while creating MediaRecorder:', e2);
+        return;
+      }
+    }
+  }
+  console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+  state.recording = true;
+  // recordButton.textContent = 'Stop Recording';
+  // playButton.disabled = true;
+  // downloadButton.disabled = true;
+  mediaRecorder.onstop = handleStop;
+  mediaRecorder.ondataavailable = handleDataAvailable;
+  mediaRecorder.start(100); // collect 100ms of data
+ // console.log('MediaRecorder started', mediaRecorder);
+}
+
+
+function stopRecording() {
+  mediaRecorder.stop();
+  console.log('Recorded Blobs: ', recordedBlobs);
+  console.log("recorded stream: ",mediaRecorder.stream)
+  //video.controls = true;
+  state.recording = false;
+}
+
+function play() {
+  video.play();
+}
+
 
 function changeTopic() {
   document.getElementById("topicScrollerContent").innerHTML = topicSel.value();
@@ -120,8 +197,6 @@ function changeFilter() {
 
 
 
-let testCapture;
-let capture;
 
 
  function preload(){
@@ -136,6 +211,10 @@ function setup() {
   testCapture.size(320, 240);
   testCapture.hide();
 
+  canvas = document.querySelector('canvas');
+  stream = canvas.captureStream(); // frames per second
+  console.log('Started stream capture from canvas element: ', stream);
+
   recordButton = createButton("Record");
   recordButton.position(20, 20);
   recordButton.size(100, 50);
@@ -147,7 +226,7 @@ function setup() {
   playbackButton = createButton("Play");
   playbackButton.position(200, 20);
   playbackButton.size(100, 50);
-  playbackButton.mousePressed(videoLoad);
+  playbackButton.mousePressed(play);
   playbackButton.style(recordButtonStyle);
   playbackButton.id("playbackButton");
 
