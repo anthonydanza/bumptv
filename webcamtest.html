@@ -3,9 +3,11 @@
 </head>
 <body>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.js"></script> -->
 
 
-<div id="topicScroller"> 
+
+<div id="topicScroller">
 
 <marquee behavior="scroll" direction="left" id="topicScrollerContent">TOPIC SCROLLER</marquee>
 
@@ -114,9 +116,9 @@ function startRecording() {
   //     },
   //     optional: [{ maxFrameRate: 30}],
   //   },
-  //   audio: false 
+  //   audio: false
   // };
-  // capture = createCapture(constraints, function(stream)   {    
+  // capture = createCapture(constraints, function(stream)   {
   //   // create a mediaRecorder object with the camera stream
   //   mediaRecorder = new MediaRecorder(stream, {
   //       mimeType: 'video/webm'
@@ -203,6 +205,7 @@ function changeName() {
 function setup() {
 
   createCanvas(480, 640, WEBGL);
+	pg = createGraphics(480, 640, WEBGL)
 
   testCapture = createCapture(VIDEO);
   testCapture.size(320, 240);
@@ -242,7 +245,7 @@ function setup() {
   // textLayer.textFont(mainFont);
   // textLayer.textSize(100);
   // textLayer.fill(0);
-  // textLayer.text(nameField.value()); 
+  // textLayer.text(nameField.value());
   // textLayer.rect(100,100,100,100);
   //canvas.hidden = true;
 
@@ -264,7 +267,7 @@ function setup() {
 }
 
 function drawHUD() {
-      
+
   text(nameField.value(),100,40);
   //console.log(nameField.value())
 
@@ -273,31 +276,35 @@ function drawHUD() {
 
 
 function draw() {
-  background(200);
+  pg.background(200);
 
   //text("ASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFhello", 20, 20);
   // textLayer.fill(0,0,255);
   // textLayer.stroke(0,255,0);
   // textLayer.textSize(100);
-  // textLayer.textFont(mainFont); 
+  // textLayer.textFont(mainFont);
   // textLayer.text("TEXT LAYERRRRR", 0, 0);
   // textLayer.rect(100,100,100,100);
 
   // texture(textLayer);
   // rect(0,0,100,100);
 
-  shader(theShader);
+  pg.shader(theShader);
 
   theShader.setUniform('tex0', testCapture);
   theShader.setUniform('resolution', [320, 640]);
 
-  rect(0,0,1,1);
+  pg.rect(0,0,1,1);
 
-  resetShader();
+	background(255,0,0)
+	image(pg, -width/2, -height/2);
+	//background(200);
 
   fill(0,0,255);
   stroke(0,255,0);
   rect(0,0,10,10);
+  //rect(-10,-10,20,20);
+	//rect(-0.5, -0.5, 1, 1);
 
 
   // fill(255,0,0);
@@ -307,7 +314,7 @@ function draw() {
   // textFont(mainFont);
   // textSize(100);
 
-  
+
 
 
 }
@@ -317,6 +324,3 @@ function draw() {
   </script>
 </body>
 </html>
-
-
-
