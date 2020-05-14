@@ -274,6 +274,12 @@ function drawHUD() {
   //rect(100,100,10,10);
 }
 
+function pad(num, size) {
+    var s = num+"";
+    while (s.length < size) s = "0" + s;
+    return s;
+}
+
 
 function draw() {
   pg.background(200);
@@ -300,19 +306,15 @@ function draw() {
 	image(pg, -width/2, -height/2);
 	//background(200);
 
-  fill(0,0,255);
-  stroke(0,255,0);
-  rect(0,0,10,10);
-  //rect(-10,-10,20,20);
-	//rect(-0.5, -0.5, 1, 1);
 
+  fill(255,0,0);
+  textFont(mainFont);
+  textSize(30);
+  text(nameField.value(),width/5,height/2.1);
 
-  // fill(255,0,0);
-  // stroke(255,0,0);
-  // //texture(textLayer);
-
-  // textFont(mainFont);
-  // textSize(100);
+  today = new Date();
+  text(today.toISOString().split("T")[0]  , 0,20);
+  text(pad(today.getHours(),2) + ":" + pad(today.getMinutes(),2) + ":" + pad(today.getSeconds(),2),0,50);
 
 
 

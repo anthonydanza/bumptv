@@ -3,12 +3,97 @@ var https = require('https');
 var http = require('http');
 var fs = require("fs");
 var multer = require('multer')
+var serveIndex = require('serve-index');
 const path = require('path')
 const ffprobe = require('ffprobe');
 const ffprobeStatic = require('ffprobe-static');
+var passport = require('passport')
+  , LocalStrategy = require('passport-local').Strategy;
+var flash = require('connect-flash');
+var session = require('express-session');
+var bodyParser = require('body-parser');
+
+
+
+// passport.use(new LocalStrategy(
+//   function(username, password, done) {
+//   	console.log("fuck");
+//     User.findOne({ username: username }, function(err, user) {
+//       if (err) { return done(err); }
+//       if (!user) {
+//       	console.log("incorrect username");
+//         return done(null, false, { message: 'Incorrect username.' });
+//       }
+//       if (!user.validPassword(password)) {
+//       	console.log("incorrect password");
+//         return done(null, false, { message: 'Incorrect password.' });
+//       }
+//       return done(null, user);
+//     });
+//   }
+// ));
+
+
+function isLoggedIn(req ,res, next){
+  if(req.isAuthenticated()){
+    return next();
+  }else{
+    return res.redirect('/login');
+	}
+}
 
 var app = express();
 app.use(express.static(path.join(__dirname, '../'),{dotfiles: 'allow'}	));
+
+app.use('/uploads', serveIndex(path.join(__dirname + '/uploads'),{'icons':true,'view':'details'}));
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+
+app.use(flash());
+
+// app.use(session({ cookie: { maxAge: 60000 }, 
+//                   secret: 'woot',
+//                   resave: false, 
+//                   saveUninitialized: false}));
+
+// app.use(passport.initialize());
+// app.use(passport.session());
+
+
+// app.post('/login', passport.authenticate('local', { successRedirect: '/uploads',
+//                                    failureRedirect: '/login.html',
+//                                    failureFlash: false })
+// );
+
+// app.get('/logout', (req, res) => {
+//         req.logout();
+//         res.redirect('/login');
+//     });
+
+// passport.use(new LocalStrategy(
+//   function(username, password, done) {
+//   	return done(null,{username: username});
+//   	if(username == "email" && password == "pwd") {
+//   		return done(null,username);
+//   	}
+//   }
+// ));
+
+// passport.serializeUser(function(user, done) {
+//     done(null, user.username);
+// });
+
+// passport.deserializeUser((username, done) => {
+//     done(null, {username: username});
+// }); 
+
+
+
+
+
+
 
 
 // SET STORAGE
@@ -17,7 +102,6 @@ var storage = multer.diskStorage({
     cb(null, 'uploads')
   },
   filename: function (req, file, cb) {
-  	console.log("hey!!!!!!!!");
   	console.log(file);
   	console.log(req);
   	console.log(req.read());
