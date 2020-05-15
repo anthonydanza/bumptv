@@ -899,21 +899,75 @@ td.video-title {
 
 
 
-button#recordButton {
+button#record-button {
     border: 1px solid green
     font-size: 200px;
 }
 
+#speakers-corner-container {
+/*    position: absolute;
+    top: 0;
+    left: 0;*/
+    /*height:100%;*/
+    /*width:100%;*/
+    position: relative;
+    margin: 0 auto;
+    width: 50%;
+    height: 100%;
+    background: black;
+}
+
 #webcam-container {
+    position: relative;
+    top: 0;
+    left: 0;
     height:100%;
     width:100%;
     background: black;
 }
 
 #topic-scroller {
+    position: relative;
+    left: 300px;
+    width: 300px;
     color: white;
 }
 
+.p5canvas {
+    position: relative;
+    top: 30;
+    left: 0;
+}
 
+.controls-button {
+    position: relative;
+    background: green;
+    color: black;
+    font-size: 20px;
+}
+
+.options-button {
+    position: relative;
+    background-color: purple;
+    color: green;
+    font-size: 30px;
+}
+
+#project-description {
+    margin:0 auto;
+    display:block;
+    width:100%;
+    position: relative;
+    top: 800px;
+    color: white;
+    background: black;
+}
+
+#speakers-corner-header {
+    color: white;
+    position: relative;
+    width: 100%;
+    z-index: 1000;
+}
 
 

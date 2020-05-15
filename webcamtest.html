@@ -1,16 +1,23 @@
 <html>
 <head>    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body style="background-color:black;">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
 	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.js"></script> -->
+
+<div id="speakers-corner-container">
+
+<div id="speakers-corner-header">
+  <div id="speakers-corner-title">SPEAKER'S CORNER</div>
+  <div id="subheading">PRESENTED by BUMP TELEVISION</div>
+</div>
+
+
 
 <div id="webcam-container">
 
 <div id="topic-scroller">
-
-<marquee behavior="scroll" direction="left" id="topic-scroller-content">TOPIC SCROLLER</marquee>
-
+  <marquee behavior="scroll" direction="left" id="topic-scroller-content">TOPIC SCROLLER</marquee>
 </div>
 
 
@@ -56,7 +63,7 @@ function uploadVideo() {
 
     //console.log(typeof(blob));
     //console.log(blob);
-    req.onload = function(e) { console.log("response received"); console.log(e);}
+    req.onload = function(e) { alert("video uploaded! thanksSss"); console.log("response received"); console.log(e);}
 
     req.send(formData);
 }
@@ -71,19 +78,13 @@ function toggleRecording(){
     state.recording = true;
   } else {
     mediaRecorder.ondataavailable = e => {
-      video = createVideo(URL.createObjectURL(e.data), function(){});
+      //video = createVideo(URL.createObjectURL(e.data), function(){});
     };
     stopRecording();
     recordButton.html("Record");
     state.recording = false;
   }
 }
-
-
-
-
-
-
 
 function handleSourceOpen(event) {
   console.log('MediaSource opened');
@@ -107,23 +108,6 @@ function handleStop(event) {
 
 
 function startRecording() {
-  //   var constraints = {
-  //   video: {
-  //     mandatory: {
-  //       minWidth: 330,
-  //       minHeight: 240,
-  //       echoCancellation: true, // is this working??
-  //     },
-  //     optional: [{ maxFrameRate: 30}],
-  //   },
-  //   audio: false
-  // };
-  // capture = createCapture(constraints, function(stream)   {
-  //   // create a mediaRecorder object with the camera stream
-  //   mediaRecorder = new MediaRecorder(stream, {
-  //       mimeType: 'video/webm'
-  //   });
-  // });
 
 // The nested try blocks will be simplified when Chrome 47 moves to Stable
   let options = {mimeType: 'video/webm'};
@@ -151,13 +135,9 @@ function startRecording() {
   }
   console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
   state.recording = true;
-  // recordButton.textContent = 'Stop Recording';
-  // playButton.disabled = true;
-  // downloadButton.disabled = true;
   mediaRecorder.onstop = handleStop;
   mediaRecorder.ondataavailable = handleDataAvailable;
   mediaRecorder.start(100); // collect 100ms of data
- // console.log('MediaRecorder started', mediaRecorder);
 }
 
 
@@ -186,16 +166,9 @@ function changeName() {
 
 }
 
-
-
-
-
  function preload(){
-   // load the shader
-   theShader = loadShader('assets/4_image-effects/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
-
+    theShader = loadShader('assets/4_image-effects/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
     mainFont = loadFont('assets/inconsolata.otf');
-
  }
 
 
@@ -218,20 +191,22 @@ function changeName() {
   var controlsButtonSpacing = 150;
   var controlsButtonSize = [100, 50];
 
-  var optionsMenuButtonSize = [100, 50];
+  var optionsMenuButtonSize = [canvasWidth*0.8, 50];
   var optionsMenuOrigin = [canvasWidth/2 - optionsMenuButtonSize[0]/2, controlsMenuOrigin[1] + controlsButtonSize[1] + 30];
-  var optionsMenuButtonSpacing = 30;
+  var optionsMenuButtonSpacing = 60;
 
   var dateTextSize = 30;
   var dateTextOrigin = [canvasWidth/2, canvasHeight-dateTextSize - 5];
 
   var usernameOrigin = [dateTextOrigin[0] + 19/2 * dateTextSize, dateTextOrigin[1] ];//+ dateTextSize ];
 
+
+
 function setup() {
 
+  var canv = createCanvas(canvasWidth, canvasHeight, WEBGL);
+  canv.parent("webcam-container");
 
-
-  createCanvas(canvasWidth, canvasHeight, WEBGL);
 	pg = createGraphics(pgWidth, pgHeight, WEBGL)
 
   testCapture = createCapture(VIDEO);
@@ -239,7 +214,6 @@ function setup() {
   testCapture.hide();
 
   canvas = document.querySelector('canvas');
-  canvas.style = "position: absolute; top: 30; left: 0;";
   stream = canvas.captureStream(); // frames per second
   console.log('Started stream capture from canvas element: ', stream);
 
@@ -248,58 +222,58 @@ function setup() {
   recordButton.position(canvasWidth/8, canvasHeight + 50);
   recordButton.size(100, 50);
   recordButton.mousePressed(toggleRecording);
-  recordButton.style(recordButtonStyle);
-  recordButton.id("recordButton");
+  recordButton.id("record-button");
+  recordButton.class("controls-button");
+  recordButton.parent("webcam-container");
 
   playbackButton = createButton("Play");
   playbackButton.position(canvasWidth/8 + 150, canvasHeight + 50);
   playbackButton.size(100, 50);
   playbackButton.mousePressed(play);
-  playbackButton.style(recordButtonStyle);
-  playbackButton.id("playbackButton");
+  playbackButton.id("playback-button");
+  playbackButton.class("controls-button");
+  playbackButton.parent("webcam-container");
 
   uploadButton = createButton("Upload");
   uploadButton.position(canvasWidth/8 + 300, canvasHeight + 50);
   uploadButton.size(100, 50);
   uploadButton.mousePressed(uploadVideo);
-  uploadButton.style(recordButtonStyle);
-  uploadButton.id("uploadButton");
+  uploadButton.id("upload-button");
+  uploadButton.class("controls-button");
+  uploadButton.parent("webcam-container");
 
-  nameField = createInput("username");
+  nameField = createInput(" username");
   nameField.position(optionsMenuOrigin[0],optionsMenuOrigin[1]);
-  nameField.size(80,20);
+  nameField.size(optionsMenuButtonSize[0], optionsMenuButtonSize[1]);
   nameField.changed(changeName);
-
-  // textLayer.textFont(mainFont);
-  // textLayer.textSize(100);
-  // textLayer.fill(0);
-  // textLayer.text(nameField.value());
-  // textLayer.rect(100,100,100,100);
-  //canvas.hidden = true;
+  nameField.class("options-button");
+  nameField.parent("webcam-container");
 
   topicSel = createSelect();
   topicSel.position(optionsMenuOrigin[0], optionsMenuOrigin[1] + optionsMenuButtonSpacing);
+  topicSel.size(optionsMenuButtonSize[0], optionsMenuButtonSize[1]);
   topicSel.option('SELECT TOPIC');
   topicSel.option('Blue');
   topicSel.option('Green');
   topicSel.changed(changeTopic);
+  topicSel.class("options-button");
+  topicSel.parent("webcam-container")
 
   filterSel = createSelect();
   filterSel.position(optionsMenuOrigin[0], optionsMenuOrigin[1] + 2*optionsMenuButtonSpacing);
+  filterSel.size(optionsMenuButtonSize[0], optionsMenuButtonSize[1]);
   filterSel.option('SELECT FILTER');
   filterSel.option('None');
   filterSel.option('Bug Eye');
   filterSel.changed(changeFilter);
+  filterSel.class("options-button");
+  filterSel.parent("webcam-container");
 
 
 }
 
 function drawHUD() {
-
   text(nameField.value(),100,40);
-  //console.log(nameField.value())
-
-  //rect(100,100,10,10);
 }
 
 function pad(num, size) {
@@ -324,20 +298,28 @@ function draw() {
 
   translate(-width/2,-height/2);
 
+
+  fill(255,255,255,160);
+  noStroke();
+  rect(dateTextOrigin[0],dateTextOrigin[1]-30,400,70);
   fill(255,0,0);
   textFont(mainFont);
   textSize(dateTextSize);
   text(nameField.value(), usernameOrigin[0] - nameField.value().length*dateTextSize/2, usernameOrigin[1]);
 
   today = new Date();
-  //text(today.toISOString().split("T")[0]  , dateTextOrigin[0],dateTextOrigin[1]);
   text(pad(today.getHours(),2) + ":" + pad(today.getMinutes(),2) + ":" + pad(today.getSeconds(),2) + " " + today.toISOString().split("T")[0],dateTextOrigin[0],dateTextOrigin[1]+dateTextSize);
-
 
 }
 
 </script>
-  </script>
+
+</div>
+
+
+<div id="project-description">
+  Call me Ishmael. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time tozz get to sea as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the ship. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the ocean with me.
+</div>
 
 </div>
 

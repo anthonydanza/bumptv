@@ -140,6 +140,7 @@ app.post('/uploadVideo', videoUploadFields, function(req, res, next) {
   // 			console.log('no error');
   // 			//res.send("got it");
 		// });
+		res.send();
   });
 
 // app.post('/uploadVideo', function(request, respond) {
