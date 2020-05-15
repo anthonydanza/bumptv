@@ -202,24 +202,30 @@ function changeName() {
  var recordButtonStyle = "border: solid 1px green; \
                         font-size: 20px;"
 
-  var canvasWidth = 480;
-  var canvasHeight = 640;
+  var canvasWidth = 640;
+  var canvasHeight = 480;
 
-  var pgWidth = 480;
-  var pgHeight = 640;
+  var pgWidth = 640;
+  var pgHeight = 480;
 
-  var testCaptureWidth = 320;
-  var testCaptureHeight = 240;
+  var testCaptureWidth = 640;
+  var testCaptureHeight = 480;
 
-  var shaderWidth = 320;
-  var shaderHeight = 640;
+  var shaderWidth = 640;
+  var shaderHeight = 480;
 
   var controlsMenuOrigin = [canvasWidth/8, canvasHeight + 50];
   var controlsButtonSpacing = 150;
   var controlsButtonSize = [100, 50];
 
-  var optionsMenuOrigin = [canvasWidth/8, controlsMenuOrigin[1] + controlsButtonSize[1] + 100];
-  var optionsMenuButtonSpacing = 100;
+  var optionsMenuButtonSize = [100, 50];
+  var optionsMenuOrigin = [canvasWidth/2 - optionsMenuButtonSize[0]/2, controlsMenuOrigin[1] + controlsButtonSize[1] + 30];
+  var optionsMenuButtonSpacing = 30;
+
+  var dateTextSize = 30;
+  var dateTextOrigin = [canvasWidth/2, canvasHeight-dateTextSize - 5];
+
+  var usernameOrigin = [dateTextOrigin[0] + 19/2 * dateTextSize, dateTextOrigin[1] ];//+ dateTextSize ];
 
 function setup() {
 
@@ -273,16 +279,16 @@ function setup() {
 
   topicSel = createSelect();
   topicSel.position(optionsMenuOrigin[0], optionsMenuOrigin[1] + optionsMenuButtonSpacing);
-  topicSel.option('Red');
+  topicSel.option('SELECT TOPIC');
   topicSel.option('Blue');
   topicSel.option('Green');
   topicSel.changed(changeTopic);
 
   filterSel = createSelect();
   filterSel.position(optionsMenuOrigin[0], optionsMenuOrigin[1] + 2*optionsMenuButtonSpacing);
-  filterSel.option('Red');
-  filterSel.option('Blue');
-  filterSel.option('Green');
+  filterSel.option('SELECT FILTER');
+  filterSel.option('None');
+  filterSel.option('Bug Eye');
   filterSel.changed(changeFilter);
 
 
@@ -306,17 +312,6 @@ function pad(num, size) {
 function draw() {
   pg.background(200);
 
-  //text("ASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFASDFhello", 20, 20);
-  // textLayer.fill(0,0,255);
-  // textLayer.stroke(0,255,0);
-  // textLayer.textSize(100);
-  // textLayer.textFont(mainFont);
-  // textLayer.text("TEXT LAYERRRRR", 0, 0);
-  // textLayer.rect(100,100,100,100);
-
-  // texture(textLayer);
-  // rect(0,0,100,100);
-
   pg.shader(theShader);
 
   theShader.setUniform('tex0', testCapture);
@@ -326,17 +321,17 @@ function draw() {
 
 	background(255,0,0)
 	image(pg, -width/2, -height/2);
-	//background(200);
 
+  translate(-width/2,-height/2);
 
   fill(255,0,0);
   textFont(mainFont);
-  textSize(30);
-  text(nameField.value(),width/5,height/2.1);
+  textSize(dateTextSize);
+  text(nameField.value(), usernameOrigin[0] - nameField.value().length*dateTextSize/2, usernameOrigin[1]);
 
   today = new Date();
-  text(today.toISOString().split("T")[0]  , 0,20);
-  text(pad(today.getHours(),2) + ":" + pad(today.getMinutes(),2) + ":" + pad(today.getSeconds(),2),0,50);
+  //text(today.toISOString().split("T")[0]  , dateTextOrigin[0],dateTextOrigin[1]);
+  text(pad(today.getHours(),2) + ":" + pad(today.getMinutes(),2) + ":" + pad(today.getSeconds(),2) + " " + today.toISOString().split("T")[0],dateTextOrigin[0],dateTextOrigin[1]+dateTextSize);
 
 
 }
