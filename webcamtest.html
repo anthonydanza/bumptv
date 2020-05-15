@@ -60,6 +60,7 @@ function uploadVideo() {
     var formData = new FormData();
     formData.append("video", blob);
     formData.append("filename", nameField.value());
+    formData.append("topic", topicSel.value());
 
     //console.log(typeof(blob));
     //console.log(blob);

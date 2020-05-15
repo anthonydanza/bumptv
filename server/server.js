@@ -133,8 +133,10 @@ app.post('/uploadVideo', videoUploadFields, function(req, res, next) {
     	console.log('BODY: ');
     	console.log(req.body.filename);
     	username = req.body.filename;
+    	topic = req.body.topic;
+    	console.log("TOPIC: ", topic);
 
-    	fs.rename("uploads/" + tempFilename, "uploads/" + username + "-" + tempFilename);
+    	fs.rename("uploads/" + tempFilename, "uploads/" + username + "-" + topic + "-" + tempFilename);
   //   	fs.writeFile("peepee.webm", file, function (err) {
   // 		if (err) { console.log("UPLOAD ERROR"); return console.log(err); }
   // 			console.log('no error');
