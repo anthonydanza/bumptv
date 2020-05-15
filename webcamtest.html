@@ -5,11 +5,11 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
 	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.js"></script> -->
 
+<div id="webcam-container">
 
+<div id="topic-scroller">
 
-<div id="topicScroller">
-
-<marquee behavior="scroll" direction="left" id="topicScrollerContent">TOPIC SCROLLER</marquee>
+<marquee behavior="scroll" direction="left" id="topic-scroller-content">TOPIC SCROLLER</marquee>
 
 </div>
 
@@ -175,7 +175,7 @@ function play() {
 
 
 function changeTopic() {
-  document.getElementById("topicScrollerContent").innerHTML = topicSel.value();
+  document.getElementById("topic-scroller-content").innerHTML = topicSel.value();
 }
 
 function changeFilter() {
@@ -202,43 +202,65 @@ function changeName() {
  var recordButtonStyle = "border: solid 1px green; \
                         font-size: 20px;"
 
+  var canvasWidth = 480;
+  var canvasHeight = 640;
+
+  var pgWidth = 480;
+  var pgHeight = 640;
+
+  var testCaptureWidth = 320;
+  var testCaptureHeight = 240;
+
+  var shaderWidth = 320;
+  var shaderHeight = 640;
+
+  var controlsMenuOrigin = [canvasWidth/8, canvasHeight + 50];
+  var controlsButtonSpacing = 150;
+  var controlsButtonSize = [100, 50];
+
+  var optionsMenuOrigin = [canvasWidth/8, controlsMenuOrigin[1] + controlsButtonSize[1] + 100];
+  var optionsMenuButtonSpacing = 100;
+
 function setup() {
 
-  createCanvas(480, 640, WEBGL);
-	pg = createGraphics(480, 640, WEBGL)
+
+
+  createCanvas(canvasWidth, canvasHeight, WEBGL);
+	pg = createGraphics(pgWidth, pgHeight, WEBGL)
 
   testCapture = createCapture(VIDEO);
-  testCapture.size(320, 240);
+  testCapture.size(testCaptureWidth, testCaptureHeight);
   testCapture.hide();
 
   canvas = document.querySelector('canvas');
+  canvas.style = "position: absolute; top: 30; left: 0;";
   stream = canvas.captureStream(); // frames per second
   console.log('Started stream capture from canvas element: ', stream);
 
 
   recordButton = createButton("Record");
-  recordButton.position(20, 20);
+  recordButton.position(canvasWidth/8, canvasHeight + 50);
   recordButton.size(100, 50);
   recordButton.mousePressed(toggleRecording);
   recordButton.style(recordButtonStyle);
   recordButton.id("recordButton");
 
   playbackButton = createButton("Play");
-  playbackButton.position(200, 20);
+  playbackButton.position(canvasWidth/8 + 150, canvasHeight + 50);
   playbackButton.size(100, 50);
   playbackButton.mousePressed(play);
   playbackButton.style(recordButtonStyle);
   playbackButton.id("playbackButton");
 
   uploadButton = createButton("Upload");
-  uploadButton.position(400, 20);
+  uploadButton.position(canvasWidth/8 + 300, canvasHeight + 50);
   uploadButton.size(100, 50);
   uploadButton.mousePressed(uploadVideo);
   uploadButton.style(recordButtonStyle);
   uploadButton.id("uploadButton");
 
   nameField = createInput("username");
-  nameField.position(100,100);
+  nameField.position(optionsMenuOrigin[0],optionsMenuOrigin[1]);
   nameField.size(80,20);
   nameField.changed(changeName);
 
@@ -250,14 +272,14 @@ function setup() {
   //canvas.hidden = true;
 
   topicSel = createSelect();
-  topicSel.position(300,100);
+  topicSel.position(optionsMenuOrigin[0], optionsMenuOrigin[1] + optionsMenuButtonSpacing);
   topicSel.option('Red');
   topicSel.option('Blue');
   topicSel.option('Green');
   topicSel.changed(changeTopic);
 
   filterSel = createSelect();
-  filterSel.position(500,100);
+  filterSel.position(optionsMenuOrigin[0], optionsMenuOrigin[1] + 2*optionsMenuButtonSpacing);
   filterSel.option('Red');
   filterSel.option('Blue');
   filterSel.option('Green');
@@ -298,7 +320,7 @@ function draw() {
   pg.shader(theShader);
 
   theShader.setUniform('tex0', testCapture);
-  theShader.setUniform('resolution', [320, 640]);
+  theShader.setUniform('resolution', [shaderWidth, shaderHeight]);
 
   pg.rect(0,0,1,1);
 
@@ -317,12 +339,12 @@ function draw() {
   text(pad(today.getHours(),2) + ":" + pad(today.getMinutes(),2) + ":" + pad(today.getSeconds(),2),0,50);
 
 
-
-
 }
 
-
-
+</script>
   </script>
+
+</div>
+
 </body>
 </html>

@@ -904,6 +904,16 @@ button#recordButton {
     font-size: 200px;
 }
 
+#webcam-container {
+    height:100%;
+    width:100%;
+    background: black;
+}
+
+#topic-scroller {
+    color: white;
+}
+
 
 
 
