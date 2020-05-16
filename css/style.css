@@ -935,7 +935,7 @@ button#record-button {
 
 .p5canvas {
     position: relative;
-    top: 30;
+    margin-top: 10px;
     left: 0;
 }
 
@@ -954,11 +954,11 @@ button#record-button {
 }
 
 #project-description {
-    margin:0 auto;
+    margin: 0 auto;
     display:block;
-    width:100%;
+    width:90%;
     position: relative;
-    top: 800px;
+    top: 100px;
     color: white;
     background: black;
 }
@@ -970,4 +970,11 @@ button#record-button {
     z-index: 1000;
 }
 
+#speakers-corner-title {
+    font-size: 70px;
+}
+
+#speakers-corner-subheading {
+    font-size: 20px;
+}
 

@@ -9,7 +9,7 @@
 
 <div id="speakers-corner-header">
   <div id="speakers-corner-title">SPEAKER'S CORNER</div>
-  <div id="subheading">PRESENTED by BUMP TELEVISION</div>
+  <div id="subheading">PRESENTED by <a href="https://www.bumptelevision.com">BUMP TELEVISION</a></div>
 </div>
 
 
@@ -17,7 +17,7 @@
 <div id="webcam-container">
 
 <div id="topic-scroller">
-  <marquee behavior="scroll" direction="left" id="topic-scroller-content">TOPIC SCROLLER</marquee>
+  <marquee behavior="scroll" direction="left" >LET'S TALK ABOUT: <div id="topic-scroller-content">PICK A TOPIC BELOW</div></marquee>
 </div>
 
 
@@ -73,13 +73,13 @@ function toggleRecording(){
 
   if (!state.recording){
     if(typeof(video) !== 'undefined') { video.hide(); }
-    //capture.show();
     startRecording();
     recordButton.html("Stop");
     state.recording = true;
   } else {
     mediaRecorder.ondataavailable = e => {
-      //video = createVideo(URL.createObjectURL(e.data), function(){});
+      video = createVideo(URL.createObjectURL(e.data), function(){});
+
     };
     stopRecording();
     recordButton.html("Record");
@@ -160,7 +160,13 @@ function changeTopic() {
 }
 
 function changeFilter() {
-
+  console.log("changing filter to: ", filterSel.value());
+  var selection = filterSel.value();
+  if(selection == "None") {
+   // canvas.hidden = true;
+    testCapture.show();
+  }
+  //theShader = loadShader();
 }
 
 function changeName() {
@@ -188,7 +194,7 @@ function changeName() {
   var shaderWidth = 640;
   var shaderHeight = 480;
 
-  var controlsMenuOrigin = [canvasWidth/8, canvasHeight + 50];
+  var controlsMenuOrigin = [canvasWidth/5.5, canvasHeight + 50];
   var controlsButtonSpacing = 150;
   var controlsButtonSize = [100, 50];
 
@@ -220,7 +226,7 @@ function setup() {
 
 
   recordButton = createButton("Record");
-  recordButton.position(canvasWidth/8, canvasHeight + 50);
+  recordButton.position(controlsMenuOrigin[0], controlsMenuOrigin[1]);
   recordButton.size(100, 50);
   recordButton.mousePressed(toggleRecording);
   recordButton.id("record-button");
@@ -228,7 +234,7 @@ function setup() {
   recordButton.parent("webcam-container");
 
   playbackButton = createButton("Play");
-  playbackButton.position(canvasWidth/8 + 150, canvasHeight + 50);
+  playbackButton.position(controlsMenuOrigin[0] + 150, controlsMenuOrigin[1]);
   playbackButton.size(100, 50);
   playbackButton.mousePressed(play);
   playbackButton.id("playback-button");
@@ -236,7 +242,7 @@ function setup() {
   playbackButton.parent("webcam-container");
 
   uploadButton = createButton("Upload");
-  uploadButton.position(canvasWidth/8 + 300, canvasHeight + 50);
+  uploadButton.position(controlsMenuOrigin[0] + 300, controlsMenuOrigin[1]);
   uploadButton.size(100, 50);
   uploadButton.mousePressed(uploadVideo);
   uploadButton.id("upload-button");
