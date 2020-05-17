@@ -113,7 +113,7 @@ function startRecording() {
 
 // The nested try blocks will be simplified when Chrome 47 moves to Stable
   console.log("beginngin of startRecording with final stream: ", finalStream)
-  let options = {video:true, audio:true, mimeType: 'video/webm'};
+  let options = {video:true, audio:true, mimeType: 'video/webm', videoBitsPerSecond: 5500000};
   recordedBlobs = [];
   try {
     mediaRecorder = new MediaRecorder(finalStream, options);
