@@ -25,11 +25,9 @@ function setup() {
   // hide the html element that createCapture adds to the screen
   cam.hide();
 
-
 }
 
 function draw() {  
-
 
   // shader() sets the active shader with our shader
   shader(camShader);

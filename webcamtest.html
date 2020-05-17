@@ -4,6 +4,7 @@
 <body style="background-color:black;">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
 	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.js"></script> -->
+  <script src="p5/addons/p5.sound.min.js"></script>
 
 <div id="speakers-corner-container">
 
@@ -30,7 +31,7 @@ let testCapture;
 let capture;
 let recordedBlobs;
 let mediaRecorder;
-let stream;
+let finalStream;
 let state = [{"recording":false},{"playing":false}];
 
 const mediaSource = new MediaSource();
@@ -111,20 +112,21 @@ function handleStop(event) {
 function startRecording() {
 
 // The nested try blocks will be simplified when Chrome 47 moves to Stable
-  let options = {mimeType: 'video/webm'};
+  console.log("beginngin of startRecording with final stream: ", finalStream)
+  let options = {video:true, audio:true, mimeType: 'video/webm'};
   recordedBlobs = [];
   try {
-    mediaRecorder = new MediaRecorder(stream, options);
+    mediaRecorder = new MediaRecorder(finalStream, options);
   } catch (e0) {
     console.log('Unable to create MediaRecorder with options Object: ', e0);
     try {
       options = {mimeType: 'video/webm,codecs=vp9'};
-      mediaRecorder = new MediaRecorder(stream, options);
+      mediaRecorder = new MediaRecorder(finalStream, options);
     } catch (e1) {
       console.log('Unable to create MediaRecorder with options Object: ', e1);
       try {
         options = 'video/vp8'; // Chrome 47
-        mediaRecorder = new MediaRecorder(stream, options);
+        mediaRecorder = new MediaRecorder(finalStream, options);
       } catch (e2) {
         //alert('MediaRecorder is not supported by this browser.\n\n' +
         //  'Try Firefox 29 or later, or Chrome 47 or later, ' +
@@ -135,6 +137,9 @@ function startRecording() {
     }
   }
   console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+  console.log("with stream tracks:", mediaRecorder.stream.getTracks());
+  console.log("finalStream: ", finalStream);
+  console.log("tracks: ",finalStream.getTracks());
   state.recording = true;
   mediaRecorder.onstop = handleStop;
   mediaRecorder.ondataavailable = handleDataAvailable;
@@ -207,7 +212,7 @@ function changeName() {
 
   var usernameOrigin = [dateTextOrigin[0] + 19/2 * dateTextSize, dateTextOrigin[1] ];//+ dateTextSize ];
 
-
+let mic, audioRecorder, audioFile;
 
 function setup() {
 
@@ -216,13 +221,66 @@ function setup() {
 
 	pg = createGraphics(pgWidth, pgHeight, WEBGL)
 
-  testCapture = createCapture(VIDEO);
+  let constraints = {
+      video: {
+        mandatory: {
+          minWidth: 1280,
+          minHeight: 720
+        },
+        optional: [{ maxFrameRate: 30 }]
+      }//,
+      //audio: true
+    };
+
+  testCapture = createCapture(constraints);
   testCapture.size(testCaptureWidth, testCaptureHeight);
   testCapture.hide();
 
-  canvas = document.querySelector('canvas');
-  stream = canvas.captureStream(); // frames per second
-  console.log('Started stream capture from canvas element: ', stream);
+  // mic = new p5.AudioIn();
+  // mic.start();
+  // audioRecorder = new p5.SoundRecorder();
+  // audioRecorder.setInput(mic);
+  // soundFile = new p5.SoundFile();
+navigator.mediaDevices.getUserMedia({audio: true}).then(function(audioStream) {
+                var canvas = document.querySelector('canvas');
+                var canvasStream = canvas.captureStream();
+
+                finalStream = new MediaStream();
+                audioStream.getTracks().forEach(function(track) {
+                    finalStream.addTrack(track);
+                    console.log("added audio stream: ", audioStream);
+                });
+                canvasStream.getTracks().forEach(function(track) {
+                    finalStream.addTrack(track);
+                    console.log("added video stream: ", canvasStream);
+                });
+                console.log("finalStream: ", finalStream);
+                console.log("tracks: ",finalStream.getTracks());
+});
+
+
+
+
+
+  // audioRecorder = navigator.mediaDevices.getUserMedia({audio: true});
+
+  // canvas = document.querySelector('canvas');
+  // canvasStream = canvas.captureStream(); // frames per second
+  // console.log('Started stream capture from canvas element: ', canvasStream);
+
+  // var finalStream = new MediaStream();
+  // console.log(audioRecorder.getTracks());
+  // console.log(canvasStream.getTracks());
+  // getTracks(audioRecorder, 'audio').forEach(function(track) {
+  //     finalStream.addTrack(track);
+  // });
+  // getTracks(canvasStream, 'video').forEach(function(track) {
+  //     finalStream.addTrack(track);
+  // });
+
+  // var mediaRecorder = RecordRTC(finalStream, {
+  //     type: 'video'
+  // });
 
 
   recordButton = createButton("Record");
