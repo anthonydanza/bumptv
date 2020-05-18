@@ -980,3 +980,9 @@ button#record-button {
     font-size: 20px;
 }
 
+#playback-video {
+    display: none;
+    width: 640px;
+    height: 480px;
+}
+
