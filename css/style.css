@@ -927,9 +927,10 @@ button#record-button {
 }
 
 #topic-scroller {
+    margin-top:10px;
     position: relative;
-    left: 300px;
-    width: 300px;
+    /*left: 300px;*/
+    width: 640px;
     color: white;
 }
 
@@ -938,8 +939,6 @@ button#record-button {
     margin-top: 10px;
     left: 0;
 }
-
-
 
 .controls-button {
     position: relative;

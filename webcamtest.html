@@ -15,7 +15,8 @@
         </div>
         <div id="webcam-container">
             <div id="topic-scroller">
-                <marquee behavior="scroll" direction="left">LET'S TALK ABOUT: <div id="topic-scroller-content">PICK A TOPIC BELOW</div>
+                <marquee behavior="scroll" direction="left">WELCOME WEARY TRAVELER. SELECT A TOPIC, TELL US UR NAME, AND HIT RECORD. SEE U SOON <3 
+                  <!-- <div id="topic-scroller-content">PICK A TOPIC BELOW</div> -->
                 </marquee>
             </div>
             <video id="playback-video"></video>
@@ -47,6 +48,18 @@
                     console.log(e); }
 
                 req.send(formData);
+            }
+
+
+            function getDirectoryListing() {
+              var req = new XMLHttpRequest();
+              req.open("GET", "getDirectoryListing", true);
+
+              req.onload = function(e) {
+                console.log("resp: ", this.responseText);
+                shaderDirList = this.responseText;
+              }
+              req.send("hello");
             }
 
             function toggleRecording() {
@@ -164,26 +177,58 @@
             }
 
             function changeTopic() {
-                document.getElementById("topic-scroller-content").innerHTML = topicSel.value();
+               // document.getElementById("topic-scroller-content").innerHTML = topicSel.value();
             }
 
             function changeFilter() {
-                console.log("changing filter to: ", filterSel.value());
-                var selection = filterSel.value();
-                if (selection == "None") {
-                    // canvas.hidden = true;
-                    testCapture.show();
-                }
-                //theShader = loadShader();
+                // console.log("changing filter to: ", filterSel.value());
+                // var selection = filterSel.value();
+                // noLoop();
+                // switch(selection) {
+                //   case "None":
+                //     console.log("no filter selected");
+                //   case "Bugs Eye":
+                //     console.log("bugs eye filter selectde");
+                //     theShader = loadShader('assets/4_image-effects/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
+                //   case "Invert":
+                //     console.log("invert filter selectde");
+                //     theShader = loadShader('assets/4_image-effects/4-1_webcam-invert/effect.vert', 'assets/4_image-effects/4-1_webcam-invert/effect.frag');
+                // }
+                // loop();
+                // //theShader = loadShader();
             }
 
             function changeName() {
 
             }
 
+            let shaders = [];
+            let shaderDirList = [];
+
             function preload() {
-                theShader = loadShader('assets/4_image-effects/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
-                mainFont = loadFont('assets/inconsolata.otf');
+
+
+              getDirectoryListing();
+
+              mainFont = loadFont('assets/inconsolata.otf');
+              // shaders.poo = "hi";
+              // shaders.list = shaderDirList;
+
+              // for(var i = 0; i < shaderDirList.length; i++) {
+              //   shaders.stink = "yo";
+              //   console.log(shaderDirList[i]);
+              //   if(shaderDirList[i] != ".DS_Store") {
+              //     var vertPath = "assets/shaders/" + shaderDirList[i] + "/effect.vert";
+              //     var fragPath = "assets/shaders/" + shaderDirList[i] + "/effect.frag";
+              //     console.log(vertPath);
+              //     console.log(fragPath);
+              //     var shaderName = shaderDirList[i];
+              //     shaders.shaderName = loadShader(vertPath, fragPath);
+              //   }
+              // }
+              theShader = loadShader('assets/4_image-effects/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
+
+                
             }
 
             var canvasWidth = 640;
@@ -213,6 +258,9 @@
             var dateTextOrigin = [canvasWidth / 2, canvasHeight - dateTextSize - 5];
 
             var usernameOrigin = [dateTextOrigin[0] + 19 / 2 * dateTextSize, dateTextOrigin[1]]; //+ dateTextSize ];
+
+            var topicTextSize = 20;
+            var topicTextOrigin = [dateTextOrigin[0] + 19 / 2 * dateTextSize, topicTextSize + 50];
 
             let mic, audioRecorder, audioFile;
 
@@ -276,7 +324,7 @@
                 uploadButton.class("controls-button");
                 uploadButton.parent("webcam-container");
 
-                nameField = createInput(" username");
+                nameField = createInput(" UR_USERNAME_HERE");
                 nameField.position(optionsMenuOrigin[0], optionsMenuOrigin[1]);
                 nameField.size(optionsMenuButtonSize[0], optionsMenuButtonSize[1]);
                 nameField.changed(changeName);
@@ -287,8 +335,14 @@
                 topicSel.position(optionsMenuOrigin[0], optionsMenuOrigin[1] + optionsMenuButtonSpacing);
                 topicSel.size(optionsMenuButtonSize[0], optionsMenuButtonSize[1]);
                 topicSel.option('SELECT TOPIC');
-                topicSel.option('Blue');
-                topicSel.option('Green');
+                topicSel.option('SHOW AND TELL');
+                topicSel.option('ANNOUNCEMENT');
+                topicSel.option('MUSICAL PERFORMANCE');
+                topicSel.option('REVIEWS');
+                topicSel.option('RECIPES');
+                topicSel.option('RANTS');
+                topicSel.option('HOW TO');
+                topicSel.option('QUARANTINE DREAMS');
                 topicSel.changed(changeTopic);
                 topicSel.class("options-button");
                 topicSel.parent("webcam-container")
@@ -298,7 +352,8 @@
                 filterSel.size(optionsMenuButtonSize[0], optionsMenuButtonSize[1]);
                 filterSel.option('SELECT FILTER');
                 filterSel.option('None');
-                filterSel.option('Bug Eye');
+                filterSel.option('Bugs Eye');
+                filterSel.option('Invert');
                 filterSel.changed(changeFilter);
                 filterSel.class("options-button");
                 filterSel.parent("webcam-container");
@@ -318,10 +373,24 @@
             function draw() {
                 pg.background(200);
 
-                pg.shader(theShader);
+                switch(filterSel.value()) {
+                  case "None":
+                    console.log("none");
+                  case "Bugs Eye":
+                    pg.shader(theShader);
+                    theShader.setUniform('tex0', testCapture);
+                    theShader.setUniform('resolution', [shaderWidth, shaderHeight]);
+                  case "Invert":
+                    pg.shader(invertShader);
+                    invertShader.setUniform('tex0', testCapture);
+                    inverShader.setUniform('resolution', [shaderWidth, shaderHeight]);
+                }
 
+                pg.shader(theShader);
                 theShader.setUniform('tex0', testCapture);
                 theShader.setUniform('resolution', [shaderWidth, shaderHeight]);
+
+                
 
                 pg.rect(0, 0, 1, 1);
 
@@ -329,7 +398,6 @@
                 image(pg, -width / 2, -height / 2);
 
                 translate(-width / 2, -height / 2);
-
 
                 fill(255, 255, 255, 160);
                 noStroke();
@@ -342,10 +410,16 @@
                 today = new Date();
                 text(pad(today.getHours(), 2) + ":" + pad(today.getMinutes(), 2) + ":" + pad(today.getSeconds(), 2) + " " + today.toISOString().split("T")[0], dateTextOrigin[0], dateTextOrigin[1] + dateTextSize);
 
+                fill(0,0,255,255);
+                //rect(10,10,topicTextOrigin[0],topicTextOrigin[1]);
+                textSize(topicTextSize);
+                text("WE'RE TALKIN: ", canvasWidth - 140, topicTextSize);
+                text(topicSel.value(), canvasWidth - topicSel.value().length*10 - 15, topicTextSize + 20);
+
             }
             </script>
         </div>
-        
+
         <div id="project-description">
             Call me Ishmael. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time tozz get to sea as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the ship. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the ocean with me.
         </div>
