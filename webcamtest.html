@@ -15,7 +15,7 @@
         </div>
         <div id="webcam-container">
             <div id="topic-scroller">
-                <marquee behavior="scroll" direction="left">WELCOME WEARY TRAVELER. SELECT A TOPIC, TELL US UR NAME, AND HIT RECORD. SEE U SOON <3 
+                <marquee behavior="scroll" direction="left">WELCOME WEARY TRAVELER. SELECT A TOPIC, TELL US UR HANDLE, AND HIT RECORD. SEE U SOON <3 
                   <!-- <div id="topic-scroller-content">PICK A TOPIC BELOW</div> -->
                 </marquee>
             </div>
@@ -56,8 +56,15 @@
               req.open("GET", "getDirectoryListing", true);
 
               req.onload = function(e) {
-                console.log("resp: ", this.responseText);
-                shaderDirList = this.responseText;
+                console.log("req onload");
+                shaderDirList = JSON.parse(this.responseText);
+
+                for(i = 0; i < shaderDirList.length; i++) {
+                    if(shaderDirList[i] != ".DS_Store") {
+                      var obj = {};
+                      shaders[shaderDirList[i]] = loadShader('assets/shaders/'+ shaderDirList[i] + '/effect.vert', 'assets/shaders/' + shaderDirList[i] + '/effect.frag', function() { numShaders++; console.log(numShaders);});
+                    }
+                }
               }
               req.send("hello");
             }
@@ -180,19 +187,26 @@
                // document.getElementById("topic-scroller-content").innerHTML = topicSel.value();
             }
 
-            function changeFilter() {
-                // console.log("changing filter to: ", filterSel.value());
+            function changeFilter(shader) {
+                console.log("changing filter to: ", filterSel.value());
+              //  theShader = loadShader('assets/shaders/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
                 // var selection = filterSel.value();
                 // noLoop();
                 // switch(selection) {
                 //   case "None":
+                //     console.log(selection);
                 //     console.log("no filter selected");
+                //     break;
                 //   case "Bugs Eye":
-                //     console.log("bugs eye filter selectde");
+                //   console.log(selection);
+                //     console.log("bugs eye filter selected");
                 //     theShader = loadShader('assets/4_image-effects/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
+                //     break;
                 //   case "Invert":
-                //     console.log("invert filter selectde");
+                //   console.log(selection);
+                //     console.log("invert filter selected");
                 //     theShader = loadShader('assets/4_image-effects/4-1_webcam-invert/effect.vert', 'assets/4_image-effects/4-1_webcam-invert/effect.frag');
+                //     break;
                 // }
                 // loop();
                 // //theShader = loadShader();
@@ -211,22 +225,7 @@
               getDirectoryListing();
 
               mainFont = loadFont('assets/inconsolata.otf');
-              // shaders.poo = "hi";
-              // shaders.list = shaderDirList;
 
-              // for(var i = 0; i < shaderDirList.length; i++) {
-              //   shaders.stink = "yo";
-              //   console.log(shaderDirList[i]);
-              //   if(shaderDirList[i] != ".DS_Store") {
-              //     var vertPath = "assets/shaders/" + shaderDirList[i] + "/effect.vert";
-              //     var fragPath = "assets/shaders/" + shaderDirList[i] + "/effect.frag";
-              //     console.log(vertPath);
-              //     console.log(fragPath);
-              //     var shaderName = shaderDirList[i];
-              //     shaders.shaderName = loadShader(vertPath, fragPath);
-              //   }
-              // }
-              theShader = loadShader('assets/4_image-effects/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
 
                 
             }
@@ -263,8 +262,13 @@
             var topicTextOrigin = [dateTextOrigin[0] + 19 / 2 * dateTextSize, topicTextSize + 50];
 
             let mic, audioRecorder, audioFile;
+            var numShaders = 0;
+
 
             function setup() {
+
+              
+
 
                 var canv = createCanvas(canvasWidth, canvasHeight, WEBGL);
                 canv.parent("webcam-container");
@@ -352,8 +356,11 @@
                 filterSel.size(optionsMenuButtonSize[0], optionsMenuButtonSize[1]);
                 filterSel.option('SELECT FILTER');
                 filterSel.option('None');
-                filterSel.option('Bugs Eye');
-                filterSel.option('Invert');
+                for(i = 0; i < shaderDirList.length; i++) {
+                  if(shaderDirList[i] != ".DS_Store") {
+                    filterSel.option(shaderDirList[i]);
+                  }
+                }
                 filterSel.changed(changeFilter);
                 filterSel.class("options-button");
                 filterSel.parent("webcam-container");
@@ -373,29 +380,20 @@
             function draw() {
                 pg.background(200);
 
-                switch(filterSel.value()) {
-                  case "None":
-                    console.log("none");
-                  case "Bugs Eye":
-                    pg.shader(theShader);
-                    theShader.setUniform('tex0', testCapture);
-                    theShader.setUniform('resolution', [shaderWidth, shaderHeight]);
-                  case "Invert":
-                    pg.shader(invertShader);
-                    invertShader.setUniform('tex0', testCapture);
-                    inverShader.setUniform('resolution', [shaderWidth, shaderHeight]);
-                }
-
-                pg.shader(theShader);
-                theShader.setUniform('tex0', testCapture);
-                theShader.setUniform('resolution', [shaderWidth, shaderHeight]);
-
-                
-
-                pg.rect(0, 0, 1, 1);
-
-                background(255, 0, 0)
-                image(pg, -width / 2, -height / 2);
+                for(var shaderName in shaders) {
+                  if(shaderName == filterSel.value()) {
+                    var currentShader = shaders[shaderName];
+                      pg.shader(currentShader);
+                    currentShader.setUniform('tex0', testCapture);
+                    currentShader.setUniform('resolution', [shaderWidth, shaderHeight]);
+                    pg.rect(0, 0, 1, 1);
+                    background(255, 0, 0)
+                    image(pg, -width / 2, -height / 2);
+                    break;
+                  } else {
+                      image(testCapture, -width / 2, -height / 2, displayCanvasWidth, displayCanvasHeight);
+                  }
+                }        
 
                 translate(-width / 2, -height / 2);
 
