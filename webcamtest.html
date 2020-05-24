@@ -383,7 +383,7 @@
                 for(var shaderName in shaders) {
                   if(shaderName == filterSel.value()) {
                     var currentShader = shaders[shaderName];
-                      pg.shader(currentShader);
+                    pg.shader(currentShader);
                     currentShader.setUniform('tex0', testCapture);
                     currentShader.setUniform('resolution', [shaderWidth, shaderHeight]);
                     pg.rect(0, 0, 1, 1);

@@ -1,0 +1,8 @@
+.DS_Store
+server/scheduler/*
+server/node_modules
+uploads
+*.webm
+*.mp4
+*.mkv
+
