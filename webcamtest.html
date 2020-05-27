@@ -10,9 +10,8 @@
     <script src="p5/p5.sound.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
     <div id="header">
-        <a href="./index.html">
-            <-- home</a> <a href="./schedule.html">schedule
-        </a>
+        <a href="./index.html"><-- home</a> 
+         <a href="./schedule.html">schedule</a>
         <a href="https://www.youtube.com/channel/UC6DkA9nv4fUb6Q4i_q0kPdA">archive</a>
         <a id="submit" href="./submit.html">SUBMIT UR VIDEO</a>
         <a id="submit" href="https://docs.google.com/forms/d/e/1FAIpQLSf86l86okJxyawWYfgDJZXIjdOjIlprhPN6pszZpKSTcbrzcg/viewform?usp=sf_link">PITCH A SHOW</a>
@@ -26,8 +25,11 @@
             <div id="speakers-corner-title">THIS COULD BE YOU</div>
             <div id="speakers-corner-subheading">PRESENTED by <a href="https://www.bumptelevision.com">BUMP TELEVISION</a> and <a href="https://www.xpace.info">XPACE CULTURAL CENTRE</a></div>
             <div id="topic-scroller">
-                <marquee behavior="scroll" direction="left">WELCOME WEARY TRAVELER. SELECT A TOPIC, TELL US UR HANDLE, AND HIT RECORD. SEE U SOON <3 </marquee> </div> </div> <div id="webcam-container">
+                <marquee behavior="scroll" direction="left">WELCOME WEARY TRAVELER. SELECT A TOPIC, TELL US UR HANDLE, AND HIT RECORD. SEE U SOON <3 </marquee> </div> </div> 
+                    <div id="webcam-container">
                         <video id="playback-video"></video>
+                        <div id="on-screen-popup"></div>
+
                         <script>
                         isVideoPlaying = false;
                         let testCapture;
@@ -39,6 +41,8 @@
                         let state = [{ "recording": false }, { "playing": false }];
                         const mediaSource = new MediaSource();
                         mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
+                        const maxRecordingLength = 90000;
+
 
                         function uploadVideo() {
 
@@ -90,32 +94,7 @@
                             req.send("hello");
                         }
 
-                        function toggleRecording() {
-
-                            if (!state.recording && !state.recordingExists) {
-                                if (typeof(video) !== 'undefined') { video.hide(); }
-                                console.log("shit")
-                                startRecording();
-                                recordButton.html("Stop");
-                                state.recording = true;
-                            } else if (state.recordingExists){
-                                if (typeof(video) !== 'undefined') { console.log("pee"); video.hide(); }
-                                recordButton.html("RECORD");
-                                console.log("hi");
-                                state.recordingExists = false;
-                                state.recording = false;
-                            } else {
-                                console.log("poo");
-                                mediaRecorder.ondataavailable = e => {
-                                    video = createVideo(URL.createObjectURL(e.data), function() {});
-
-                                };
-                                stopRecording();
-                                recordButton.html("RESET");
-                                state.recording = false;
-                                state.recordingExists = true;
-                            }
-                        }
+                        
 
                         function handleSourceOpen(event) {
                             console.log('MediaSource opened');
@@ -144,17 +123,7 @@
                         }
 
 
-                        function startRecording() {
-
-                            // The nested try blocks will be simplified when Chrome 47 moves to Stable
-                            var canv = document.querySelector("canvas");
-                            var playbackVideo = document.getElementById("playback-video");
-                            if (canv.style.display == "none") {
-                                canv.style.display = "block";
-                            }
-                            if (playbackVideo.style.display == "block") {
-                                playbackVideo.style.display = "none";
-                            }
+                        function startRecording() {                            
 
                             let options = { video: true, audio: true, mimeType: 'video/webm', videoBitsPerSecond: 5500000 };
                             recordedBlobs = [];
@@ -184,11 +153,65 @@
                             mediaRecorder.onstop = handleStop;
                             mediaRecorder.ondataavailable = handleDataAvailable;
                             mediaRecorder.start(100); // collect 100ms of data
+                            recordButton.html("STOP");
+                            setTimeout(function() {
+                                 if(mediaRecorder.state != "inactive") {
+                                    console.log("times up"); 
+                                    stopRecording();
+                                 }
+                                }, maxRecordingLength);
+                            setTimeout(function() {
+                                 if(mediaRecorder.state != "inactive") {
+                                    var popup = document.getElementById("on-screen-popup");
+                                    popup.style.display = "block"
+                                    popup.innerHTML = "10 seconds left!"
+                                    setTimeout(function() {popup.style.display = "none";},2300);
+                                 }
+                                }, maxRecordingLength - 10000);
                         }
+
 
                         function stopRecording() {
                             mediaRecorder.stop();
+                            recordButton.html("RESET");
                             state.recording = false;
+                            state.recordingExists = true;
+                        }
+
+                        function resetToCamera() {
+                            var canv = document.querySelector("canvas");
+                            var playbackVideo = document.getElementById("playback-video");
+                            if (canv.style.display == "none") {
+                                canv.style.display = "block";
+                            }
+                            if (playbackVideo.style.display == "block") {
+                                playbackVideo.style.display = "none";
+                            }
+                        }
+
+                        function toggleRecording() {
+                            console.log("toggle: ",state.recordingExists);
+
+                            if (!state.recording && !state.recordingExists) {
+                                //if (typeof(video) !== 'undefined') { video.hide(); }
+                                resetToCamera();
+                                startRecording();
+                               
+                            } else if (state.recordingExists){
+                                    resetToCamera();
+                                    recordButton.html("RECORD");
+                                    state.recordingExists = false;
+                                    state.recording = false;
+                                
+                            } else {
+                                console.log("poo");
+                                mediaRecorder.ondataavailable = e => {
+                                    video = createVideo(URL.createObjectURL(e.data), function() {});
+
+                                };
+                                stopRecording();
+                                recordButton.html("RESET");
+                            }
                         }
 
                         function play() {

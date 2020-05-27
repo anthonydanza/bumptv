@@ -1054,3 +1054,13 @@ button#record-button {
     margin-top: 50px;
 }
 
+#on-screen-popup {
+    position: absolute;
+    z-index: 1000;
+    display:none;
+    font-size: 50px;
+    color:white;
+    top: 240px;
+    left:240px;
+}
+
