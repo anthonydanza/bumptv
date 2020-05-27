@@ -49,8 +49,14 @@
                             formData.append("video", blob);
                             formData.append("filename", nameField.value());
                             formData.append("topic", topicSel.value());
-                            uploadButton.html("wait...");
-                            document.getElementById("speakers-corner-container").style = "cursor: wait;";
+                            var consent = confirm("By uploading, you consent to having your video, still images, audio and quotes being used for promotion and documentation purposes by BUMPTV and Xpace. Is that ok? :)");
+
+                            if(consent) {
+                                uploadButton.html("wait...");
+                                document.getElementById("speakers-corner-container").style = "cursor: wait;";
+                                req.send(formData);
+                            }
+
 
                             req.onload = function(e) {
                                 alert("video uploaded! thanksSss");
@@ -60,7 +66,6 @@
                                 document.getElementById("speakers-corner-container").style = "cursor: auto";
                             }
 
-                            req.send(formData);
                         }
 
 

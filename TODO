@@ -2,7 +2,7 @@ BUMP TV TODO
 
 - add accessbility info
 - make loader more interesting
--lower video quality for faster loading
+- lower video quality for faster loading
 - separate out javascript for different pages, common code, etc. right now index.js is used in multiple places, for instance
 - separate out css in separate sheets for diff pages?
 
