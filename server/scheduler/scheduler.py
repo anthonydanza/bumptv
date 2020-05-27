@@ -25,7 +25,7 @@ OUTPUT_FILENAME = args.output
 MEDIA_DIR = args.media_dir
 YOUTUBE_API_KEY = "AIzaSyBNiJ9LRO4Kz2QvP7XelKByB6ZW0klj9Q8"
 
-v = vimeo.VimeoClient(
+v = vimeo.Client(
     token="f56711a29d92ea38a30be43e3be8b026",
     key="b107e780eab4aa51e5db252cefc939481fc4491c",
     secret="Ba3eQoaQz3FNsoaFKUsLkMGWM/4yILJkBHTwA8PN059qpcLOXF5T+sqgEYbYSfhH5lovEVg5bSULejchnGFMguoq2rIU6aMdynySsgmkRkLm5DtM+pOtC15LB45X0tAv"

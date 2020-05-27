@@ -7,18 +7,27 @@
 <body style="background-color:black;">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.js"></script> -->
-    <script src="p5/addons/p5.sound.min.js"></script>
+    <script src="p5/p5.sound.min.js"></script>
     <div id="speakers-corner-container">
+
+
         <div id="speakers-corner-header">
-            <div id="speakers-corner-title">SPEAKER'S CORNER</div>
-            <div id="subheading">PRESENTED by <a href="https://www.bumptelevision.com">BUMP TELEVISION</a></div>
-        </div>
-        <div id="webcam-container">
+
+            <div id="logo-container"><img id="logo" src="img/bumptv_logo_pink.png"></div>
+                        <div id="speakers-corner-title">THIS COULD BE YOU</div>
+
+            <div id="speakers-corner-subheading">PRESENTED by <a href="https://www.bumptelevision.com">BUMP TELEVISION</a></div>
+
             <div id="topic-scroller">
                 <marquee behavior="scroll" direction="left">WELCOME WEARY TRAVELER. SELECT A TOPIC, TELL US UR HANDLE, AND HIT RECORD. SEE U SOON <3 
-                  <!-- <div id="topic-scroller-content">PICK A TOPIC BELOW</div> -->
                 </marquee>
             </div>
+
+        </div>
+
+
+        <div id="webcam-container">
+            
             <video id="playback-video"></video>
             <script>
 
@@ -42,10 +51,12 @@
                 formData.append("video", blob);
                 formData.append("filename", nameField.value());
                 formData.append("topic", topicSel.value());
+                uploadButton.html("wait...");
 
                 req.onload = function(e) { alert("video uploaded! thanksSss");
                     console.log("response received");
-                    console.log(e); }
+                    console.log(e);
+                    uploadButton.html("UPLOAD"); }
 
                 req.send(formData);
             }
@@ -82,7 +93,7 @@
 
                     };
                     stopRecording();
-                    recordButton.html("Record");
+                    recordButton.html("RESET");
                     state.recording = false;
                 }
             }
@@ -175,11 +186,13 @@
 
                 if (!playbackVideo.paused && !playbackVideo.ended) { //video is playing
                     playbackVideo.pause();
-                    document.getElementById("playback-button").innerHTML = "Play";
+                    document.getElementById("playback-button").innerHTML = "PLAY";
+                    state.paused = true;
                 } else {
-                    document.getElementById("playback-button").innerHTML = "Stop";
+                    document.getElementById("playback-button").innerHTML = "PAUSE";
                     playbackVideo.loop = true;
                     playbackVideo.play();
+                    state.paused = false;
                 }
             }
 
@@ -224,8 +237,9 @@
 
               getDirectoryListing();
 
-              mainFont = loadFont('assets/inconsolata.otf');
-
+               mainFont = loadFont('assets/fonts/digitaldarksystem.otf');
+               secondFont = loadFont('assets/fonts/inconsolata.otf');
+               titleFont = loadFont('assets/fonts/computomonospace.otf');
 
                 
             }
@@ -245,21 +259,23 @@
             var shaderWidth = 2;
             var shaderHeight = 2;
 
-            var controlsMenuOrigin = [displayCanvasWidth / 5.5, displayCanvasHeight + 50];
-            var controlsButtonSpacing = 150;
-            var controlsButtonSize = [100, 50];
+            var controlsMenuOrigin = [50, displayCanvasHeight + 50];
+            var controlsButtonSize = [170, 50];
+            var controlsButtonSpacing = controlsButtonSize[0] +20;
+            
 
             var optionsMenuButtonSize = [displayCanvasWidth * 0.8, 50];
             var optionsMenuOrigin = [displayCanvasWidth / 2 - optionsMenuButtonSize[0] / 2, controlsMenuOrigin[1] + controlsButtonSize[1] + 30];
             var optionsMenuButtonSpacing = 60;
 
-            var dateTextSize = 30;
-            var dateTextOrigin = [canvasWidth / 2, canvasHeight - dateTextSize - 5];
+            var dateTextSize = 40;
+            var dateTextOrigin = [canvasWidth / 2 + 30, canvasHeight - dateTextSize - 5];
 
-            var usernameOrigin = [dateTextOrigin[0] + 19 / 2 * dateTextSize, dateTextOrigin[1]]; //+ dateTextSize ];
+            var usernameOrigin = [dateTextOrigin[0] + 19 / 2.9 * dateTextSize, dateTextOrigin[1]]; //+ dateTextSize ];
+            var maxUsernameLength = 25;
 
-            var topicTextSize = 20;
-            var topicTextOrigin = [dateTextOrigin[0] + 19 / 2 * dateTextSize, topicTextSize + 50];
+            var topicTextSize = 40;
+            var topicTextOrigin = [20, canvasHeight - topicTextSize -5];
 
             let mic, audioRecorder, audioFile;
             var numShaders = 0;
@@ -304,25 +320,25 @@
                 document.querySelector("canvas").style.height = displayCanvasHeight.toString();
 
 
-                recordButton = createButton("Record");
+                recordButton = createButton("RECORD");
                 recordButton.position(controlsMenuOrigin[0], controlsMenuOrigin[1]);
-                recordButton.size(100, 50);
+                recordButton.size(controlsButtonSize[0], controlsButtonSize[1]);
                 recordButton.mousePressed(toggleRecording);
                 recordButton.id("record-button");
                 recordButton.class("controls-button");
                 recordButton.parent("webcam-container");
 
-                playbackButton = createButton("Play");
-                playbackButton.position(controlsMenuOrigin[0] + 150, controlsMenuOrigin[1]);
-                playbackButton.size(100, 50);
+                playbackButton = createButton("PLAY");
+                playbackButton.position(controlsMenuOrigin[0] + controlsButtonSpacing, controlsMenuOrigin[1]);
+                playbackButton.size(controlsButtonSize[0], controlsButtonSize[1]);
                 playbackButton.mousePressed(play);
                 playbackButton.id("playback-button");
                 playbackButton.class("controls-button");
                 playbackButton.parent("webcam-container");
 
-                uploadButton = createButton("Upload");
-                uploadButton.position(controlsMenuOrigin[0] + 300, controlsMenuOrigin[1]);
-                uploadButton.size(100, 50);
+                uploadButton = createButton("UPLOAD");
+                uploadButton.position(controlsMenuOrigin[0] + 2*controlsButtonSpacing, controlsMenuOrigin[1]);
+                uploadButton.size(controlsButtonSize[0], controlsButtonSize[1]);
                 uploadButton.mousePressed(uploadVideo);
                 uploadButton.id("upload-button");
                 uploadButton.class("controls-button");
@@ -381,8 +397,19 @@
                 pg.background(200);
 
                 for(var shaderName in shaders) {
-                  if(shaderName == filterSel.value()) {
                     var currentShader = shaders[shaderName];
+
+                if(shaderName == filterSel.value()) {
+                    if(shaderName == "Embossed") {
+                        pg.shader(currentShader);
+                        currentShader.setUniform('tex0', testCapture);
+                        currentShader.setUniform('stepSize', [1.0/width, 1.0/height]);
+                        currentShader.setUniform('dist', 3.0);
+                        pg.rect(0, 0, 1, 1);
+                        background(255, 0, 0)
+                        image(pg, -width / 2, -height / 2);
+                        break;
+                    } else {
                     pg.shader(currentShader);
                     currentShader.setUniform('tex0', testCapture);
                     currentShader.setUniform('resolution', [shaderWidth, shaderHeight]);
@@ -390,6 +417,7 @@
                     background(255, 0, 0)
                     image(pg, -width / 2, -height / 2);
                     break;
+                }
                   } else {
                       image(testCapture, -width / 2, -height / 2, displayCanvasWidth, displayCanvasHeight);
                   }
@@ -397,22 +425,43 @@
 
                 translate(-width / 2, -height / 2);
 
-                fill(255, 255, 255, 160);
-                noStroke();
-                rect(dateTextOrigin[0] - 20, dateTextOrigin[1] - 30, 400, 70);
-                fill(255, 0, 0);
+                // fill(255, 255, 255, 160);
+                // noStroke();
+                // rect(dateTextOrigin[0] - 20, dateTextOrigin[1] - 30, 400, 70);
+                fill(255, 255, 255);
+
                 textFont(mainFont);
                 textSize(dateTextSize);
-                text(nameField.value(), usernameOrigin[0] - nameField.value().length * dateTextSize / 2, usernameOrigin[1]);
+                var nameValue = nameField.value().slice(1,maxUsernameLength);
+                text(nameValue, usernameOrigin[0] - nameValue.length * dateTextSize/2.68, usernameOrigin[1]);
+
 
                 today = new Date();
                 text(pad(today.getHours(), 2) + ":" + pad(today.getMinutes(), 2) + ":" + pad(today.getSeconds(), 2) + " " + today.toISOString().split("T")[0], dateTextOrigin[0], dateTextOrigin[1] + dateTextSize);
 
-                fill(0,0,255,255);
+                // fill(255, 255, 255, 160);
+                // noStroke();
+                // rect(topicTextOrigin[0] - 20, topicTextOrigin[1] - 30, 200, 70);
+
+                fill(255,255,255,255);
                 //rect(10,10,topicTextOrigin[0],topicTextOrigin[1]);
                 textSize(topicTextSize);
-                text("WE'RE TALKIN: ", canvasWidth - 140, topicTextSize);
-                text(topicSel.value(), canvasWidth - topicSel.value().length*10 - 15, topicTextSize + 20);
+                text("WE'RE TALKIN:", topicTextOrigin[0], topicTextOrigin[1]);
+                text(topicSel.value(), topicTextOrigin[0], topicTextOrigin[1] + topicTextSize);
+
+
+
+                // if(state.recording == true) {
+                //     fill(255,0,0);
+                //     circle(50,50,25);
+                // } else if(state.paused == true){
+                //     fill(255,255,255);
+                //     triangle(50, 50, 50, 70, 70, 60);
+                // } else if(state.paused == false){
+                //     fill(255,255,255);
+                //     rect(50,50,10,30);
+                //     rect(70,50,10,30);
+                // } 
 
             }
             </script>

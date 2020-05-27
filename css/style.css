@@ -910,6 +910,7 @@ button#record-button {
     left: 0;*/
     /*height:100%;*/
     /*width:100%;*/
+    padding-top: 50px;
     position: relative;
     margin: 0 auto;
     width: 50%;
@@ -942,10 +943,29 @@ button#record-button {
 
 .controls-button {
     position: relative;
-    background: green;
-    color: black;
-    font-size: 20px;
+    background: black;
+    color: white;
+    font-family: "computomonospace";
+    font-size: 30px;
+    border: dashed white;
 }
+
+
+.controls-button:hover {
+    background: yellowgreen;
+    color: black;
+}
+
+.controls-button#record-button:hover {
+    color: black;
+    background: red;
+}
+
+.controls-button#upload-button:hover {
+    color: black;
+    background: pink;
+}
+
 
 .options-button {
     position: relative;
@@ -969,14 +989,27 @@ button#record-button {
     position: relative;
     width: 100%;
     z-index: 1000;
+        font-family: "computomonospace";
+
 }
 
 #speakers-corner-title {
-    font-size: 70px;
+    float: left;
+    font-family: "computomonospace";
+    font-size: 40px;
+    width: 70%;
 }
 
 #speakers-corner-subheading {
     font-size: 20px;
+    width: 60%;
+}
+
+#logo {
+    float:right;
+    width:25%;
+    right: 10;
+    bottom: 30;
 }
 
 #playback-video {
