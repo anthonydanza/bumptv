@@ -8,469 +8,491 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.js"></script> -->
     <script src="p5/p5.sound.min.js"></script>
-    <div id="speakers-corner-container">
-
-
-        <div id="speakers-corner-header">
-
-            <div id="logo-container"><img id="logo" src="img/bumptv_logo_pink.png"></div>
-                        <div id="speakers-corner-title">THIS COULD BE YOU</div>
-
-            <div id="speakers-corner-subheading">PRESENTED by <a href="https://www.bumptelevision.com">BUMP TELEVISION</a></div>
-
-            <div id="topic-scroller">
-                <marquee behavior="scroll" direction="left">WELCOME WEARY TRAVELER. SELECT A TOPIC, TELL US UR HANDLE, AND HIT RECORD. SEE U SOON <3 
-                </marquee>
-            </div>
-
-        </div>
-
-
-        <div id="webcam-container">
-            
-            <video id="playback-video"></video>
-            <script>
-
-            isVideoPlaying = false;
-            let testCapture;
-            let capture;
-            let recordedBlobs;
-            let mediaRecorder;
-            let finalStream;
-            let video;
-            let state = [{ "recording": false }, { "playing": false }];
-            const mediaSource = new MediaSource();
-            mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
-
-            function uploadVideo() {
-
-                var req = new XMLHttpRequest();
-                req.open("POST", "uploadVideo", true);
-                var blob = new Blob(recordedBlobs, { type: 'video/mkv' });
-                var formData = new FormData();
-                formData.append("video", blob);
-                formData.append("filename", nameField.value());
-                formData.append("topic", topicSel.value());
-                uploadButton.html("wait...");
-
-                req.onload = function(e) { alert("video uploaded! thanksSss");
-                    console.log("response received");
-                    console.log(e);
-                    uploadButton.html("UPLOAD"); }
-
-                req.send(formData);
-            }
-
-
-            function getDirectoryListing() {
-              var req = new XMLHttpRequest();
-              req.open("GET", "getDirectoryListing", true);
-
-              req.onload = function(e) {
-                console.log("req onload");
-                shaderDirList = JSON.parse(this.responseText);
-
-                for(i = 0; i < shaderDirList.length; i++) {
-                    if(shaderDirList[i] != ".DS_Store") {
-                      var obj = {};
-                      shaders[shaderDirList[i]] = loadShader('assets/shaders/'+ shaderDirList[i] + '/effect.vert', 'assets/shaders/' + shaderDirList[i] + '/effect.frag', function() { numShaders++; console.log(numShaders);});
-                    }
-                }
-              }
-              req.send("hello");
-            }
-
-            function toggleRecording() {
-
-                if (!state.recording) {
-                    if (typeof(video) !== 'undefined') { video.hide(); }
-                    startRecording();
-                    recordButton.html("Stop");
-                    state.recording = true;
-                } else {
-                    mediaRecorder.ondataavailable = e => {
-                        video = createVideo(URL.createObjectURL(e.data), function() {});
-
-                    };
-                    stopRecording();
-                    recordButton.html("RESET");
-                    state.recording = false;
-                }
-            }
-
-            function handleSourceOpen(event) {
-                console.log('MediaSource opened');
-                sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8"');
-                console.log('Source buffer: ', sourceBuffer);
-            }
-
-            function handleDataAvailable(event) {
-                if (event.data && event.data.size > 0) {
-                    console.log("pushing data into recordedBlobs");
-                    recordedBlobs.push(event.data);
-                }
-            }
-
-            function handleStop(event) {
-                console.log('Recorder stopped: ', event);
-                const superBuffer = new Blob(recordedBlobs, { type: 'video/webm' });
-                console.log(superBuffer);
-
-                var canv = document.querySelector("canvas");
-                canv.style.display = "none";
-
-                var video = document.getElementById("playback-video")
-                video.src = window.URL.createObjectURL(superBuffer);
-                video.style.display = "block";
-                video.style.width = "640px !important";
-                video.style.height = "480px !important";
-            }
-
-
-            function startRecording() {
-
-                // The nested try blocks will be simplified when Chrome 47 moves to Stable
-                var canv = document.querySelector("canvas");
-                var playbackVideo = document.getElementById("playback-video");
-                if (canv.style.display == "none") {
-                    canv.style.display = "block";
-                }
-                if (playbackVideo.style.display == "block") {
-                    playbackVideo.style.display = "none";
-                }
-
-                console.log("beginngin of startRecording with final stream: ", finalStream)
-                let options = { video: true, audio: true, mimeType: 'video/webm', videoBitsPerSecond: 5500000 };
-                recordedBlobs = [];
-                try {
-                    mediaRecorder = new MediaRecorder(finalStream, options);
-                } catch (e0) {
-                    console.log('Unable to create MediaRecorder with options Object: ', e0);
-                    try {
-                        options = { mimeType: 'video/webm,codecs=vp9' };
-                        mediaRecorder = new MediaRecorder(finalStream, options);
-                    } catch (e1) {
-                        console.log('Unable to create MediaRecorder with options Object: ', e1);
-                        try {
-                            options = 'video/vp8'; // Chrome 47
-                            mediaRecorder = new MediaRecorder(finalStream, options);
-                        } catch (e2) {
-                            //alert('MediaRecorder is not supported by this browser.\n\n' +
-                            //  'Try Firefox 29 or later, or Chrome 47 or later, ' +
-                            //  'with Enable experimental Web Platform features enabled from chrome://flags.');
-                            console.error('Exception while creating MediaRecorder:', e2);
-                            return;
-                        }
-                    }
-                }
-                console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-                console.log("with stream tracks:", mediaRecorder.stream.getTracks());
-                console.log("finalStream: ", finalStream);
-                console.log("tracks: ", finalStream.getTracks());
-                state.recording = true;
-                mediaRecorder.onstop = handleStop;
-                mediaRecorder.ondataavailable = handleDataAvailable;
-                mediaRecorder.start(100); // collect 100ms of data
-            }
-
-            function stopRecording() {
-                mediaRecorder.stop();
-                console.log('Recorded Blobs: ', recordedBlobs);
-                console.log("recorded stream: ", mediaRecorder.stream)
-                state.recording = false;
-            }
-
-            function play() {
-                console.log("play");
-                var playbackVideo = document.getElementById("playback-video");
-
-                if (!playbackVideo.paused && !playbackVideo.ended) { //video is playing
-                    playbackVideo.pause();
-                    document.getElementById("playback-button").innerHTML = "PLAY";
-                    state.paused = true;
-                } else {
-                    document.getElementById("playback-button").innerHTML = "PAUSE";
-                    playbackVideo.loop = true;
-                    playbackVideo.play();
-                    state.paused = false;
-                }
-            }
-
-            function changeTopic() {
-               // document.getElementById("topic-scroller-content").innerHTML = topicSel.value();
-            }
-
-            function changeFilter(shader) {
-                console.log("changing filter to: ", filterSel.value());
-              //  theShader = loadShader('assets/shaders/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
-                // var selection = filterSel.value();
-                // noLoop();
-                // switch(selection) {
-                //   case "None":
-                //     console.log(selection);
-                //     console.log("no filter selected");
-                //     break;
-                //   case "Bugs Eye":
-                //   console.log(selection);
-                //     console.log("bugs eye filter selected");
-                //     theShader = loadShader('assets/4_image-effects/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
-                //     break;
-                //   case "Invert":
-                //   console.log(selection);
-                //     console.log("invert filter selected");
-                //     theShader = loadShader('assets/4_image-effects/4-1_webcam-invert/effect.vert', 'assets/4_image-effects/4-1_webcam-invert/effect.frag');
-                //     break;
-                // }
-                // loop();
-                // //theShader = loadShader();
-            }
-
-            function changeName() {
-
-            }
-
-            let shaders = [];
-            let shaderDirList = [];
-
-            function preload() {
-
-
-              getDirectoryListing();
-
-               mainFont = loadFont('assets/fonts/digitaldarksystem.otf');
-               secondFont = loadFont('assets/fonts/inconsolata.otf');
-               titleFont = loadFont('assets/fonts/computomonospace.otf');
-
-                
-            }
-
-            var canvasWidth = 640;
-            var canvasHeight = 480;
-
-            var displayCanvasWidth = 640;
-            var displayCanvasHeight = 480;
-
-            var pgWidth = canvasWidth;
-            var pgHeight = canvasHeight;
-
-            var testCaptureWidth = canvasWidth;
-            var testCaptureHeight = canvasHeight;
-
-            var shaderWidth = 2;
-            var shaderHeight = 2;
-
-            var controlsMenuOrigin = [50, displayCanvasHeight + 50];
-            var controlsButtonSize = [170, 50];
-            var controlsButtonSpacing = controlsButtonSize[0] +20;
-            
-
-            var optionsMenuButtonSize = [displayCanvasWidth * 0.8, 50];
-            var optionsMenuOrigin = [displayCanvasWidth / 2 - optionsMenuButtonSize[0] / 2, controlsMenuOrigin[1] + controlsButtonSize[1] + 30];
-            var optionsMenuButtonSpacing = 60;
-
-            var dateTextSize = 40;
-            var dateTextOrigin = [canvasWidth / 2 + 30, canvasHeight - dateTextSize - 5];
-
-            var usernameOrigin = [dateTextOrigin[0] + 19 / 2.9 * dateTextSize, dateTextOrigin[1]]; //+ dateTextSize ];
-            var maxUsernameLength = 25;
-
-            var topicTextSize = 40;
-            var topicTextOrigin = [20, canvasHeight - topicTextSize -5];
-
-            let mic, audioRecorder, audioFile;
-            var numShaders = 0;
-
-
-            function setup() {
-
-              
-
-
-                var canv = createCanvas(canvasWidth, canvasHeight, WEBGL);
-                canv.parent("webcam-container");
-
-                pg = createGraphics(pgWidth, pgHeight, WEBGL)
-
-                let constraints = {
-                    audio: false,
-                    video: {
-                        width: 1280,
-                        height: 720
-                    }
-                };
-
-                testCapture = createCapture(constraints);
-                testCapture.size(testCaptureWidth, testCaptureHeight);
-                testCapture.hide();
-
-                navigator.mediaDevices.getUserMedia({ audio: true }).then(function(audioStream) {
-                    var canvas = document.querySelector('canvas');
-                    var canvasStream = canvas.captureStream();
-
-                    finalStream = new MediaStream();
-                    audioStream.getTracks().forEach(function(track) {
-                        finalStream.addTrack(track);
-                    });
-                    canvasStream.getTracks().forEach(function(track) {
-                        finalStream.addTrack(track);
-                    });
-                });
-
-                document.querySelector("canvas").style.width = displayCanvasWidth.toString();
-                document.querySelector("canvas").style.height = displayCanvasHeight.toString();
-
-
-                recordButton = createButton("RECORD");
-                recordButton.position(controlsMenuOrigin[0], controlsMenuOrigin[1]);
-                recordButton.size(controlsButtonSize[0], controlsButtonSize[1]);
-                recordButton.mousePressed(toggleRecording);
-                recordButton.id("record-button");
-                recordButton.class("controls-button");
-                recordButton.parent("webcam-container");
-
-                playbackButton = createButton("PLAY");
-                playbackButton.position(controlsMenuOrigin[0] + controlsButtonSpacing, controlsMenuOrigin[1]);
-                playbackButton.size(controlsButtonSize[0], controlsButtonSize[1]);
-                playbackButton.mousePressed(play);
-                playbackButton.id("playback-button");
-                playbackButton.class("controls-button");
-                playbackButton.parent("webcam-container");
-
-                uploadButton = createButton("UPLOAD");
-                uploadButton.position(controlsMenuOrigin[0] + 2*controlsButtonSpacing, controlsMenuOrigin[1]);
-                uploadButton.size(controlsButtonSize[0], controlsButtonSize[1]);
-                uploadButton.mousePressed(uploadVideo);
-                uploadButton.id("upload-button");
-                uploadButton.class("controls-button");
-                uploadButton.parent("webcam-container");
-
-                nameField = createInput(" UR_USERNAME_HERE");
-                nameField.position(optionsMenuOrigin[0], optionsMenuOrigin[1]);
-                nameField.size(optionsMenuButtonSize[0], optionsMenuButtonSize[1]);
-                nameField.changed(changeName);
-                nameField.class("options-button");
-                nameField.parent("webcam-container");
-
-                topicSel = createSelect();
-                topicSel.position(optionsMenuOrigin[0], optionsMenuOrigin[1] + optionsMenuButtonSpacing);
-                topicSel.size(optionsMenuButtonSize[0], optionsMenuButtonSize[1]);
-                topicSel.option('SELECT TOPIC');
-                topicSel.option('SHOW AND TELL');
-                topicSel.option('ANNOUNCEMENT');
-                topicSel.option('MUSICAL PERFORMANCE');
-                topicSel.option('REVIEWS');
-                topicSel.option('RECIPES');
-                topicSel.option('RANTS');
-                topicSel.option('HOW TO');
-                topicSel.option('QUARANTINE DREAMS');
-                topicSel.changed(changeTopic);
-                topicSel.class("options-button");
-                topicSel.parent("webcam-container")
-
-                filterSel = createSelect();
-                filterSel.position(optionsMenuOrigin[0], optionsMenuOrigin[1] + 2 * optionsMenuButtonSpacing);
-                filterSel.size(optionsMenuButtonSize[0], optionsMenuButtonSize[1]);
-                filterSel.option('SELECT FILTER');
-                filterSel.option('None');
-                for(i = 0; i < shaderDirList.length; i++) {
-                  if(shaderDirList[i] != ".DS_Store") {
-                    filterSel.option(shaderDirList[i]);
-                  }
-                }
-                filterSel.changed(changeFilter);
-                filterSel.class("options-button");
-                filterSel.parent("webcam-container");
-
-            }
-
-            function drawHUD() {
-                text(nameField.value(), 100, 40);
-            }
-
-            function pad(num, size) {
-                var s = num + "";
-                while (s.length < size) s = "0" + s;
-                return s;
-            }
-
-            function draw() {
-                pg.background(200);
-
-                for(var shaderName in shaders) {
-                    var currentShader = shaders[shaderName];
-
-                if(shaderName == filterSel.value()) {
-                    if(shaderName == "Embossed") {
-                        pg.shader(currentShader);
-                        currentShader.setUniform('tex0', testCapture);
-                        currentShader.setUniform('stepSize', [1.0/width, 1.0/height]);
-                        currentShader.setUniform('dist', 3.0);
-                        pg.rect(0, 0, 1, 1);
-                        background(255, 0, 0)
-                        image(pg, -width / 2, -height / 2);
-                        break;
-                    } else {
-                    pg.shader(currentShader);
-                    currentShader.setUniform('tex0', testCapture);
-                    currentShader.setUniform('resolution', [shaderWidth, shaderHeight]);
-                    pg.rect(0, 0, 1, 1);
-                    background(255, 0, 0)
-                    image(pg, -width / 2, -height / 2);
-                    break;
-                }
-                  } else {
-                      image(testCapture, -width / 2, -height / 2, displayCanvasWidth, displayCanvasHeight);
-                  }
-                }        
-
-                translate(-width / 2, -height / 2);
-
-                // fill(255, 255, 255, 160);
-                // noStroke();
-                // rect(dateTextOrigin[0] - 20, dateTextOrigin[1] - 30, 400, 70);
-                fill(255, 255, 255);
-
-                textFont(mainFont);
-                textSize(dateTextSize);
-                var nameValue = nameField.value().slice(1,maxUsernameLength);
-                text(nameValue, usernameOrigin[0] - nameValue.length * dateTextSize/2.68, usernameOrigin[1]);
-
-
-                today = new Date();
-                text(pad(today.getHours(), 2) + ":" + pad(today.getMinutes(), 2) + ":" + pad(today.getSeconds(), 2) + " " + today.toISOString().split("T")[0], dateTextOrigin[0], dateTextOrigin[1] + dateTextSize);
-
-                // fill(255, 255, 255, 160);
-                // noStroke();
-                // rect(topicTextOrigin[0] - 20, topicTextOrigin[1] - 30, 200, 70);
-
-                fill(255,255,255,255);
-                //rect(10,10,topicTextOrigin[0],topicTextOrigin[1]);
-                textSize(topicTextSize);
-                text("WE'RE TALKIN:", topicTextOrigin[0], topicTextOrigin[1]);
-                text(topicSel.value(), topicTextOrigin[0], topicTextOrigin[1] + topicTextSize);
-
-
-
-                // if(state.recording == true) {
-                //     fill(255,0,0);
-                //     circle(50,50,25);
-                // } else if(state.paused == true){
-                //     fill(255,255,255);
-                //     triangle(50, 50, 50, 70, 70, 60);
-                // } else if(state.paused == false){
-                //     fill(255,255,255);
-                //     rect(50,50,10,30);
-                //     rect(70,50,10,30);
-                // } 
-
-            }
-            </script>
-        </div>
-
-        <div id="project-description">
-            Call me Ishmael. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time tozz get to sea as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the ship. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the ocean with me.
-        </div>
+    <script type="text/javascript" src="index.js"></script>
+    <div id="header">
+        <a href="./index.html">
+            <-- home</a> <a href="./schedule.html">schedule
+        </a>
+        <a href="https://www.youtube.com/channel/UC6DkA9nv4fUb6Q4i_q0kPdA">archive</a>
+        <a id="submit" href="./submit.html">SUBMIT UR VIDEO</a>
+        <a id="submit" href="https://docs.google.com/forms/d/e/1FAIpQLSf86l86okJxyawWYfgDJZXIjdOjIlprhPN6pszZpKSTcbrzcg/viewform?usp=sf_link">PITCH A SHOW</a>
+        <a id="submit" href="https://docs.google.com/forms/d/e/1FAIpQLSeaWkXKP3Y2lcvN-JymzlaOXvItYc6hOG9j9n9P-HD00lbvTA/viewform?usp=sf_link">VOLUNTEER</a>
+        <a id="submit" href="https://www.bumptelevision.com/donate.html">DONATE</a>
+        <span id="clock"></span>
     </div>
+    <div id="speakers-corner-container">
+        <div id="speakers-corner-header">
+            <div id="logo-container"><img id="logo" src="img/bumptv_logo_pink.png"></div>
+            <div id="speakers-corner-title">THIS COULD BE YOU</div>
+            <div id="speakers-corner-subheading">PRESENTED by <a href="https://www.bumptelevision.com">BUMP TELEVISION</a></div>
+            <div id="topic-scroller">
+                <marquee behavior="scroll" direction="left">WELCOME WEARY TRAVELER. SELECT A TOPIC, TELL US UR HANDLE, AND HIT RECORD. SEE U SOON <3 </marquee> </div> </div> <div id="webcam-container">
+                        <video id="playback-video"></video>
+                        <script>
+                        isVideoPlaying = false;
+                        let testCapture;
+                        let capture;
+                        let recordedBlobs;
+                        let mediaRecorder;
+                        let finalStream;
+                        let video;
+                        let state = [{ "recording": false }, { "playing": false }];
+                        const mediaSource = new MediaSource();
+                        mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
+
+                        function uploadVideo() {
+
+                            var req = new XMLHttpRequest();
+                            req.open("POST", "uploadVideo", true);
+                            var blob = new Blob(recordedBlobs, { type: 'video/mkv' });
+                            var formData = new FormData();
+                            formData.append("video", blob);
+                            formData.append("filename", nameField.value());
+                            formData.append("topic", topicSel.value());
+                            uploadButton.html("wait...");
+
+                            req.onload = function(e) {
+                                alert("video uploaded! thanksSss");
+                                console.log("response received");
+                                console.log(e);
+                                uploadButton.html("UPLOAD");
+                            }
+
+                            req.send(formData);
+                        }
+
+
+                        function getDirectoryListing() {
+                            var req = new XMLHttpRequest();
+                            req.open("GET", "getDirectoryListing", true);
+
+                            req.onload = function(e) {
+                                console.log("req onload");
+                                shaderDirList = JSON.parse(this.responseText);
+
+                                for (i = 0; i < shaderDirList.length; i++) {
+                                    if (shaderDirList[i] != ".DS_Store") {
+                                        var obj = {};
+                                        shaders[shaderDirList[i]] = loadShader('assets/shaders/' + shaderDirList[i] + '/effect.vert', 'assets/shaders/' + shaderDirList[i] + '/effect.frag', function() { numShaders++;
+                                            console.log(numShaders); });
+                                    }
+                                }
+                            }
+                            req.send("hello");
+                        }
+
+                        function toggleRecording() {
+
+                            if (!state.recording) {
+                                if (typeof(video) !== 'undefined') { video.hide(); }
+                                startRecording();
+                                recordButton.html("Stop");
+                                state.recording = true;
+                            } else {
+                                mediaRecorder.ondataavailable = e => {
+                                    video = createVideo(URL.createObjectURL(e.data), function() {});
+
+                                };
+                                stopRecording();
+                                recordButton.html("RESET");
+                                state.recording = false;
+                            }
+                        }
+
+                        function handleSourceOpen(event) {
+                            console.log('MediaSource opened');
+                            sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8"');
+                            console.log('Source buffer: ', sourceBuffer);
+                        }
+
+                        function handleDataAvailable(event) {
+                            if (event.data && event.data.size > 0) {
+                                console.log("pushing data into recordedBlobs");
+                                recordedBlobs.push(event.data);
+                            }
+                        }
+
+                        function handleStop(event) {
+                            console.log('Recorder stopped: ', event);
+                            const superBuffer = new Blob(recordedBlobs, { type: 'video/webm' });
+                            console.log(superBuffer);
+
+                            var canv = document.querySelector("canvas");
+                            canv.style.display = "none";
+
+                            var video = document.getElementById("playback-video")
+                            video.src = window.URL.createObjectURL(superBuffer);
+                            video.style.display = "block";
+                            video.style.width = "640px !important";
+                            video.style.height = "480px !important";
+                        }
+
+
+                        function startRecording() {
+
+                            // The nested try blocks will be simplified when Chrome 47 moves to Stable
+                            var canv = document.querySelector("canvas");
+                            var playbackVideo = document.getElementById("playback-video");
+                            if (canv.style.display == "none") {
+                                canv.style.display = "block";
+                            }
+                            if (playbackVideo.style.display == "block") {
+                                playbackVideo.style.display = "none";
+                            }
+
+                            console.log("beginngin of startRecording with final stream: ", finalStream)
+                            let options = { video: true, audio: true, mimeType: 'video/webm', videoBitsPerSecond: 5500000 };
+                            recordedBlobs = [];
+                            try {
+                                mediaRecorder = new MediaRecorder(finalStream, options);
+                            } catch (e0) {
+                                console.log('Unable to create MediaRecorder with options Object: ', e0);
+                                try {
+                                    options = { mimeType: 'video/webm,codecs=vp9' };
+                                    mediaRecorder = new MediaRecorder(finalStream, options);
+                                } catch (e1) {
+                                    console.log('Unable to create MediaRecorder with options Object: ', e1);
+                                    try {
+                                        options = 'video/vp8'; // Chrome 47
+                                        mediaRecorder = new MediaRecorder(finalStream, options);
+                                    } catch (e2) {
+                                        //alert('MediaRecorder is not supported by this browser.\n\n' +
+                                        //  'Try Firefox 29 or later, or Chrome 47 or later, ' +
+                                        //  'with Enable experimental Web Platform features enabled from chrome://flags.');
+                                        console.error('Exception while creating MediaRecorder:', e2);
+                                        return;
+                                    }
+                                }
+                            }
+                            console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+                            console.log("with stream tracks:", mediaRecorder.stream.getTracks());
+                            console.log("finalStream: ", finalStream);
+                            console.log("tracks: ", finalStream.getTracks());
+                            state.recording = true;
+                            mediaRecorder.onstop = handleStop;
+                            mediaRecorder.ondataavailable = handleDataAvailable;
+                            mediaRecorder.start(100); // collect 100ms of data
+                        }
+
+                        function stopRecording() {
+                            mediaRecorder.stop();
+                            console.log('Recorded Blobs: ', recordedBlobs);
+                            console.log("recorded stream: ", mediaRecorder.stream)
+                            state.recording = false;
+                        }
+
+                        function play() {
+                            console.log("play");
+                            var playbackVideo = document.getElementById("playback-video");
+
+                            if (!playbackVideo.paused && !playbackVideo.ended) { //video is playing
+                                playbackVideo.pause();
+                                document.getElementById("playback-button").innerHTML = "PLAY";
+                                state.paused = true;
+                            } else {
+                                document.getElementById("playback-button").innerHTML = "PAUSE";
+                                playbackVideo.loop = true;
+                                playbackVideo.play();
+                                state.paused = false;
+                            }
+                        }
+
+                        function changeTopic() {
+                            // document.getElementById("topic-scroller-content").innerHTML = topicSel.value();
+                        }
+
+                        function changeFilter(shader) {
+                            console.log("changing filter to: ", filterSel.value());
+                            //  theShader = loadShader('assets/shaders/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
+                            // var selection = filterSel.value();
+                            // noLoop();
+                            // switch(selection) {
+                            //   case "None":
+                            //     console.log(selection);
+                            //     console.log("no filter selected");
+                            //     break;
+                            //   case "Bugs Eye":
+                            //   console.log(selection);
+                            //     console.log("bugs eye filter selected");
+                            //     theShader = loadShader('assets/4_image-effects/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
+                            //     break;
+                            //   case "Invert":
+                            //   console.log(selection);
+                            //     console.log("invert filter selected");
+                            //     theShader = loadShader('assets/4_image-effects/4-1_webcam-invert/effect.vert', 'assets/4_image-effects/4-1_webcam-invert/effect.frag');
+                            //     break;
+                            // }
+                            // loop();
+                            // //theShader = loadShader();
+                        }
+
+                        function changeName() {
+
+                        }
+
+                        let shaders = [];
+                        let shaderDirList = [];
+
+                        function preload() {
+
+
+                            getDirectoryListing();
+
+                            mainFont = loadFont('assets/fonts/digitaldarksystem.otf');
+                            secondFont = loadFont('assets/fonts/inconsolata.otf');
+                            titleFont = loadFont('assets/fonts/computomonospace.otf');
+
+
+                        }
+
+                        var canvasWidth = 640;
+                        var canvasHeight = 480;
+
+                        var displayCanvasWidth = 640;
+                        var displayCanvasHeight = 480;
+
+                        var pgWidth = canvasWidth;
+                        var pgHeight = canvasHeight;
+
+                        var testCaptureWidth = canvasWidth;
+                        var testCaptureHeight = canvasHeight;
+
+                        var shaderWidth = 2;
+                        var shaderHeight = 2;
+
+                        var controlsMenuOrigin = [50, displayCanvasHeight + 50];
+                        var controlsButtonSize = [170, 50];
+                        var controlsButtonSpacing = controlsButtonSize[0] + 20;
+
+
+                        var optionsMenuButtonSize = [displayCanvasWidth * 0.8, 50];
+                        var optionsMenuOrigin = [displayCanvasWidth / 2 - optionsMenuButtonSize[0] / 2, controlsMenuOrigin[1] + controlsButtonSize[1] + 30];
+                        var optionsMenuButtonSpacing = 60;
+
+                        var dateTextSize = 40;
+                        var dateTextOrigin = [canvasWidth / 2 + 30, canvasHeight - dateTextSize - 5];
+
+                        var usernameOrigin = [dateTextOrigin[0] + 19 / 2.9 * dateTextSize, dateTextOrigin[1]]; //+ dateTextSize ];
+                        var maxUsernameLength = 25;
+
+                        var topicTextSize = 40;
+                        var topicTextOrigin = [20, canvasHeight - topicTextSize - 5];
+
+                        let mic, audioRecorder, audioFile;
+                        var numShaders = 0;
+
+
+                        function setup() {
+
+
+
+
+                            var canv = createCanvas(canvasWidth, canvasHeight, WEBGL);
+                            canv.parent("webcam-container");
+
+                            pg = createGraphics(pgWidth, pgHeight, WEBGL)
+
+                            let constraints = {
+                                audio: false,
+                                video: {
+                                    width: 1280,
+                                    height: 720
+                                }
+                            };
+
+                            testCapture = createCapture(constraints);
+                            testCapture.size(testCaptureWidth, testCaptureHeight);
+                            testCapture.hide();
+
+                            navigator.mediaDevices.getUserMedia({ audio: true }).then(function(audioStream) {
+                                var canvas = document.querySelector('canvas');
+                                var canvasStream = canvas.captureStream();
+
+                                finalStream = new MediaStream();
+                                audioStream.getTracks().forEach(function(track) {
+                                    finalStream.addTrack(track);
+                                });
+                                canvasStream.getTracks().forEach(function(track) {
+                                    finalStream.addTrack(track);
+                                });
+                            });
+
+                            document.querySelector("canvas").style.width = displayCanvasWidth.toString();
+                            document.querySelector("canvas").style.height = displayCanvasHeight.toString();
+
+
+                            recordButton = createButton("RECORD");
+                            recordButton.position(controlsMenuOrigin[0], controlsMenuOrigin[1]);
+                            recordButton.size(controlsButtonSize[0], controlsButtonSize[1]);
+                            recordButton.mousePressed(toggleRecording);
+                            recordButton.id("record-button");
+                            recordButton.class("controls-button");
+                            recordButton.parent("webcam-container");
+
+                            playbackButton = createButton("PLAY");
+                            playbackButton.position(controlsMenuOrigin[0] + controlsButtonSpacing, controlsMenuOrigin[1]);
+                            playbackButton.size(controlsButtonSize[0], controlsButtonSize[1]);
+                            playbackButton.mousePressed(play);
+                            playbackButton.id("playback-button");
+                            playbackButton.class("controls-button");
+                            playbackButton.parent("webcam-container");
+
+                            uploadButton = createButton("UPLOAD");
+                            uploadButton.position(controlsMenuOrigin[0] + 2 * controlsButtonSpacing, controlsMenuOrigin[1]);
+                            uploadButton.size(controlsButtonSize[0], controlsButtonSize[1]);
+                            uploadButton.mousePressed(uploadVideo);
+                            uploadButton.id("upload-button");
+                            uploadButton.class("controls-button");
+                            uploadButton.parent("webcam-container");
+
+                            nameField = createInput(" UR_USERNAME_HERE");
+                            nameField.position(optionsMenuOrigin[0], optionsMenuOrigin[1]);
+                            nameField.size(optionsMenuButtonSize[0], optionsMenuButtonSize[1]);
+                            nameField.changed(changeName);
+                            nameField.class("options-button");
+                            nameField.parent("webcam-container");
+
+                            topicSel = createSelect();
+                            topicSel.position(optionsMenuOrigin[0], optionsMenuOrigin[1] + optionsMenuButtonSpacing);
+                            topicSel.size(optionsMenuButtonSize[0], optionsMenuButtonSize[1]);
+                            topicSel.option('SELECT TOPIC');
+                            topicSel.option('SHOW AND TELL');
+                            topicSel.option('ANNOUNCEMENT');
+                            topicSel.option('MUSICAL PERFORMANCE');
+                            topicSel.option('REVIEWS');
+                            topicSel.option('RECIPES');
+                            topicSel.option('RANTS');
+                            topicSel.option('HOW TO');
+                            topicSel.option('QUARANTINE DREAMS');
+                            topicSel.changed(changeTopic);
+                            topicSel.class("options-button");
+                            topicSel.parent("webcam-container")
+
+                            filterSel = createSelect();
+                            filterSel.position(optionsMenuOrigin[0], optionsMenuOrigin[1] + 2 * optionsMenuButtonSpacing);
+                            filterSel.size(optionsMenuButtonSize[0], optionsMenuButtonSize[1]);
+                            filterSel.option('SELECT FILTER');
+                            filterSel.option('None');
+                            for (i = 0; i < shaderDirList.length; i++) {
+                                if (shaderDirList[i] != ".DS_Store") {
+                                    filterSel.option(shaderDirList[i]);
+                                }
+                            }
+                            filterSel.changed(changeFilter);
+                            filterSel.class("options-button");
+                            filterSel.parent("webcam-container");
+
+                        }
+
+                        function drawHUD() {
+                            text(nameField.value(), 100, 40);
+                        }
+
+                        function pad(num, size) {
+                            var s = num + "";
+                            while (s.length < size) s = "0" + s;
+                            return s;
+                        }
+
+                        function draw() {
+                            pg.background(200);
+
+                            for (var shaderName in shaders) {
+                                var currentShader = shaders[shaderName];
+
+                                if (shaderName == filterSel.value()) {
+                                    if (shaderName == "Embossed") {
+                                        pg.shader(currentShader);
+                                        currentShader.setUniform('tex0', testCapture);
+                                        currentShader.setUniform('stepSize', [1.0 / width, 1.0 / height]);
+                                        currentShader.setUniform('dist', 3.0);
+                                        pg.rect(0, 0, 1, 1);
+                                        background(255, 0, 0)
+                                        image(pg, -width / 2, -height / 2);
+                                        break;
+                                    } else {
+                                        pg.shader(currentShader);
+                                        currentShader.setUniform('tex0', testCapture);
+                                        currentShader.setUniform('resolution', [shaderWidth, shaderHeight]);
+                                        pg.rect(0, 0, 1, 1);
+                                        background(255, 0, 0)
+                                        image(pg, -width / 2, -height / 2);
+                                        break;
+                                    }
+                                } else {
+                                    image(testCapture, -width / 2, -height / 2, displayCanvasWidth, displayCanvasHeight);
+                                }
+                            }
+
+                            translate(-width / 2, -height / 2);
+
+                            // fill(255, 255, 255, 160);
+                            // noStroke();
+                            // rect(dateTextOrigin[0] - 20, dateTextOrigin[1] - 30, 400, 70);
+                            fill(255, 255, 255);
+
+                            textFont(mainFont);
+                            textSize(dateTextSize);
+                            var nameValue = nameField.value().slice(1, maxUsernameLength);
+                            text(nameValue, usernameOrigin[0] - nameValue.length * dateTextSize / 2.68, usernameOrigin[1]);
+
+
+                            today = new Date();
+                            text(pad(today.getHours(), 2) + ":" + pad(today.getMinutes(), 2) + ":" + pad(today.getSeconds(), 2) + " " + today.toISOString().split("T")[0], dateTextOrigin[0], dateTextOrigin[1] + dateTextSize);
+
+                            // fill(255, 255, 255, 160);
+                            // noStroke();
+                            // rect(topicTextOrigin[0] - 20, topicTextOrigin[1] - 30, 200, 70);
+
+                            fill(255, 255, 255, 255);
+                            //rect(10,10,topicTextOrigin[0],topicTextOrigin[1]);
+                            textSize(topicTextSize);
+                            text("WE'RE TALKIN:", topicTextOrigin[0], topicTextOrigin[1]);
+                            text(topicSel.value(), topicTextOrigin[0], topicTextOrigin[1] + topicTextSize);
+
+
+
+                            // if(state.recording == true) {
+                            //     fill(255,0,0);
+                            //     circle(50,50,25);
+                            // } else if(state.paused == true){
+                            //     fill(255,255,255);
+                            //     triangle(50, 50, 50, 70, 70, 60);
+                            // } else if(state.paused == false){
+                            //     fill(255,255,255);
+                            //     rect(50,50,10,30);
+                            //     rect(70,50,10,30);
+                            // } 
+
+                        }
+                        </script>
+            </div>
+            <div id="project-description">
+                <h2>Submission Guidlines</h2>
+                <ul>
+                    <li>
+                        <h3>BUMP TV will attempt to air all videos.</h3>
+                    <li>
+                        <h3>BUMP TV reserves the right to refuse any videos deemed to be in violation of these guidelines.</h3>
+                        For instance, videos promoting racism, sexism, homophobia, transphobia, xenophobia, ableism, or nonconsensual behaviour will be refused, full stop. An explanation for these rejections will be provided when time and resources allow.
+                    <li>
+                        <h3>BUMP TV cannot guarantee a specific air date and/or time for any submission.</h3>
+                        Submissions will be aired when they are aired. We have a small programming team watching and scheduling submissions, please bear with us.
+                    <li>
+                        <h3>No commercial videos for large brands allowed.</h3>
+                        Ads for small local businesses and events that share our principles are acceptable. Promotions for your upcoming shows are acceptable. Videos made in collaboration with large brands (i.e. that art thing you made for Lexus/Coke/Adidas) are not acceptable. Videos promoting large brands are not acceptable.
+                    <li>
+                        <h3>You retain ownership of your content.</h3>
+                        It’s yours to do with whatever you like, we just air it here and on our social media accounts.
+                    <li>
+                        <h3>There are no restrictions whatsoever on who may submit.</h3>
+                        Anyone, anywhere, can submit videos and we will attempt to air them. Content may be submitted anonymously if desired. No credentials, status, or past experience are necessary.
+                    <li>
+                        <h3>By uploading, you consent to having your video, still images, audio and quotes being used for promotion and documentation purposes by BUMPTV and Xpace.</h3>h
+                        We will be sharing highlights from the contributions on social media to promote the project, we will tag you wherever appropriate/possible! We will also be compiling a “Best of This Could Be You” clipshow for documentation purposes once the project is completed.
+                </ul>
+            </div>
+        </div>
 </body>
 
 </html>

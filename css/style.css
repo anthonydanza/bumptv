@@ -918,6 +918,15 @@ button#record-button {
     background: black;
 }
 
+#speakers-corner-container h3 {
+    color: white;
+    font-size: 30px;
+}
+
+#speakers-corner-container h2 {
+    font-size: 50px;
+}
+
 #webcam-container {
     position: relative;
     top: 0;
@@ -979,9 +988,10 @@ button#record-button {
     display:block;
     width:90%;
     position: relative;
-    top: 100px;
+    top: 10px;
     color: white;
     background: black;
+    text-align: center;
 }
 
 #speakers-corner-header {
@@ -1003,6 +1013,7 @@ button#record-button {
 #speakers-corner-subheading {
     font-size: 20px;
     width: 60%;
+    font-family: "Inconsolata"
 }
 
 #logo {
