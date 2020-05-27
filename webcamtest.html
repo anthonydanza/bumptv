@@ -169,12 +169,14 @@
                                     setTimeout(function() {popup.style.display = "none";},2300);
                                  }
                                 }, maxRecordingLength*1000 - 10000);
+                            document.getElementById("timer").style.display = "block";
                             startTimer(maxRecordingLength, document.getElementById("timer"));
                         }
 
 
                         function stopRecording() {
                             mediaRecorder.stop();
+                            document.getElementById("timer").style.display = "none";
                             recordButton.html("RESET");
                             state.recording = false;
                             state.recordingExists = true;
@@ -232,9 +234,12 @@
                             }
                         }
 
+                        var timerInterval;
+
                         function startTimer(duration, display) {
                             var timer = duration, minutes, seconds;
-                            setInterval(function () {
+                            clearInterval(timerInterval);
+                            timerInterval = setInterval(function () {
                                 minutes = parseInt(timer / 60, 10);
                                 seconds = parseInt(timer % 60, 10);
 
