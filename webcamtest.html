@@ -435,7 +435,7 @@
 
                             textFont(mainFont);
                             textSize(dateTextSize);
-                            var nameValue = nameField.value().slice(1, maxUsernameLength);
+                            var nameValue = nameField.value().slice(0, maxUsernameLength);
                             text(nameValue, usernameOrigin[0] - nameValue.length * dateTextSize / 2.68, usernameOrigin[1]);
 
 
