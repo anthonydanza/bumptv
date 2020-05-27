@@ -940,7 +940,7 @@ button#record-button {
     margin-top:10px;
     position: relative;
     /*left: 300px;*/
-    width: 640px;
+    width: 858px;
     color: white;
 }
 
@@ -961,6 +961,7 @@ button#record-button {
 
 
 .controls-button:hover {
+    cursor: pointer;
     background: yellowgreen;
     color: black;
 }
@@ -977,10 +978,17 @@ button#record-button {
 
 
 .options-button {
-    position: relative;
-    background-color: purple;
-    color: green;
+     position: relative;
+    background: black;
+    color: white;
+    font-family: "computomonospace";
     font-size: 30px;
+    border: dashed white;
+}
+
+.options-button:hover {
+    cursor:auto;
+    background: blue;
 }
 
 #project-description {
@@ -1025,7 +1033,7 @@ button#record-button {
 
 #playback-video {
     display: none;
-    width: 640px;
+    width: 858px;
     height: 480px;
 }
 

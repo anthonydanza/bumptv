@@ -126,13 +126,9 @@ var videoUploadFields = upload.fields([{ name: 'video', maxCount: 1 }, { name: '
 var tempFilename = Date.now() + ".mkv";
 
 app.get("/getDirectoryListing", function(req, res, next) {
-    console.log("getDirectoryListing request");
 
     fs.readdir("../assets/shaders", function(err, files) { res.send(files) });
 
-
-
-    //res.send(fs.readdir("/shaders",function(){}));
 });
 
 app.post('/uploadVideo', videoUploadFields, function(req, res, next) {

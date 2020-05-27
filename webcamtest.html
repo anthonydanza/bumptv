@@ -50,12 +50,14 @@
                             formData.append("filename", nameField.value());
                             formData.append("topic", topicSel.value());
                             uploadButton.html("wait...");
+                            document.getElementById("speakers-corner-container").style = "cursor: wait;";
 
                             req.onload = function(e) {
                                 alert("video uploaded! thanksSss");
                                 console.log("response received");
                                 console.log(e);
                                 uploadButton.html("UPLOAD");
+                                document.getElementById("speakers-corner-container").style = "cursor: auto";
                             }
 
                             req.send(formData);
@@ -85,12 +87,19 @@
 
                         function toggleRecording() {
 
-                            if (!state.recording) {
+                            if (!state.recording && !state.recordingExists) {
                                 if (typeof(video) !== 'undefined') { video.hide(); }
+                                console.log("shit")
                                 startRecording();
                                 recordButton.html("Stop");
                                 state.recording = true;
+                            } else if (state.recordingExists){
+                                if (typeof(video) !== 'undefined') { console.log("pee"); video.hide(); }
+                                recordButton.html("RECORD");
+                                state.recordingExists = false;
+                                state.recording = false;
                             } else {
+                                console.log("poo");
                                 mediaRecorder.ondataavailable = e => {
                                     video = createVideo(URL.createObjectURL(e.data), function() {});
 
@@ -98,6 +107,7 @@
                                 stopRecording();
                                 recordButton.html("RESET");
                                 state.recording = false;
+                                state.recordingExists = true;
                             }
                         }
 
@@ -125,7 +135,7 @@
                             var video = document.getElementById("playback-video")
                             video.src = window.URL.createObjectURL(superBuffer);
                             video.style.display = "block";
-                            video.style.width = "640px !important";
+                            video.style.width = "858px !important";
                             video.style.height = "480px !important";
                         }
 
@@ -216,10 +226,10 @@
                             titleFont = loadFont('assets/fonts/computomonospace.otf');
                         }
 
-                        var canvasWidth = 640;
+                        var canvasWidth = 858;
                         var canvasHeight = 480;
 
-                        var displayCanvasWidth = 640;
+                        var displayCanvasWidth = 858;
                         var displayCanvasHeight = 480;
 
                         var pgWidth = canvasWidth;
@@ -231,7 +241,7 @@
                         var shaderWidth = 2;
                         var shaderHeight = 2;
 
-                        var controlsMenuOrigin = [50, displayCanvasHeight + 50];
+                        var controlsMenuOrigin = [150, displayCanvasHeight + 50];
                         var controlsButtonSize = [170, 50];
                         var controlsButtonSpacing = controlsButtonSize[0] + 20;
 
@@ -241,7 +251,7 @@
                         var optionsMenuButtonSpacing = 60;
 
                         var dateTextSize = 40;
-                        var dateTextOrigin = [canvasWidth / 2 + 30, canvasHeight - dateTextSize - 5];
+                        var dateTextOrigin = [canvasWidth - 290, canvasHeight - dateTextSize - 5];
 
                         var usernameOrigin = [dateTextOrigin[0] + 19 / 2.9 * dateTextSize, dateTextOrigin[1]]; //+ dateTextSize ];
                         var maxUsernameLength = 25;
