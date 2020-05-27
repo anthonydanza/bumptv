@@ -158,18 +158,15 @@
                                         options = 'video/vp8'; // Chrome 47
                                         mediaRecorder = new MediaRecorder(finalStream, options);
                                     } catch (e2) {
-                                        //alert('MediaRecorder is not supported by this browser.\n\n' +
-                                        //  'Try Firefox 29 or later, or Chrome 47 or later, ' +
-                                        //  'with Enable experimental Web Platform features enabled from chrome://flags.');
                                         console.error('Exception while creating MediaRecorder:', e2);
                                         return;
                                     }
                                 }
                             }
-                            console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-                            console.log("with stream tracks:", mediaRecorder.stream.getTracks());
-                            console.log("finalStream: ", finalStream);
-                            console.log("tracks: ", finalStream.getTracks());
+                            // console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+                            // console.log("with stream tracks:", mediaRecorder.stream.getTracks());
+                            // console.log("finalStream: ", finalStream);
+                            // console.log("tracks: ", finalStream.getTracks());
                             state.recording = true;
                             mediaRecorder.onstop = handleStop;
                             mediaRecorder.ondataavailable = handleDataAvailable;
@@ -200,51 +197,23 @@
                         }
 
                         function changeTopic() {
-                            // document.getElementById("topic-scroller-content").innerHTML = topicSel.value();
                         }
 
                         function changeFilter(shader) {
                             console.log("changing filter to: ", filterSel.value());
-                            //  theShader = loadShader('assets/shaders/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
-                            // var selection = filterSel.value();
-                            // noLoop();
-                            // switch(selection) {
-                            //   case "None":
-                            //     console.log(selection);
-                            //     console.log("no filter selected");
-                            //     break;
-                            //   case "Bugs Eye":
-                            //   console.log(selection);
-                            //     console.log("bugs eye filter selected");
-                            //     theShader = loadShader('assets/4_image-effects/4-20_mosaic/effect.vert', 'assets/4_image-effects/4-20_mosaic/effect.frag');
-                            //     break;
-                            //   case "Invert":
-                            //   console.log(selection);
-                            //     console.log("invert filter selected");
-                            //     theShader = loadShader('assets/4_image-effects/4-1_webcam-invert/effect.vert', 'assets/4_image-effects/4-1_webcam-invert/effect.frag');
-                            //     break;
-                            // }
-                            // loop();
-                            // //theShader = loadShader();
                         }
 
                         function changeName() {
-
                         }
 
                         let shaders = [];
                         let shaderDirList = [];
 
                         function preload() {
-
-
                             getDirectoryListing();
-
                             mainFont = loadFont('assets/fonts/digitaldarksystem.otf');
-                            secondFont = loadFont('assets/fonts/inconsolata.otf');
+                            loadFont('assets/fonts/inconsolata.otf');
                             titleFont = loadFont('assets/fonts/computomonospace.otf');
-
-
                         }
 
                         var canvasWidth = 640;
@@ -285,9 +254,6 @@
 
 
                         function setup() {
-
-
-
 
                             var canv = createCanvas(canvasWidth, canvasHeight, WEBGL);
                             canv.parent("webcam-container");
@@ -428,9 +394,6 @@
 
                             translate(-width / 2, -height / 2);
 
-                            // fill(255, 255, 255, 160);
-                            // noStroke();
-                            // rect(dateTextOrigin[0] - 20, dateTextOrigin[1] - 30, 400, 70);
                             fill(255, 255, 255);
 
                             textFont(mainFont);
@@ -438,37 +401,18 @@
                             var nameValue = nameField.value().slice(0, maxUsernameLength);
                             text(nameValue, usernameOrigin[0] - nameValue.length * dateTextSize / 2.68, usernameOrigin[1]);
 
-
                             today = new Date();
                             text(pad(today.getHours(), 2) + ":" + pad(today.getMinutes(), 2) + ":" + pad(today.getSeconds(), 2) + " " + today.toISOString().split("T")[0], dateTextOrigin[0], dateTextOrigin[1] + dateTextSize);
 
-                            // fill(255, 255, 255, 160);
-                            // noStroke();
-                            // rect(topicTextOrigin[0] - 20, topicTextOrigin[1] - 30, 200, 70);
-
                             fill(255, 255, 255, 255);
-                            //rect(10,10,topicTextOrigin[0],topicTextOrigin[1]);
                             textSize(topicTextSize);
                             text("WE'RE TALKIN:", topicTextOrigin[0], topicTextOrigin[1]);
                             text(topicSel.value(), topicTextOrigin[0], topicTextOrigin[1] + topicTextSize);
 
-
-
-                            // if(state.recording == true) {
-                            //     fill(255,0,0);
-                            //     circle(50,50,25);
-                            // } else if(state.paused == true){
-                            //     fill(255,255,255);
-                            //     triangle(50, 50, 50, 70, 70, 60);
-                            // } else if(state.paused == false){
-                            //     fill(255,255,255);
-                            //     rect(50,50,10,30);
-                            //     rect(70,50,10,30);
-                            // } 
-
                         }
                         </script>
             </div>
+
             <div id="project-description">
                 <h2>Submission Guidlines</h2>
                 <h3>BUMP TV will attempt to air all videos.</h3>
