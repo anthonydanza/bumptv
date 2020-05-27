@@ -24,7 +24,7 @@
         <div id="speakers-corner-header">
             <div id="logo-container"><img id="logo" src="img/bumptv_logo_pink.png"></div>
             <div id="speakers-corner-title">THIS COULD BE YOU</div>
-            <div id="speakers-corner-subheading">PRESENTED by <a href="https://www.bumptelevision.com">BUMP TELEVISION</a></div>
+            <div id="speakers-corner-subheading">PRESENTED by <a href="https://www.bumptelevision.com">BUMP TELEVISION</a> and <a href="https://www.xpace.info">XPACE CULTURAL CENTRE</a></div>
             <div id="topic-scroller">
                 <marquee behavior="scroll" direction="left">WELCOME WEARY TRAVELER. SELECT A TOPIC, TELL US UR HANDLE, AND HIT RECORD. SEE U SOON <3 </marquee> </div> </div> <div id="webcam-container">
                         <video id="playback-video"></video>
@@ -96,6 +96,7 @@
                             } else if (state.recordingExists){
                                 if (typeof(video) !== 'undefined') { console.log("pee"); video.hide(); }
                                 recordButton.html("RECORD");
+                                console.log("hi");
                                 state.recordingExists = false;
                                 state.recording = false;
                             } else {
@@ -125,9 +126,7 @@
                         }
 
                         function handleStop(event) {
-                            console.log('Recorder stopped: ', event);
                             const superBuffer = new Blob(recordedBlobs, { type: 'video/webm' });
-                            console.log(superBuffer);
 
                             var canv = document.querySelector("canvas");
                             canv.style.display = "none";
@@ -152,7 +151,6 @@
                                 playbackVideo.style.display = "none";
                             }
 
-                            console.log("beginngin of startRecording with final stream: ", finalStream)
                             let options = { video: true, audio: true, mimeType: 'video/webm', videoBitsPerSecond: 5500000 };
                             recordedBlobs = [];
                             try {
@@ -185,8 +183,6 @@
 
                         function stopRecording() {
                             mediaRecorder.stop();
-                            console.log('Recorded Blobs: ', recordedBlobs);
-                            console.log("recorded stream: ", mediaRecorder.stream)
                             state.recording = false;
                         }
 
@@ -425,20 +421,20 @@
 
             <div id="project-description">
                 <h2>Submission Guidlines</h2>
-                <h3>BUMP TV will attempt to air all videos.</h3>
-                <h3>BUMP TV reserves the right to refuse any videos deemed to be in violation of these guidelines.</h3>
-                For instance, videos promoting racism, sexism, homophobia, transphobia, xenophobia, ableism, or nonconsensual behaviour will be refused, full stop. An explanation for these rejections will be provided when time and resources allow.
+                <br>
+                <h3>This project is a collaboration between <a href="https://www.bumptelevision.com/">BUMP TELEVISION</a> and <a href="https://www.xpace.info">XPACE CULTURAL CENTRE</a>.</h3>
+                <br>
+                <h3>By uploading, you consent to having your video, still images, audio and quotes being used for promotion and documentation purposes by BUMPTV and Xpace.</h3>
+                <br>
+                <h3>BUMP TV reserves the right to refuse any video.</h3>
+                Videos promoting racism, sexism, homophobia, transphobia, xenophobia, ableism, or nonconsensual behaviour will be refused, full stop. 
+                <br>
+                <br>
                 <h3>BUMP TV cannot guarantee a specific air date and/or time for any submission.</h3>
-                Submissions will be aired when they are aired. We have a small programming team watching and scheduling submissions, please bear with us.
-                <h3>No commercial videos for large brands allowed.</h3>
-                Ads for small local businesses and events that share our principles are acceptable. Promotions for your upcoming shows are acceptable. Videos made in collaboration with large brands (i.e. that art thing you made for Lexus/Coke/Adidas) are not acceptable. Videos promoting large brands are not acceptable.
-                <h3>You retain ownership of your content.</h3>
-                It’s yours to do with whatever you like, we just air it here and on our social media accounts.
-                <h3>There are no restrictions whatsoever on who may submit.</h3>
-                Anyone, anywhere, can submit videos and we will attempt to air them. Content may be submitted anonymously if desired. No credentials, status, or past experience are necessary.
-                <h3>By uploading, you consent to having your video, still images, audio and quotes being used for promotion and documentation purposes by BUMPTV and Xpace.</h3>h
-                We will be sharing highlights from the contributions on social media to promote the project, we will tag you wherever appropriate/possible! We will also be compiling a “Best of This Could Be You” clipshow for documentation purposes once the project is completed.
+                Submissions will begin airing in June 2020. We have a small programming team - please bear with us.
+                
             </div>
+            <div id="speakers-corner-footer">copyright BUMP TELEVISION 2020. Shader/filter code sourced from examples by Adam Ferriss.</div>
         </div>
 </body>
 

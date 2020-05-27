@@ -918,20 +918,13 @@ button#record-button {
     background: black;
 }
 
-#speakers-corner-container h3 {
-    color: white;
-    font-size: 30px;
-}
 
-#speakers-corner-container h2 {
-    font-size: 50px;
-}
 
 #webcam-container {
     position: relative;
     top: 0;
     left: 0;
-    height:97%;
+    height:800px;
     width:100%;
     background: black;
 }
@@ -993,13 +986,29 @@ button#record-button {
 
 #project-description {
     margin: 0 auto;
+    margin-bottom: 100;
     display:block;
     width:90%;
     position: relative;
-    top: 10px;
+    margin-top: 100;
     color: white;
     background: black;
     text-align: center;
+    font-size: 15px;
+}
+
+#project-description h3 {
+    color: white;
+    font-size: 20px;
+}
+
+#project-description h2 {
+    text-decoration: underline;
+    font-size: 30px;
+}
+
+#speakers-corner-container a:hover {
+    color:white;
 }
 
 #speakers-corner-header {
@@ -1026,7 +1035,7 @@ button#record-button {
 
 #logo {
     float:right;
-    width:25%;
+    width:18%;
     right: 10;
     bottom: 30;
 }
@@ -1035,5 +1044,13 @@ button#record-button {
     display: none;
     width: 858px;
     height: 480px;
+}
+
+#speakers-corner-footer {
+    position: relative;
+    display: block;
+    text-align: center;
+    color: grey;
+    margin-top: 50px;
 }
 
