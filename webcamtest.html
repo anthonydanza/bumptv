@@ -29,6 +29,7 @@
                     <div id="webcam-container">
                         <video id="playback-video"></video>
                         <div id="on-screen-popup"></div>
+                        <div id="timer"></div>
 
                         <script>
                         isVideoPlaying = false;
@@ -41,7 +42,7 @@
                         let state = [{ "recording": false }, { "playing": false }];
                         const mediaSource = new MediaSource();
                         mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
-                        const maxRecordingLength = 90000;
+                        const maxRecordingLength = 90;
 
 
                         function uploadVideo() {
@@ -159,7 +160,7 @@
                                     console.log("times up"); 
                                     stopRecording();
                                  }
-                                }, maxRecordingLength);
+                                }, maxRecordingLength*1000);
                             setTimeout(function() {
                                  if(mediaRecorder.state != "inactive") {
                                     var popup = document.getElementById("on-screen-popup");
@@ -167,7 +168,8 @@
                                     popup.innerHTML = "10 seconds left!"
                                     setTimeout(function() {popup.style.display = "none";},2300);
                                  }
-                                }, maxRecordingLength - 10000);
+                                }, maxRecordingLength*1000 - 10000);
+                            startTimer(maxRecordingLength, document.getElementById("timer"));
                         }
 
 
@@ -228,6 +230,27 @@
                                 playbackVideo.play();
                                 state.paused = false;
                             }
+                        }
+
+                        function startTimer(duration, display) {
+                            var timer = duration, minutes, seconds;
+                            setInterval(function () {
+                                minutes = parseInt(timer / 60, 10);
+                                seconds = parseInt(timer % 60, 10);
+
+                                minutes = minutes < 10 ? "0" + minutes : minutes;
+                                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                                display.textContent = "time remaining: " + minutes + ":" + seconds;
+
+                                if (--timer < 0) {
+                                    timer = duration;
+                                }
+                            }, 1000);
+                        }
+
+                        function stopTimer() {
+
                         }
 
                         function changeTopic() {
