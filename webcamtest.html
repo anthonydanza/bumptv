@@ -148,15 +148,13 @@
                                     }
                                 }
                             }
-                            // console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-                            // console.log("with stream tracks:", mediaRecorder.stream.getTracks());
-                            // console.log("finalStream: ", finalStream);
-                            // console.log("tracks: ", finalStream.getTracks());
+
                             state.recording = true;
                             mediaRecorder.onstop = handleStop;
                             mediaRecorder.ondataavailable = handleDataAvailable;
                             mediaRecorder.start(100); // collect 100ms of data
                             recordButton.html("STOP");
+
                             setTimeout(function() {
                                  if(mediaRecorder.state != "inactive") {
                                     console.log("times up"); 
@@ -171,21 +169,19 @@
                                     setTimeout(function() {popup.style.display = "none";},2300);
                                  }
                                 }, maxRecordingLength*1000 - 10000);
-                            document.getElementById("timer").style.display = "block";
                             startTimer(maxRecordingLength, document.getElementById("timer"));
                         }
 
                         function stopRecording() {
                             mediaRecorder.stop();
+                            clearInterval(timerInterval);
                             document.getElementById("timer").style.display = "none";
-                            recordButton.html("RESET");
-                            
+                            recordButton.html("RESET");  
                         }
 
                         function resetToCamera() {
                             var canv = document.querySelector("canvas");
                             var playbackVideo = document.getElementById("playback-video");
-                            //var video = document.querySelector("video");
                             if (canv.style.display == "none") {
                                 canv.style.display = "block";
                             }
@@ -195,24 +191,18 @@
                         }
 
                         function toggleRecording() {
-
                             if (!state.recording && !state.recordingExists) {
-                                //if (typeof(video) !== 'undefined') { video.hide(); }
                                 resetToCamera();
-                                startRecording();
-                               
+                                startRecording();            
                             } else if (!state.recording && state.recordingExists){
-                                    resetToCamera();
-                                    recordButton.html("RECORD");
-                                    state.recordingExists = false;
-                                    state.recording = false;
-                                
+                                resetToCamera();
+                                recordButton.html("RECORD");
+                                state.recordingExists = false;
+                                state.recording = false;                
                             } else {
-
                                 stopRecording();
                                 recordButton.html("RESET");
                             }
-
                         }
 
                         function play() {
@@ -233,8 +223,8 @@
                         var timerInterval;
 
                         function startTimer(duration, display) {
+                            display.style.display = "none";
                             var timer = duration, minutes, seconds;
-                            clearInterval(timerInterval);
                             timerInterval = setInterval(function () {
                                 minutes = parseInt(timer / 60, 10);
                                 seconds = parseInt(timer % 60, 10);
@@ -243,11 +233,14 @@
                                 seconds = seconds < 10 ? "0" + seconds : seconds;
 
                                 display.textContent = "time remaining: " + minutes + ":" + seconds;
+                                display.style.display = "block";
 
                                 if (--timer < 0) {
                                     timer = duration;
                                 }
                             }, 1000);
+                            // console.log("displaying timer");
+
                         }
 
                         function stopTimer() {
