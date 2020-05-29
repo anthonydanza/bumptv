@@ -315,6 +315,25 @@ video::-webkit-media-controls {
     animation: spin 1s linear infinite;
 }
 
+#webcam-loader {
+    position:absolute;
+    left:0;
+    right:0;
+    top: -300;
+    bottom: 0;
+    margin: auto;
+    margin-left:auto;
+    width:30px;
+    height: 30px;
+    border: 6px solid #dddddd; 
+    border-top: 6px solid #000000; 
+    border-radius: 50%;
+    color: blue;
+    font-size: 30px;
+    font-weight: bold;
+    animation: spin 2s linear infinite;
+}
+
 #loading-message {
     position: absolute;
     margin: 0 auto;
