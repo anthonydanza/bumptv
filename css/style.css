@@ -1066,6 +1066,7 @@ button#record-button {
     color:white;
     top: 240px;
     left:240px;
+    background: red;
 }
 
 #timer {

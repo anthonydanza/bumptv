@@ -13,8 +13,6 @@ var flash = require('connect-flash');
 var session = require('express-session');
 var bodyParser = require('body-parser');
 
-
-
 // passport.use(new LocalStrategy(
 //   function(username, password, done) {
 //   	console.log("fuck");
@@ -43,10 +41,18 @@ function isLoggedIn(req, res, next) {
 }
 
 var app = express();
+
+
 app.use(express.static(path.join(__dirname, '../'), { dotfiles: 'allow' }));
 
 app.use('/uploads', serveIndex(path.join(__dirname + '/uploads'), { 'icons': true, 'view': 'details' }));
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+
+
+app.get("/you", function(req, res, next) {
+            console.log("piss");
+            return res.sendFile(path.join(__dirname, '../webcamtest.html'));
+        });
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -320,7 +326,11 @@ var http = require('http');
 //    res.end();
 // }).listen(8080);
 
+
+
 http.createServer(app).listen(8080);
+
+
 
 // var privateKey  = fs.readFileSync('/etc/letsencrypt/live/www.bumptelevision.com/privkey.pem', 'utf8');
 // var certificate = fs.readFileSync('/etc/letsencrypt/live/www.bumptelevision.com/cert.pem', 'utf8');

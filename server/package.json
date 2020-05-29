@@ -15,6 +15,7 @@
     "csvtojson": "^2.0.8",
     "express": "^4.16.3",
     "express-session": "^1.17.1",
+    "express-subdomain": "^1.0.5",
     "ffprobe": "^1.1.0",
     "ffprobe-static": "^2.0.0",
     "multer": "^1.4.2",
